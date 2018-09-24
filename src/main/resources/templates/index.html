@@ -1,0 +1,132 @@
+<!doctype HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+  <title>W-Army</title>
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="renderer" content="webkit">
+<link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/element-ui.css?v=${PROJECT_VERSION}">
+<link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/style.css?v=${PROJECT_VERSION}">
+</head>
+
+<body>
+  <div id="app" v-cloak>
+
+    <index :top-menus=topMenus inline-template ref="index">
+
+      <div class="ui-index">
+        <!-- 公共头部 -->
+        <div class="ui-header">
+          <div class="ui-header-left">
+            <a href="#" class="logo">W-Army</a>
+            <a href="javascript:;" class="toggle" @click="toggle = !toggle" title="切换菜单">
+              <i :class="{'el-icon-d-arrow-right' : toggle, 'el-icon-d-arrow-left' : !toggle}"></i>
+            </a>
+          </div>
+
+          <div class="ui-header-right">
+            <el-menu theme="dark" class="el-menu-demo" mode="horizontal" @select="onSelect">
+
+              <template v-for="(item,index) in topMenus">
+
+                <el-submenu :index="index+''" v-if="item.child && item.child.length">
+                  <template slot="title">{{item.title}}</template>
+                  <el-menu-item :index="index + '-' + n" v-for="(sub,n) in item.child" :key="n">{{sub.title}}</el-menu-item>
+                </el-submenu>
+
+                <el-menu-item :index="index+''" v-else>{{item.title}}</el-menu-item>
+
+              </template>
+
+            </el-menu>
+          </div>
+        </div>
+
+
+        <div class="ui-body" :class="{'ui-body-toggle' : toggle}">
+
+          <!-- 左侧菜单 -->
+          <div class="ui-sidebar">
+            <el-menu :default-openeds="activeIndex" theme="dark" :unique-opened="true" @select="onSelectMenu">
+              <el-submenu :index="index+''" v-for="(menu,index) in menus" :key="index">
+                <template slot="title">{{menu.title}}</template>
+                <el-menu-item :index="n+''" v-for="(item,n) in menu.child" :key="n">{{item.title}}
+                  <el-badge class="mark" :value="item.badge" /></el-menu-item>
+              </el-submenu>
+            </el-menu>
+          </div>
+
+          <!-- 中间主体 -->
+          <div class="ui-main">
+
+            <div class="ui-tab__hd">
+              <div class="ui-tab__hd-tab">
+                <el-tabs type="card" @tab-click="changeTab" @tab-remove="removeTab" v-model="activeTab">
+                  <el-tab-pane :key="item.url" v-for="(item, index) in tabs" :label="item.title" :name="item.url" :closable="tabs.length > 1">
+                  </el-tab-pane>
+                </el-tabs>
+              </div>
+            </div>
+
+            <div class="ui-tab-bd">
+              <div class="ui-tab-content" v-for="(item, index) in tabs" :key="item.url" v-show="activeTab == item.url">
+                <iframe class="ui-iframe" :src="item.inited ? item.url : ''" width="100%" scrolling="auto" frameborder="0" onload="this.height = this.contentDocument.body.offsetHeight" :name="item.url"></iframe>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </index>
+
+    <index-modal></index-modal>
+
+  </div>
+
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/vue.min.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/element-ui.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
+  <script type="text/javascript">
+    // 配置菜单
+    var topMenus = [{
+      title: 'W-army',
+      subMenus: [
+          {
+        title: '论坛',
+        child: [
+            {title: '批量评论', url: '/comment/index'},
+            {title: '批量登录', url: ''},
+            {title: '批量注册', url: ''}
+        ]
+      },
+    {
+        title: '任务管理',
+        child: [
+            {title: '管理', url: ''},
+            {title: '管理', url: ''},
+            {title: '管理', url:''}
+        ]
+      },
+    ]
+    }, {
+      title: '退出',
+      url: ''
+    }];
+
+    // 初始化
+    var app = new Vue({
+      el: '#app',
+      data: {
+        topMenus: topMenus
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>管理</title>
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="renderer" content="webkit">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/element-ui.css?v=${PROJECT_VERSION}">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/style.css?v=${PROJECT_VERSION}">
+
+    <style>
+        .el-checkbox-group .checkbox {
+            width: 160px;
+            margin: 0;
+            padding-right: 20px;
+            float: left;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app" v-cloak>
+
+    <div class="ui-form-edit">
+        <el-form :model="form" ref="form2" label-width="150px">
+            <div class="ui-block">
+                <div class="ui-form__title">
+                    评论
+                </div>
+                <div class="ui-block-bd">
+                    <el-form-item label="用户" prop="text">
+                        <el-input v-model="form.userName" placeholder="请输入"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="text">
+                        <el-input v-model="form.passWord" placeholder="请输入"></el-input>
+                    </el-form-item>
+                    <el-form-item label="评论内容" prop="textarea">
+                        <el-input v-model="form.comment" placeholder="请输入" :rows="5" type="textarea"></el-input>
+                    </el-form-item>
+                </div>
+            </div>
+            <div class="ui-form-edit__footer">
+                <div class="ui-block-bd">
+                    <el-form-item>
+                        <el-button type="primary" @click="submmit">提交</el-button>
+                    </el-form-item>
+                </div>
+            </div>
+        </el-form>
+    </div>
+
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/vue.min.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/element-ui.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
+<script type="text/javascript">
+    var urls = {
+        commentUrl:'/comment/comment',
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: function () {
+            var _this = this
+            return {
+                form: {
+                    userName: '',
+                    passWord: '',
+                    comment: '',
+                },
+            }
+        },
+        methods: {
+            submmit: function () {
+                var _this = this
+                _this.post(urls.commentUrl,_this.form, function(data) {
+                    if(data.code == 200){
+                        _this.message('评论成功 !');
+                    }else{
+                        _this.message('评论成功失败 !','error');
+                    }
+                })
+            },
+
+        },
+        mounted: function () {
+        }
+    })
+</script>
+
+</html>
