@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.RuleInfoMapper">
+
+    <select id="getRuleInfos" resultType="java.util.HashMap">
+        SELECT id, is_random_select_link AS isRandomSelectLink
+        , is_random_select_content AS isRandomSelectContent
+        , start_time_interval AS startTimeInterval
+        , end_time_interval AS endTimeInterval, pv_stay_time AS pvStayTime
+        , create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM rule_info
+    </select>
+
+</mapper>
