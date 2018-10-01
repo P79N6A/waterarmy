@@ -23,14 +23,14 @@ import java.util.List;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-//    @Autowired
-//    private AccountMapper accountMapper;
+    @Autowired
+    private AccountMapper accountMapper;
 
     @Override
     public JsonMessage getAccounts() {
         JsonMessage message = JsonMessage.init();
-//        List<Account> accounts = accountMapper.getAccounts();
-//        message.setData(accounts);
+        List<Account> accounts = accountMapper.getAccounts();
+        message.setData(accounts);
         message.success(CodeEnum.SUCCESS);
         return message;
     }
@@ -38,8 +38,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public JsonMessage getAccountByUserName(String userName) {
         JsonMessage message = JsonMessage.init();
-//        Account account = accountMapper.getAccountByUserName(userName);
-//        message.setData(account);
+        Account account = accountMapper.getAccountByUserName(userName);
+        message.setData(account);
         message.success(CodeEnum.SUCCESS);
         return message;
     }
