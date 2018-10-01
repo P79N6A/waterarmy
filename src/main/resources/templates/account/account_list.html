@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>用户管理</title>
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/element-ui.css?v=${PROJECT_VERSION}">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/style.css?v=${PROJECT_VERSION}">
+</head>
+<body>
+<div id="app" v-cloak>
+    <!-- 表单组件 -->
+    <div class="ui-form">
+        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
+            <el-form-item label="角色" prop="role">
+                <el-select v-model="form.role" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="用户名" prop="userName">
+                <el-input v-model="form.userName" placeholder="请输入"></el-input>
+            </el-form-item>
+
+            <div class="ui-form__bd">
+                <el-row>
+                    <el-col :span="24">
+                        <div class="ui-text-right">
+                            <el-button type="primary" @click="search" size="small">查询</el-button>
+                            <el-button @click="reset" size="small">重置</el-button>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+
+        </el-form>
+    </div>
+
+    <!-- 表格组件 -->
+    <div class="ui-table">
+        <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
+            <!-- 多选 -->
+            <el-table-column type="selection"></el-table-column>
+            <el-table-column prop="id" label="ID" show-overflow-tooltip sortable></el-table-column>
+            <el-table-column prop="userName" label="用户名" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="role" label="角色" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="workId" label="工作代号" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" :formatter="formatDateTime" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="status" label="状态" show-overflow-tooltip min-width="300px" sortable>
+                <template scope="item">
+                    <el-button size="mini" :type="item.row.status ? 'success' : 'danger'">{{item.row.status ? '有效' : '无效'}}</el-button>
+                </template>
+            </el-table-column>
+            <!-- 自定义模块 -->
+            <el-table-column label="操作" min-width="120" align="center" fixed="right">
+                <template scope="item">
+                    <el-button size="mini" type="primary" @click="showEdit(item)">修改</el-button>
+                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+
+    <!-- 分页组件 -->
+    <div class="ui-table__ft-fix">
+        <el-row type="flex" class="ui-table__ft">
+            <el-col :span="24">
+                <div class="ui-page">
+                    <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
+                                   @current-change="onPageChange" @size-change="onSizeChange"></el-pagination>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <el-dialog title="编辑弹窗" :visible.sync="isShowEdit" :close-on-click-modal="false" top="0%" size="small"
+               :show-close="false" :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
+        <el-form :model="formEdit" label-width="100px" :inline="false" :rules="rules" ref="formEdit">
+            <el-form-item label="用户名">
+                {{formEdit.userName}}
+            </el-form-item>
+            <el-form-item label="角色" required>
+                <el-select v-model="formEdit.role" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="工作代号" prop="workId">
+                <el-input v-model="formEdit.workId" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="状态" prop="status" required>
+                <el-radio-group v-model="formEdit.status">
+                    <el-radio :label="1">有效</el-radio>
+                    <el-radio :label="0">无效</el-radio>
+                </el-radio-group>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="isShowEdit = false">取 消</el-button>
+            <el-button type="primary" @click="submitEdit">确 定</el-button>
+        </div>
+    </el-dialog>
+    <!-- 编辑弹窗 -->
+
+</div>
+
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/vue.min.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/element-ui.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
+<script type="text/javascript">
+    var urls = {
+        getDataUrl:'/account/search/',
+        updateUrl:'/account/update',
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {
+                role: '',
+                userName: '',
+            },
+            tableData: [], // 表格数据
+            isLoading: false, // 是否加载中
+            // 是否显示编辑弹窗
+            isShowEdit: false,
+            // 编辑的内容
+            formEdit: {},
+            // 编辑的条目
+            formEditItem: {},
+            pageTotal: 0, // 总条数
+            pageNo: 1, // 当前分页
+            pageSize: 10, // 每页条数
+            tableSelect: [],// 储存表格选择的数据
+            roleSelectOptions:[],
+            // 表单验证规则
+            rules: {
+            },
+        },
+        methods: {
+
+            getData: function(params) {
+                var _this = this;
+                _this.isLoading = true;
+                var url = urls.getDataUrl + _this.pageNo;
+                params = params || {};
+                params["pageSize"] = _this.pageSize;
+                _this.post(url,params, function(data, res) {
+                    _this.tableData = data.list;
+                    _this.pageTotal = data.total;
+                    _this.isLoading = false;
+                })
+            },
+
+            /**
+             * 重置表单
+             * @return {[type]} [description]
+             */
+            reset: function() {
+                location.reload();
+            },
+
+            search: function() {
+                var _this = this;
+                _this.getData(_this.form);
+            },
+
+            onSelectRole: function() {
+                var _this = this
+                var url = urls.getRolesUrl;
+                _this.get(url, function(data) {
+                    _this.roleSelectOptions = data.data
+                })
+            },
+
+            onPageChange: function(page) {
+                this.pageNo = page;
+                this.getData(this.form);
+            },
+
+            onSizeChange: function(size) {
+                this.pageSize = size;
+                this.getData(this.form);
+            },
+
+            showEdit: function(item) {
+                var _this = this;
+                if (item.row) {
+                    var content = item.row;
+                    for (var key in content) {
+                        if (content.hasOwnProperty(key)) {
+                            _this.$set(_this.formEdit, key, content[key])
+                        }
+                    }
+                    _this.isShowEdit = true;
+                    _this.formEditItem = content;
+                }
+            },
+
+            submitEdit: function() {
+                var _this = this;
+                for (var key in _this.formEdit) {
+                    if (_this.formEdit.hasOwnProperty(key)) {
+                        _this.$set(_this.formEditItem, key, _this.formEdit[key])
+                    }
+                }
+                var url = urls.updateUrl;
+                var params = _this.formEditItem;
+                _this.post(url,params, function(data) {
+                    if(data.success){
+                        _this.isShowEdit = false;
+                        _this.message('修改成功 !');
+                    }else{
+                        _this.message('修改失败 !');
+                    }
+                })
+            },
+
+            /**
+             * 删除事件
+             * @param  {[type]} item [description]
+             * @return {[type]}       [description]
+             */
+            remove: function(item) {
+                var _this = this;
+                var index = item.$index;
+                _this.confirm('确定删除 ?', function() {
+                    var params = {
+                        id:item.row.id,
+                        userName:item.row.userName,
+                    }
+                    var url=urls.deleteUrl;
+                    _this.post(url,params, function(data) {
+                        if(data.success){
+                            _this.message('删除成功 !');
+                            _this.tableData.splice(index, 1);
+                        }else {
+                            _this.message('删除失败 !');
+                        }
+                    })
+                })
+            },
+
+            onTableSelect: function(val) {
+                this.tableSelect = val;
+            },
+        },
+        mounted: function() {
+            this.getData();
+            this.onSelectRole();
+        }
+    })
+</script>
+</body>
+</html>

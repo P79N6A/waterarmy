@@ -1,7 +1,7 @@
-package com.xiaopeng.waterarmy.controller.forum;
+package com.xiaopeng.waterarmy.controller;
 
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
-import com.xiaopeng.waterarmy.service.CommentService;
+import com.xiaopeng.waterarmy.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +18,14 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-@RequestMapping("/comment")
+@RequestMapping("/account")
 @Controller
-public class CommentController {
-    private static final String INDEX_PAGE = "/comment/comment.html";
+public class AccountController {
+
+    private static final String INDEX_PAGE = "/account/account_list.html";
 
     @Autowired
-    private CommentService commentService;
+    private AccountService accountService;
 
     @RequestMapping(value = "/index")
     public ModelAndView index() {
@@ -32,10 +33,10 @@ public class CommentController {
         return view;
     }
 
-    @RequestMapping(value = "/comment")
+    @RequestMapping(value = "/search")
     @ResponseBody
-    public JsonMessage comment(String userName, String passWord, String comment) {
-        return commentService.conmment(userName, passWord, comment);
+    public JsonMessage getAccounts() {
+        return accountService.getAccounts();
     }
 
 }

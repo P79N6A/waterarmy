@@ -12,8 +12,10 @@ import com.xiaopeng.waterarmy.common.message.JsonMessage;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-public interface CommentService {
+public interface AccountService {
 
-    JsonMessage conmment(String userName, String passWord, String comment);
+    JsonMessage getAccounts();
+
+    JsonMessage getAccountByUserName(String userName);
 
 }
