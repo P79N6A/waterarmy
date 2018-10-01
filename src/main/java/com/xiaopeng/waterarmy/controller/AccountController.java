@@ -1,12 +1,16 @@
 package com.xiaopeng.waterarmy.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.AccountService;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
 
 /**
  * * 功能描述：
@@ -33,10 +37,17 @@ public class AccountController {
         return view;
     }
 
-    @RequestMapping(value = "/search")
+    @RequestMapping(value="/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public JsonMessage getAccounts() {
-        return accountService.getAccounts();
+    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,String> params, @PathVariable("pageNo")Integer pageNo){
+        if (pageNo == null) {
+            pageNo = 1;
+        }
+        Integer pageSize=10;
+        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
+            pageSize = MapUtils.getInteger(params,"pageSize");
+        }
+        return accountService.page(pageNo, pageSize, params);
     }
 
 }

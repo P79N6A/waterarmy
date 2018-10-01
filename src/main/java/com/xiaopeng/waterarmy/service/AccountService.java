@@ -1,6 +1,9 @@
 package com.xiaopeng.waterarmy.service;
 
+import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+
+import java.util.Map;
 
 /**
  * * 功能描述：
@@ -14,7 +17,7 @@ import com.xiaopeng.waterarmy.common.message.JsonMessage;
  */
 public interface AccountService {
 
-    JsonMessage getAccounts();
+    PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params);
 
     JsonMessage getAccountByUserName(String userName);
 

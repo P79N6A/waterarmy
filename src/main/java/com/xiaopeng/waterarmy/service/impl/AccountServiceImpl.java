@@ -1,14 +1,20 @@
 package com.xiaopeng.waterarmy.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * * 功能描述：
@@ -27,12 +33,10 @@ public class AccountServiceImpl implements AccountService {
     private AccountMapper accountMapper;
 
     @Override
-    public JsonMessage getAccounts() {
-        JsonMessage message = JsonMessage.init();
-        List<Account> accounts = accountMapper.getAccounts();
-        message.setData(accounts);
-        message.success(CodeEnum.SUCCESS);
-        return message;
+    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params){
+        PageHelper.startPage(pageNo, pageSize);
+        List<Map<String,Object>> results = accountMapper.getAccounts(params);
+        return new PageInfo<>(results);
     }
 
     @Override
@@ -43,5 +47,7 @@ public class AccountServiceImpl implements AccountService {
         message.success(CodeEnum.SUCCESS);
         return message;
     }
+
+
 
 }
