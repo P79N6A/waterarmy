@@ -272,3 +272,323 @@ Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMap
 2018-10-01 11:48:59.068 [http-nio-8668-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
 2018-10-01 11:48:59.068 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
 2018-10-01 11:48:59.090 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 22 ms
+2018-10-01 11:55:08.886 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 13008 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 11:55:08.891 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 11:55:08.970 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1205bd62: startup date [Mon Oct 01 11:55:08 CST 2018]; root of context hierarchy
+2018-10-01 11:55:10.320 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 11:55:10.329 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 11:55:11.167 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 11:55:11.188 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 11:55:11.240 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 11:55:11.240 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 11:55:11.262 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 11:55:11.441 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 11:55:11.441 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2471 ms
+2018-10-01 11:55:11.536 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 11:55:11.540 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 11:55:11.541 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 11:55:11.542 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 11:55:11.542 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 11:55:11.626 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 11:55:11.634 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 11:55:11.674 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 11:55:11.922 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 12:06:03.850 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 13264 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:06:03.857 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:06:03.926 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1e4d3ce5: startup date [Mon Oct 01 12:06:03 CST 2018]; root of context hierarchy
+2018-10-01 12:06:04.916 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Failed to bind properties under 'mapper.mappers' to java.util.List<java.lang.Class<?>>:
+
+    Reason: No converter found capable of converting from type [java.lang.String] to type [java.util.List<java.lang.Class<?>>]
+
+Action:
+
+Update your application's configuration
+
+2018-10-01 12:06:04.920 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1e4d3ce5: startup date [Mon Oct 01 12:06:03 CST 2018]; root of context hierarchy
+2018-10-01 12:06:20.708 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 1044 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:06:20.715 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:06:20.790 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@6c372fe6: startup date [Mon Oct 01 12:06:20 CST 2018]; root of context hierarchy
+2018-10-01 12:06:21.812 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:06:21.823 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:06:22.652 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 12:06:22.671 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:06:22.688 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 12:06:22.688 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 12:06:22.701 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 12:06:22.808 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 12:06:22.808 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2018 ms
+2018-10-01 12:06:22.974 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 12:06:22.978 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 12:06:22.978 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 12:06:22.979 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 12:06:22.979 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 12:06:23.037 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 12:06:23.040 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 12:06:23.060 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 12:06:23.165 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 12:33:18.343 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 10452 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:33:18.349 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:33:18.444 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1e4d3ce5: startup date [Mon Oct 01 12:33:18 CST 2018]; root of context hierarchy
+2018-10-01 12:33:19.381 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:33:19.391 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:33:20.230 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 12:33:20.246 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:33:20.260 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 12:33:20.260 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 12:33:20.270 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 12:33:20.371 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 12:33:20.371 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 1927 ms
+2018-10-01 12:33:20.529 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 12:33:20.534 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 12:33:20.534 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 12:33:20.534 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 12:33:20.534 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 12:33:20.596 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 12:33:20.599 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 12:33:20.624 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 12:33:20.739 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 12:33:47.370 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 6180 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:33:47.377 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:33:47.485 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@7b7fdc8: startup date [Mon Oct 01 12:33:47 CST 2018]; root of context hierarchy
+2018-10-01 12:33:48.496 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:33:48.505 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:33:49.498 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 12:33:49.533 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:33:49.554 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 12:33:49.554 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 12:33:49.589 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 12:33:49.740 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 12:33:49.741 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2256 ms
+2018-10-01 12:33:49.854 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 12:33:49.858 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 12:33:49.859 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 12:33:49.859 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 12:33:49.859 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 12:33:49.923 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 12:33:49.926 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 12:33:49.970 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 12:33:50.105 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 12:33:58.439 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 3400 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:33:58.447 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:33:58.538 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@36a5cabc: startup date [Mon Oct 01 12:33:58 CST 2018]; root of context hierarchy
+2018-10-01 12:33:59.409 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:33:59.421 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:34:00.294 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 12:34:00.315 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:34:00.345 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 12:34:00.345 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 12:34:00.379 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 12:34:00.596 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 12:34:00.597 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2060 ms
+2018-10-01 12:34:00.827 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 12:34:00.832 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 12:34:00.832 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 12:34:00.832 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 12:34:00.832 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 12:34:01.178 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2018-10-01 12:34:01.517 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 12:34:01.719 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@36a5cabc: startup date [Mon Oct 01 12:33:58 CST 2018]; root of context hierarchy
+2018-10-01 12:34:01.809 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/account/index]}" onto public org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.AccountController.index()
+2018-10-01 12:34:01.811 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/account/search]}" onto public com.xiaopeng.waterarmy.common.message.JsonMessage com.xiaopeng.waterarmy.controller.AccountController.getAccounts()
+2018-10-01 12:34:01.811 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/comment/index]}" onto public org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.forum.CommentController.index()
+2018-10-01 12:34:01.812 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/comment/comment]}" onto public com.xiaopeng.waterarmy.common.message.JsonMessage com.xiaopeng.waterarmy.controller.forum.CommentController.comment(java.lang.String,java.lang.String,java.lang.String)
+2018-10-01 12:34:01.812 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/index]}" onto private org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.IndexController.index()
+2018-10-01 12:34:01.814 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-10-01 12:34:01.815 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-10-01 12:34:01.856 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 12:34:01.856 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 12:34:01.857 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/static/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 12:34:02.320 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Registering beans for JMX exposure on startup
+2018-10-01 12:34:02.324 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Bean with name 'dataSource' has been autodetected for JMX exposure
+2018-10-01 12:34:02.330 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Located MBean 'dataSource': registering with JMX server as MBean [com.alibaba.druid.pool:name=dataSource,type=DruidDataSource]
+2018-10-01 12:34:02.340 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:34:02.351 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool - Using a shared selector for servlet write/read
+2018-10-01 12:34:02.368 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8668 (http) with context path ''
+2018-10-01 12:34:02.373 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Started WaterarmyApplication in 4.411 seconds (JVM running for 5.015)
+2018-10-01 12:34:16.098 [http-nio-8668-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-10-01 12:34:16.098 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
+2018-10-01 12:34:16.123 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 25 ms
+2018-10-01 12:42:59.780 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 11808 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 12:42:59.785 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 12:42:59.862 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@1d483de4: startup date [Mon Oct 01 12:42:59 CST 2018]; root of context hierarchy
+2018-10-01 12:43:00.981 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:43:00.991 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 12:43:01.833 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 12:43:01.850 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 12:43:01.863 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 12:43:01.863 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 12:43:01.875 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 12:43:01.982 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 12:43:01.983 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2120 ms
+2018-10-01 12:43:02.055 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 12:43:02.060 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 12:43:02.061 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 12:43:02.061 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 12:43:02.061 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 12:43:02.254 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 12:43:02.257 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 12:43:02.286 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 12:43:02.404 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 15:17:28.546 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 11412 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 15:17:28.560 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 15:17:28.703 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@19e7a160: startup date [Mon Oct 01 15:17:28 CST 2018]; root of context hierarchy
+2018-10-01 15:17:29.764 [main] WARN  tk.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 15:17:29.776 [main] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.xiaopeng.waterarmy]' package. Please check your configuration.
+2018-10-01 15:17:30.665 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 15:17:30.682 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 15:17:30.706 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 15:17:30.707 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 15:17:30.720 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 15:17:30.953 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 15:17:30.954 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2251 ms
+2018-10-01 15:17:31.036 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 15:17:31.043 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 15:17:31.043 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 15:17:31.043 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 15:17:31.043 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 15:17:31.125 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountController': Unsatisfied dependency expressed through field 'accountService'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'accountServiceImpl': Unsatisfied dependency expressed through field 'accountMapper'; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+2018-10-01 15:17:31.128 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2018-10-01 15:17:31.151 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2018-10-01 15:17:31.401 [main] ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Field accountMapper in com.xiaopeng.waterarmy.service.impl.AccountServiceImpl required a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.xiaopeng.waterarmy.model.mapper.AccountMapper' in your configuration.
+
+2018-10-01 15:18:31.418 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Starting WaterarmyApplication on DESKTOP-5UDOHFD with PID 15660 (E:\git\waterarmy\target\classes started by iason in E:\git\waterarmy)
+2018-10-01 15:18:31.422 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - No active profile set, falling back to default profiles: default
+2018-10-01 15:18:31.516 [main] INFO  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@62833051: startup date [Mon Oct 01 15:18:31 CST 2018]; root of context hierarchy
+2018-10-01 15:18:33.378 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8668 (http)
+2018-10-01 15:18:33.393 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8668"]
+2018-10-01 15:18:33.406 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2018-10-01 15:18:33.407 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet Engine: Apache Tomcat/8.5.34
+2018-10-01 15:18:33.418 [localhost-startStop-1] INFO  org.apache.catalina.core.AprLifecycleListener - The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [D:\Program Files\Java\jdk1.8.0\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\MySQL\MySQL Utilities 1.6\;D:\Program Files (x86)\Git\cmd;D:\Program Files (x86)\apache-tomcat-8.5.13\bin;D:\Program Files (x86)\apache-maven-3.3.3\bin;D:\Program Files\Java\jdk1.8.0\bin;D:\Program Files\Redis\;D:\Program Files (x86)\Fiddler;C:\Users\iason\AppData\Local\GitHubDesktop\bin;.]
+2018-10-01 15:18:33.522 [localhost-startStop-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2018-10-01 15:18:33.523 [localhost-startStop-1] INFO  org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2007 ms
+2018-10-01 15:18:33.597 [localhost-startStop-1] INFO  o.s.boot.web.servlet.ServletRegistrationBean - Servlet dispatcherServlet mapped to [/]
+2018-10-01 15:18:33.698 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-10-01 15:18:33.698 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-10-01 15:18:33.698 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-10-01 15:18:33.698 [localhost-startStop-1] INFO  o.s.boot.web.servlet.FilterRegistrationBean - Mapping filter: 'requestContextFilter' to: [/*]
+2018-10-01 15:18:34.066 [main] INFO  com.alibaba.druid.pool.DruidDataSource - {dataSource-1} inited
+2018-10-01 15:18:34.465 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 15:18:34.694 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerAdapter - Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@62833051: startup date [Mon Oct 01 15:18:31 CST 2018]; root of context hierarchy
+2018-10-01 15:18:34.775 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/account/index]}" onto public org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.AccountController.index()
+2018-10-01 15:18:34.776 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/account/search]}" onto public com.xiaopeng.waterarmy.common.message.JsonMessage com.xiaopeng.waterarmy.controller.AccountController.getAccounts()
+2018-10-01 15:18:34.777 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/comment/index]}" onto public org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.forum.CommentController.index()
+2018-10-01 15:18:34.778 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/comment/comment]}" onto public com.xiaopeng.waterarmy.common.message.JsonMessage com.xiaopeng.waterarmy.controller.forum.CommentController.comment(java.lang.String,java.lang.String,java.lang.String)
+2018-10-01 15:18:34.778 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/index]}" onto private org.springframework.web.servlet.ModelAndView com.xiaopeng.waterarmy.controller.IndexController.index()
+2018-10-01 15:18:34.780 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-10-01 15:18:34.781 [main] INFO  o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-10-01 15:18:34.812 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 15:18:34.813 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 15:18:34.813 [main] INFO  o.s.web.servlet.handler.SimpleUrlHandlerMapping - Mapped URL path [/static/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-10-01 15:18:35.179 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Registering beans for JMX exposure on startup
+2018-10-01 15:18:35.180 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Bean with name 'dataSource' has been autodetected for JMX exposure
+2018-10-01 15:18:35.186 [main] INFO  o.s.jmx.export.annotation.AnnotationMBeanExporter - Located MBean 'dataSource': registering with JMX server as MBean [com.alibaba.druid.pool:name=dataSource,type=DruidDataSource]
+2018-10-01 15:18:35.194 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8668"]
+2018-10-01 15:18:35.205 [main] INFO  org.apache.tomcat.util.net.NioSelectorPool - Using a shared selector for servlet write/read
+2018-10-01 15:18:35.224 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8668 (http) with context path ''
+2018-10-01 15:18:35.228 [main] INFO  com.xiaopeng.waterarmy.WaterarmyApplication - Started WaterarmyApplication in 4.249 seconds (JVM running for 4.84)
+2018-10-01 15:18:47.214 [http-nio-8668-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-10-01 15:18:47.214 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization started
+2018-10-01 15:18:47.241 [http-nio-8668-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'dispatcherServlet': initialization completed in 27 ms
