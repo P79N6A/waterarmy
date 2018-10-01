@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.PlatFormMapper">
+
+    <select id="getPlatForms" resultType="java.util.HashMap">
+        SELECT id, module, task_type AS taskType, status
+        , remark, create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM platform_config
+    </select>
+
+</mapper>
