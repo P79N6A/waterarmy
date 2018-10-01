@@ -46,16 +46,18 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
-            <el-table-column prop="id" label="ID" show-overflow-tooltip sortable></el-table-column>
-            <el-table-column prop="userName" label="用户名" show-overflow-tooltip min-width="150px" sortable></el-table-column>
-            <el-table-column prop="role" label="角色" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="workId" label="工作代号" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="创建时间" :formatter="formatDateTime" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="status" label="状态" show-overflow-tooltip min-width="300px" sortable>
+            <el-table-column prop="id" label="账号ID" show-overflow-tooltip sortable></el-table-column>
+            <el-table-column prop="userName" label="账号名" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="password" label="密码" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="platform" label="平台" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="platform" label="账号等级" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="status" label="账号状态" show-overflow-tooltip min-width="300px" sortable>
                 <template scope="item">
-                    <el-button size="mini" :type="item.row.status ? 'success' : 'danger'">{{item.row.status ? '有效' : '无效'}}</el-button>
+                    <el-button size="mini" :type="item.row.status ? '1' : '0'">{{item.row.status ? '有效' : '无效'}}</el-button>
                 </template>
             </el-table-column>
+            <el-table-column prop="platform" label="累计有效任务次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="platform" label="入库时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="120" align="center" fixed="right">
                 <template scope="item">
@@ -123,7 +125,8 @@
         el: '#app',
         data: {
             form: {
-                role: '',
+                platform: '',
+                userName: '',
                 userName: '',
             },
             tableData: [], // 表格数据
@@ -169,14 +172,6 @@
             search: function() {
                 var _this = this;
                 _this.getData(_this.form);
-            },
-
-            onSelectRole: function() {
-                var _this = this
-                var url = urls.getRolesUrl;
-                _this.get(url, function(data) {
-                    _this.roleSelectOptions = data.data
-                })
             },
 
             onPageChange: function(page) {
@@ -253,7 +248,6 @@
         },
         mounted: function() {
             this.getData();
-            //this.onSelectRole();
         }
     })
 </script>
