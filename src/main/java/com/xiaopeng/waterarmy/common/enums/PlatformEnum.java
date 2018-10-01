@@ -12,10 +12,10 @@ package com.xiaopeng.waterarmy.common.enums;
  */
 public enum PlatformEnum {
 
-    /**
-     * 汽车之家
-     */
-    AUTOHOME ("AUTOHOME", "汽车之家"),
+//    /**
+//     * 汽车之家
+//     */
+//    AUTOHOME ("AUTOHOME", "汽车之家"),
 
     /**
      * 太平洋汽车

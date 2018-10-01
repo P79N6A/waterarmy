@@ -3,7 +3,10 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountMapper">
 
     <select id="getAccounts" resultType="java.util.HashMap">
-        SELECT * FROM account
+        SELECT id, user_name AS userName, full_name AS fullName, password
+        , mobile, email, level, platform, task_count as taskCount
+        , create_time AS createTime, update_time AS updateTime
+        , status, creator, updater FROM account
     </select>
 
     <select id="getAccountByUserName" resultType="com.xiaopeng.waterarmy.model.dao.Account">

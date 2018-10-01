@@ -46,18 +46,18 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
-            <el-table-column prop="id" label="账号ID" show-overflow-tooltip sortable></el-table-column>
+            <el-table-column prop="id" label="账号ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="userName" label="账号名" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="password" label="密码" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="platform" label="平台" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="platform" label="账号等级" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="levelDesc" label="账号等级" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="status" label="账号状态" show-overflow-tooltip min-width="300px" sortable>
                 <template scope="item">
                     <el-button size="mini" :type="item.row.status ? '1' : '0'">{{item.row.status ? '有效' : '无效'}}</el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="platform" label="累计有效任务次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="platform" label="入库时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="taskCount" label="累计有效任务次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="入库时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="120" align="center" fixed="right">
                 <template scope="item">

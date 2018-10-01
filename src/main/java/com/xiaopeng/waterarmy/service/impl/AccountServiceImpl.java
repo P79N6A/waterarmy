@@ -2,6 +2,8 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.AccountLevelEnum;
+import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.model.dao.Account;
@@ -36,6 +38,16 @@ public class AccountServiceImpl implements AccountService {
     public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params){
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = accountMapper.getAccounts(params);
+        for (Map<String,Object> result: results) {
+            Integer level = MapUtils.getInteger(result,"level");
+            if (!ObjectUtils.isEmpty(level)) {
+                result.put("levelDesc", AccountLevelEnum.getDesc(level));
+            }
+            String platform = MapUtils.getString(result,"platform");
+            if (!ObjectUtils.isEmpty(platform)) {
+                result.put("platformDesc", PlatformEnum.getDesc(platform));
+            }
+        }
         return new PageInfo<>(results);
     }
 
