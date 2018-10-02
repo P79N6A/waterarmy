@@ -1,7 +1,6 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.xiaopeng.waterarmy.service.PlatFormService;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,20 @@ public class TaskController {
 
     private static final String TASK_INFO_INDEX_PAGE = "/task/task_info_list.html";
 
+    private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
+
     @Autowired
     private TaskService taskService;
 
-    @RequestMapping(value = "/taskinfo/index")
+    @RequestMapping(value = "/index")
     public ModelAndView taskInfoIndex() {
         ModelAndView view = new ModelAndView(TASK_INFO_INDEX_PAGE);
+        return view;
+    }
+
+    @RequestMapping(value = "/detail")
+    public ModelAndView taskInfoDetail(Integer id) {
+        ModelAndView view = new ModelAndView(TASK_INFO_DETAIL_PAGE);
         return view;
     }
 
