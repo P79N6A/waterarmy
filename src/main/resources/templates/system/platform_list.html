@@ -42,7 +42,8 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
-            <el-table-column prop="id" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="id" label="序号" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>平台管理</title>
+    <title>发帖管理</title>
     <meta name="keywords" content=""/>
     <meta name="description" content=""/>
     <meta name="renderer" content="webkit">
@@ -17,6 +17,24 @@
     <div class="ui-form">
         <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
             <el-form-item label="平台" prop="role">
+                <el-select v-model="form.role" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="板块" prop="role">
+                <el-select v-model="form.role" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="任务类型" prop="role">
+                <el-select v-model="form.role" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="业务状态" prop="role">
                 <el-select v-model="form.role" placeholder="请选择">
                     <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
                                :key="item.name"></el-option>
@@ -42,18 +60,18 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
-            <el-table-column prop="id" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="id" label="序号" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="executableCount" label="可执行次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="remark" label="备注" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="120" align="center" fixed="right">
                 <template scope="item">
-                    <el-button size="mini" type="primary" @click="showEdit(item)">修改</el-button>
-                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                    <el-button size="mini" type="primary" @click="showEdit(item)">发布任务</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -62,10 +80,10 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
-            <el-col :span="10">
-                <el-button size="small" type="primary" @click="inputData">导入</el-button>
-                <el-button size="small" @click="exportData">导出</el-button>
-            </el-col>
+            <!--<el-col :span="10">-->
+                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--</el-col>-->
             <el-col :span="24">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
@@ -112,8 +130,8 @@
 <script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
 <script type="text/javascript">
     var urls = {
-        getDataUrl:'/platform/search/',
-        updateUrl:'/platform/update',
+        getDataUrl:'/task/search/',
+        updateUrl:'/task/update',
     }
 
     var app = new Vue({

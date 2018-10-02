@@ -3,7 +3,7 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskInfoMapper">
 
     <select id="getTaskInfos" resultType="java.util.HashMap">
-        SELECT id, module, task_type AS taskType
+        SELECT id, platform, module, task_type AS taskType
         , executable_count AS executableCount, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info

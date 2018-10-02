@@ -45,7 +45,7 @@ public class PlatFormServiceImpl implements PlatFormService {
                 result.put("taskTypeDesc", TaskTypeEnum.getDesc(taskType));
             }
             Integer status = MapUtils.getInteger(result,"status");
-            if (!ObjectUtils.isEmpty(taskType)) {
+            if (!ObjectUtils.isEmpty(status)) {
                 result.put("statusDesc", PlatformStatus.getDesc(status));
             }
         }

@@ -2,13 +2,19 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.PlantFormModuleEnum;
+import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
+import com.xiaopeng.waterarmy.common.enums.PlatformStatus;
+import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper;
 import com.xiaopeng.waterarmy.model.mapper.LinkInfoMapper;
 import com.xiaopeng.waterarmy.model.mapper.RuleInfoMapper;
 import com.xiaopeng.waterarmy.model.mapper.TaskInfoMapper;
 import com.xiaopeng.waterarmy.service.TaskService;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -39,37 +45,26 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Override
-    public PageInfo<Map<String,Object>> contentInfoPage(Integer pageNo, Integer pageSize, Map<String,String> params){
-        PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = contentInfoMapper.getContentInfos(params);
-        for (Map<String,Object> result: results) {
-        }
-        return new PageInfo<>(results);
-    }
-
-    @Override
-    public PageInfo<Map<String, Object>> linkInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params) {
-        PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = linkInfoMapper.getLinkInfos(params);
-        for (Map<String,Object> result: results) {
-        }
-        return new PageInfo<>(results);
-    }
-
-    @Override
-    public PageInfo<Map<String, Object>> ruleInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params) {
-        PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = ruleInfoMapper.getRuleInfos(params);
-        for (Map<String,Object> result: results) {
-        }
-        return new PageInfo<>(results);
-    }
-
-    @Override
-    public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params) {
+    public PageInfo<Map<String, Object>> page(Integer pageNo, Integer pageSize, Map<String, String> params) {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         for (Map<String,Object> result: results) {
+            String platform = MapUtils.getString(result,"platform");
+            if (!ObjectUtils.isEmpty(platform)) {
+                result.put("platformDesc", PlatformEnum.getDesc(platform));
+            }
+            String module = MapUtils.getString(result,"module");
+            if (!ObjectUtils.isEmpty(module)) {
+                result.put("moduleDesc", PlantFormModuleEnum.getDesc(module));
+            }
+            String taskType = MapUtils.getString(result,"taskType");
+            if (!ObjectUtils.isEmpty(taskType)) {
+                result.put("taskTypeDesc", TaskTypeEnum.getDesc(taskType));
+            }
+            Integer status = MapUtils.getInteger(result,"status");
+            if (!ObjectUtils.isEmpty(status)) {
+                result.put("statusDesc", PlatformStatus.getDesc(status));
+            }
         }
         return new PageInfo<>(results);
     }

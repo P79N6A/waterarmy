@@ -17,6 +17,12 @@ public class TaskInfo implements Serializable {
     private Integer id;
 
     /**
+     * 平台，详见PlatformEnum
+     */
+    @Column(name = "platform")
+    private String platform;
+
+    /**
      * 模板，详见PlantFormModuleEnum
      */
     @Column(name = "module")
@@ -73,6 +79,14 @@ public class TaskInfo implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 
     public String getModule() {

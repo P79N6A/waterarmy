@@ -26,25 +26,10 @@ import java.util.Map;
 @Controller
 public class TaskController {
 
-    private static final String CONTENT_INFO_INDEX_PAGE = "/task/content_info_list.html";
-    private static final String LINK_INFO_INDEX_PAGE = "/task/link_info_list.html";
     private static final String TASK_INFO_INDEX_PAGE = "/task/task_info_list.html";
-    private static final String RULE_INFO_INDEX_PAGE = "/task/rule_info_list.html";
 
     @Autowired
     private TaskService taskService;
-
-    @RequestMapping(value = "/contentinfo/index")
-    public ModelAndView contentInfoIndex() {
-        ModelAndView view = new ModelAndView(CONTENT_INFO_INDEX_PAGE);
-        return view;
-    }
-
-    @RequestMapping(value = "/linkinfo/index")
-    public ModelAndView linkInfoIndex() {
-        ModelAndView view = new ModelAndView(LINK_INFO_INDEX_PAGE);
-        return view;
-    }
 
     @RequestMapping(value = "/taskinfo/index")
     public ModelAndView taskInfoIndex() {
@@ -52,15 +37,9 @@ public class TaskController {
         return view;
     }
 
-    @RequestMapping(value = "/ruleinfo/index")
-    public ModelAndView ruleInfoIndex() {
-        ModelAndView view = new ModelAndView(RULE_INFO_INDEX_PAGE);
-        return view;
-    }
-
-    @RequestMapping(value="/contentinfo/search/{pageNo}",method = RequestMethod.POST)
+    @RequestMapping(value="/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> contentInfoSearch(@RequestParam Map<String,String> params
+    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,String> params
             , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
@@ -69,49 +48,7 @@ public class TaskController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return taskService.contentInfoPage(pageNo, pageSize, params);
-    }
-
-    @RequestMapping(value="/linkInfo/search/{pageNo}",method = RequestMethod.POST)
-    @ResponseBody
-    public PageInfo<Map<String,Object>> linkInfoSearch(@RequestParam Map<String,String> params
-            , @PathVariable("pageNo")Integer pageNo){
-        if (pageNo == null) {
-            pageNo = 1;
-        }
-        Integer pageSize=10;
-        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
-            pageSize = MapUtils.getInteger(params,"pageSize");
-        }
-        return taskService.linkInfoPage(pageNo, pageSize, params);
-    }
-
-    @RequestMapping(value="/ruleinfo/search/{pageNo}",method = RequestMethod.POST)
-    @ResponseBody
-    public PageInfo<Map<String,Object>> ruleInfoSearch(@RequestParam Map<String,String> params
-            , @PathVariable("pageNo")Integer pageNo){
-        if (pageNo == null) {
-            pageNo = 1;
-        }
-        Integer pageSize=10;
-        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
-            pageSize = MapUtils.getInteger(params,"pageSize");
-        }
-        return taskService.ruleInfoPage(pageNo, pageSize, params);
-    }
-
-    @RequestMapping(value="/taskinfo/search/{pageNo}",method = RequestMethod.POST)
-    @ResponseBody
-    public PageInfo<Map<String,Object>> taskInfoSearch(@RequestParam Map<String,String> params
-            , @PathVariable("pageNo")Integer pageNo){
-        if (pageNo == null) {
-            pageNo = 1;
-        }
-        Integer pageSize=10;
-        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
-            pageSize = MapUtils.getInteger(params,"pageSize");
-        }
-        return taskService.taskInfoPage(pageNo, pageSize, params);
+        return taskService.page(pageNo, pageSize, params);
     }
 
 }
