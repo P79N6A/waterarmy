@@ -17,7 +17,7 @@ public class PlatformConfig implements Serializable {
     private Integer id;
 
     /**
-     * 模板，详见PlantFormModuleEnum
+     * 模板，详见PlatFormModuleEnum
      */
     @Column(name = "module")
     private String module;

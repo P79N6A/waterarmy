@@ -23,7 +23,7 @@ public class TaskInfo implements Serializable {
     private String platform;
 
     /**
-     * 模板，详见PlantFormModuleEnum
+     * 模板，详见PlatFormModuleEnum
      */
     @Column(name = "module")
     private String module;

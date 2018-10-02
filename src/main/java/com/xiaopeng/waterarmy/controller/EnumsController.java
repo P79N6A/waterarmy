@@ -46,10 +46,10 @@ public class EnumsController {
      * @author <a href="1206401391@qq.com">iason</a>
      * @date 2018年8月21日
      */
-    @RequestMapping(value = "/getPlantFormModules", method = RequestMethod.GET)
+    @RequestMapping(value = "/getPlatFormModules", method = RequestMethod.GET)
     @ResponseBody
-    public JsonMessage getPlantFormModules() {
-        List<Map<String, Object>> lists = PlantFormModuleEnum.parseMap();
+    public JsonMessage getPlatFormModules() {
+        List<Map<String, Object>> lists = PlatFormModuleEnum.parseMap();
         JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
         message.setMsg("获取板块枚举列表成功!");
         message.data(lists);

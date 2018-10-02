@@ -15,7 +15,7 @@ import java.util.Map;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-public enum PlantFormModuleEnum {
+public enum PlatFormModuleEnum {
 
     /**
      * 论坛
@@ -30,24 +30,24 @@ public enum PlantFormModuleEnum {
     private String name;
     private String desc;
 
-    private PlantFormModuleEnum(String name, String desc) {
+    private PlatFormModuleEnum(String name, String desc) {
         this.name = name;
         this.desc = desc;
     }
 
     public static List<Map<String, Object>> parseMap() {
         List<Map<String, Object>> lists = new ArrayList<>();
-        for (PlantFormModuleEnum plantFormModuleEnum : PlantFormModuleEnum.values()) {
-            Map<String, Object> plantFormModule = new HashMap<>();
-            plantFormModule.put("name", plantFormModuleEnum.getName());
-            plantFormModule.put("desc", plantFormModuleEnum.getDesc());
-            lists.add(plantFormModule);
+        for (PlatFormModuleEnum platFormModuleEnum : PlatFormModuleEnum.values()) {
+            Map<String, Object> platFormModule = new HashMap<>();
+            platFormModule.put("name", platFormModuleEnum.getName());
+            platFormModule.put("desc", platFormModuleEnum.getDesc());
+            lists.add(platFormModule);
         }
         return lists;
     }
 
     public static String getDesc(String name) {
-        for (PlantFormModuleEnum r : PlantFormModuleEnum.values()) {
+        for (PlatFormModuleEnum r : PlatFormModuleEnum.values()) {
             if (r.getName().equals(name)) {
                 return r.desc;
             }
@@ -55,8 +55,8 @@ public enum PlantFormModuleEnum {
         return null;
     }
 
-    public static PlantFormModuleEnum getEnum(String name) {
-        for (PlantFormModuleEnum r : PlantFormModuleEnum.values()) {
+    public static PlatFormModuleEnum getEnum(String name) {
+        for (PlatFormModuleEnum r : PlatFormModuleEnum.values()) {
             if (r.getName().equals(name)) {
                 return r;
             }

@@ -2,7 +2,7 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xiaopeng.waterarmy.common.enums.PlantFormModuleEnum;
+import com.xiaopeng.waterarmy.common.enums.PlatFormModuleEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
@@ -55,7 +55,7 @@ public class TaskServiceImpl implements TaskService {
             }
             String module = MapUtils.getString(result,"module");
             if (!ObjectUtils.isEmpty(module)) {
-                result.put("moduleDesc", PlantFormModuleEnum.getDesc(module));
+                result.put("moduleDesc", PlatFormModuleEnum.getDesc(module));
             }
             String taskType = MapUtils.getString(result,"taskType");
             if (!ObjectUtils.isEmpty(taskType)) {

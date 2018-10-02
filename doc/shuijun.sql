@@ -85,7 +85,7 @@ DROP TABLE IF EXISTS `platform_config`;
 
 CREATE TABLE `platform_config` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模块，详见PlantFormModuleEnum',
+  `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模块，详见PlatFormModuleEnum',
   `task_type` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务类型，详见TaskTypeEnum',
   `status` tinyint(6) NOT NULL COMMENT '状态，详见PlatformStatus',
   `remark` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
@@ -125,7 +125,7 @@ DROP TABLE IF EXISTS `task_info`;
 CREATE TABLE `task_info` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `platform` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '平台，详见PlatformEnum',
-  `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '板块，详见PlantFormModuleEnum',
+  `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '板块，详见PlatFormModuleEnum',
   `task_type` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务类型，详见TaskTypeEnum',
   `executable_count` int(10) NOT NULL COMMENT '可执行次数',
   `status` tinyint(6) NOT NULL COMMENT '状态，详见PlatformStatus',

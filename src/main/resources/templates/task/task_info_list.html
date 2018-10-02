@@ -17,27 +17,27 @@
     <div class="ui-form">
         <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
             <el-form-item label="平台" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                <el-select v-model="form.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="板块" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                <el-select v-model="form.module" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platFormModules"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="任务类型" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                <el-select v-model="form.taskType" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="业务状态" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
-                               :key="item.name"></el-option>
+                <el-select v-model="form.status" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.index" v-for="item in platformStatus"
+                               :key="item.index"></el-option>
                 </el-select>
             </el-form-item>
 
@@ -132,6 +132,10 @@
     var urls = {
         getDataUrl:'/task/search/',
         updateUrl:'/task/update',
+        getPlatformsUrl:'/enums/getPlatforms',
+        getPlatFormModulesUrl:'/enums/getPlatFormModules',
+        getTaskTypesUrl:'/enums/getTaskTypes',
+        getPlatformStatusUrl:'/enums/getPlatformStatus',
     }
 
     var app = new Vue({
@@ -139,8 +143,10 @@
         data: {
             form: {
                 platform: '',
-                userName: '',
-                userName: '',
+                module: '',
+                taskType: '',
+                executableCount: '',
+                status: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -158,14 +164,12 @@
             // 表单验证规则
             rules: {
             },
+            platforms: [], // 平台枚举列表
+            platFormModules: [], // 板块枚举列表
+            taskTypes: [], // 任务类型枚举列表
+            platformStatus: [], // 业务状态枚举列表
         },
         methods: {
-
-            inputData: function() {
-            },
-
-            exportData: function() {
-            },
 
             getData: function(params) {
                 var _this = this;
@@ -264,9 +268,56 @@
             onTableSelect: function(val) {
                 this.tableSelect = val;
             },
+
+            inputData: function() {
+            },
+
+            exportData: function() {
+            },
+
+            getPlatforms: function() {
+                var _this = this;
+                this.get(urls.getPlatformsUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platforms = data["data"];
+                    }
+                });
+            },
+
+            getPlatFormModules: function() {
+                var _this = this;
+                this.get(urls.getPlatFormModulesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platFormModules = data["data"];
+                    }
+                });
+            },
+
+            getPlatformStatus: function() {
+                var _this = this;
+                this.get(urls.getPlatformStatusUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platformStatus = data["data"];
+                    }
+                });
+            },
+
+            getTaskTypes: function() {
+                var _this = this;
+                this.get(urls.getTaskTypesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.taskTypes = data["data"];
+                    }
+                });
+            },
+
         },
         mounted: function() {
             this.getData();
+            this.getPlatforms();
+            this.getPlatFormModules();
+            this.getTaskTypes();
+            this.getPlatformStatus();
         }
     })
 </script>
