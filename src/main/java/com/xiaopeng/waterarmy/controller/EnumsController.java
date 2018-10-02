@@ -104,4 +104,22 @@ public class EnumsController {
         return message;
     }
 
+
+    /**
+     * 功能描述: 获取PV停留时间枚举列表
+     *
+     * @author <a href="1206401391@qq.com">iason</a>
+     * @date 2018年8月21日
+     */
+    @RequestMapping(value = "/getPVStayTimes", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonMessage getPVStayTimes() {
+        List<Map<String, Object>> lists = PVStayTimeEnum.parseMap();
+        JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
+        message.setMsg("获取PV停留时间枚举列表成功!");
+        message.data(lists);
+        return message;
+    }
+
+
 }

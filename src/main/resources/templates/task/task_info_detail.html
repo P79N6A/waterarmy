@@ -13,64 +13,153 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <div class="ui-form-edit">
-        <el-form :model="form" :rules="rules" ref="forms" label-width="150px">
-            <div class="ui-block">
-                <div class="ui-title">链接管理</div>
-                <!--<div class="ui-block-bd">-->
-                    <!--<el-form-item label="所属部门" prop="selectDept" required>-->
-                        <!--<multiselect :data="deptSelectOptions" :select-ids.sync="form.selectDept"-->
-                                     <!--:checked-list="checkedDepeList" label="deptName" value="id"-->
-                                     <!--:on-click="onSelectDept"></multiselect>-->
-                    <!--</el-form-item>-->
-                    <!--<el-form-item label="客服等级身份" prop="kfIdentity" required>-->
-                        <!--<el-select v-model="form.kfIdentity" @change="changeKfIdentity" placeholder="请选择">-->
-                            <!--<el-option v-for="item in kfIdentities" :value="item.index" :key="item.index" :label="item.desc"></el-option>-->
-                        <!--</el-select>-->
-                    <!--</el-form-item>-->
-                    <!--<el-form-item label="技能组" prop="selectSkillGroup" required>-->
-                        <!--<multiselect :data="skillGroupSelectOptions" :select-ids.sync="form.selectSkillGroup"-->
-                                     <!--:checked-list="checkedSkillGroupList"-->
-                                     <!--label="skillGroup" value="id" :on-click="onSelectSkillGroup"></multiselect>-->
-                    <!--</el-form-item>-->
-                    <!--<el-form-item label="角色" prop="selectRole" required>-->
-                        <!--<multiselect :data="roleSelectOptions" :select-ids.sync="form.selectRole"-->
-                                     <!--:checked-list="checkedRoleList"-->
-                                     <!--label="roleName" value="id" :on-click="onSelectRole"></multiselect>-->
-                    <!--</el-form-item>-->
-                    <!--<el-form-item label="客服类型" prop="kfType" required>-->
-                        <!--<el-select v-model="form.kfType" placeholder="请选择">-->
-                            <!--<el-option v-for="item in kfTypeSelectOptions" :label="item.kfTypeName"-->
-                                       <!--:value="item.kfType" :key="item.kfType"></el-option>-->
-                        <!--</el-select>-->
-                    <!--</el-form-item>-->
-                    <!--<el-form-item label="邮箱地址" >-->
-                        <!--<el-input v-model="form.email" placeholder="注：多个邮箱以 ; 间隔"></el-input>-->
-                    <!--</el-form-item>-->
-                <!--</div>-->
-            </div>
-            <div class="ui-block">
-                <div class="ui-title">内容管理</div>
-                <!--<div class="ui-block-bd">-->
-                    <!--<el-form-item label="最大处理能力" >-->
-                        <!--<el-input v-model="form.handleLimit" placeholder="请输入"></el-input>-->
-                    <!--</el-form-item>-->
+    <!-- 表单组件 -->
+    <div class="ui-form">
+        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
 
-                    <!--<el-form-item label="工单处理量" >-->
-                        <!--<el-input v-model="form.exceptCount" placeholder="请输入"></el-input>-->
-                    <!--</el-form-item>-->
+            <el-form-item label="任务名称" >
+                <el-input v-model="form.name" placeholder="请输入"></el-input>
+            </el-form-item>
+
+            <div class="ui-form__bd">
+
+                <el-form-item label="平台" prop="role">
+                    <el-select v-model="form.platform" placeholder="请选择">
+                        <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
+                                   :key="item.name"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="板块" prop="role">
+                    <el-select v-model="form.module" placeholder="请选择">
+                        <el-option :label="item.desc" :value="item.name" v-for="item in platFormModules"
+                                   :key="item.name"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="任务类型" prop="role">
+                    <el-select v-model="form.taskType" placeholder="请选择">
+                        <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
+                                   :key="item.name"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="业务状态" prop="role">
+                    <el-select v-model="form.status" placeholder="请选择">
+                        <el-option :label="item.desc" :value="item.index" v-for="item in platformStatus"
+                                   :key="item.index"></el-option>
+                    </el-select>
+                </el-form-item>
+
+                <!--<div class="ui-form__bd">-->
+                <!--<el-row>-->
+                <!--<el-col :span="24">-->
+                <!--<div class="ui-text-right">-->
+                <!--<el-button type="primary" @click="search" size="small">查询</el-button>-->
+                <!--<el-button @click="reset" size="small">重置</el-button>-->
+                <!--</div>-->
+                <!--</el-col>-->
+                <!--</el-row>-->
                 <!--</div>-->
             </div>
-            <div class="ui-block">
+        </el-form>
+    </div>
+
+    <div class="ui-form-edit">
+        <el-form :model="form" :rules="rules" ref="forms">
+
+                <div class="ui-title">
+                    链接管理
+                    <span class="ui-right">
+                        <el-button size="mini" type="primary" @click="showEdit(item)">添加</el-button>
+                        <el-button size="mini" type="primary" @click="showEdit(item)">批量导入</el-button>
+                        <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                    </span>
+                </div>
+                <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
+                    <!-- 单选 -->
+                    <el-table-column label="选中">
+                        <template scope="scope">
+                            <el-radio class="radio" v-model="form.id"></el-radio>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="id" label="ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+                    <el-table-column prop="platformDesc" label="名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+                    <el-table-column prop="moduleDesc" label="链接" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+                    <el-table-column prop="taskTypeDesc" label="数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+                </el-table>
+
+                <div class="ui-title">
+                    内容管理
+                    <span class="ui-right">
+                        <el-button size="mini" type="primary" @click="showEdit(item)">添加</el-button>
+                        <el-button size="mini" type="primary" @click="showEdit(item)">批量导入</el-button>
+                        <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                    </span>
+                </div>
+                <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
+                    <!-- 单选 -->
+                    <el-table-column label="选中">
+                        <template scope="scope">
+                            <el-radio class="radio" v-model="form.id"></el-radio>
+                        </template>
+                    </el-table-column>
+                    <!--<el-table-column type="selection"></el-table-column>-->
+
+                    <el-table-column prop="id" label="ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+                    <el-table-column prop="platformDesc" label="标题" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+                    <el-table-column prop="moduleDesc" label="内容" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+                    <el-table-column prop="taskTypeDesc" label="数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+                </el-table>
+
                 <div class="ui-title">规则管理</div>
+                <div id="app" v-cloak>
+                <div class="ui-form-edit">
+                    <el-form :model="form" :rules="rules" ref="forms" label-width="150px">
+                        <div class="ui-block">
+                            <div class="ui-block-bd">
+                                <el-form-item prop="isRandomSelectLink" label="随机选择链接">
+                                    <el-radio-group v-model="form.isRandomSelectLink">
+                                        <el-radio label="1">是</el-radio>
+                                        <el-radio label="0">否</el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                                <el-form-item prop="isRandomSelectContent" label="随机选择内容">
+                                    <el-radio-group v-model="form.isRandomSelectContent">
+                                        <el-radio label="1">是</el-radio>
+                                        <el-radio label="0">否</el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                                <el-form-item label="时间间隔(随机)" prop="role">
+                                    <el-row :gutter="40">
+                                        <el-col :span="8">
+                                            <div class="grid-content bg-purple">
+                                                <el-input v-model="form.startTimeInterval"></el-input>
+                                            </div>
+                                        </el-col>
+                                        <el-col :span="8">
+                                            <div class="grid-content bg-purple">
+                                                <el-input v-model="form.endTimeInterval"></el-input>
+                                            </div>
+                                        </el-col>
+                                    </el-row>
+                                </el-form-item>
+                                <el-form-item label="PV停留时间" prop="role">
+                                    <el-select v-model="form.pvStayTime" placeholder="请选择">
+                                        <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
+                                                   :key="item.index"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                </div>
             </div>
-            <!--<div class="ui-form-edit__footer">-->
-                <!--<div class="ui-block-bd">-->
-                    <!--<el-form-item>-->
-                        <!--<el-button type="primary" @click="submit">提交</el-button>-->
-                    <!--</el-form-item>-->
-                <!--</div>-->
-            <!--</div>-->
+
+            <div class="ui-form-edit__footer">
+                <div class="ui-block-bd">
+                    <el-form-item>
+                        <el-button type="primary" @click="publishTask">发布</el-button>
+                    </el-form-item>
+                </div>
+            </div>
         </el-form>
     </div>
 </div>
@@ -87,6 +176,7 @@
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getPlatformStatusUrl:'/enums/getPlatformStatus',
+        getPVStayTimesUrl:'/enums/getPVStayTimes',
     }
 
     var app = new Vue({
@@ -98,6 +188,11 @@
                 module: '',
                 taskType: '',
                 status: '',
+                isRandomSelectLink: '',
+                isRandomSelectContent: '',
+                startTimeInterval: '',
+                endTimeInterval: '',
+                pvStayTime: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -119,6 +214,7 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             platformStatus: [], // 业务状态枚举列表
+            PVStayTimes: [], // PV停留时间枚举列表
         },
         methods: {
 
@@ -226,6 +322,9 @@
             exportData: function() {
             },
 
+            publishTask: function() {
+            },
+
             getPlatforms: function() {
                 var _this = this;
                 this.get(urls.getPlatformsUrl, function(data) {
@@ -262,6 +361,15 @@
                 });
             },
 
+            getPVStayTimes: function() {
+                var _this = this;
+                this.get(urls.getPVStayTimesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.PVStayTimes = data["data"];
+                    }
+                });
+            },
+
         },
         mounted: function() {
             this.getData();
@@ -269,6 +377,7 @@
             this.getPlatFormModules();
             this.getTaskTypes();
             this.getPlatformStatus();
+            this.getPVStayTimes();
         }
     })
 </script>
