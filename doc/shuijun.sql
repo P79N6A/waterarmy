@@ -48,7 +48,8 @@ insert  into `account`(`id`,`UUID`,`user_name`,`full_name`,`password`,`mobile`,`
 DROP TABLE IF EXISTS `content_info`;
 
 CREATE TABLE `content_info` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '评论ID',
+  `task_info_id` bigint(20) NOT NULL COMMENT '任务ID，对应task_info表主键',
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题',
   `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容',
   `count` int(10) NOT NULL DEFAULT '0' COMMENT '数量',
@@ -66,7 +67,8 @@ CREATE TABLE `content_info` (
 DROP TABLE IF EXISTS `link_info`;
 
 CREATE TABLE `link_info` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '链接ID',
+  `task_info_id` bigint(20) NOT NULL COMMENT '任务ID，对应task_info表主键',
   `name` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',
   `link` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '链接',
   `count` int(11) NOT NULL COMMENT '数量',
@@ -103,7 +105,8 @@ CREATE TABLE `platform_config` (
 DROP TABLE IF EXISTS `rule_info`;
 
 CREATE TABLE `rule_info` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '规则ID',
+  `task_info_id` bigint(20) NOT NULL COMMENT '任务ID，对应task_info表主键',
   `is_random_select_link` tinyint(2) DEFAULT NULL COMMENT '是否随机选择链接，0 否 1 是',
   `is_random_select_content` tinyint(2) DEFAULT NULL COMMENT '是否随机选择内容，0 否 1 是',
   `start_time_interval` int(10) DEFAULT NULL COMMENT '开始时间间隔（随机），单位秒',
@@ -123,22 +126,47 @@ CREATE TABLE `rule_info` (
 DROP TABLE IF EXISTS `task_info`;
 
 CREATE TABLE `task_info` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `task_publish_id` bigint(20) NOT NULL COMMENT '发布任务ID，对应task_publish表主键',
+  `name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务名称',
+  `platform` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '平台，详见PlatformEnum',
+  `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '板块，详见PlatFormModuleEnum',
+  `task_type` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务类型，详见TaskTypeEnum',
+  `execute_count` int(10) NOT NULL DEFAULT '0' COMMENT '执行数量',
+  `finish_count` int(10) NOT NULL DEFAULT '0' COMMENT '完成数量',
+  `finish_time` datetime DEFAULT NULL COMMENT '任务完成时间',
+  `status` tinyint(6) NOT NULL COMMENT '任务状态，详见TaskStatusEnum',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '修改时间',
+  `creator` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建者账号名',
+  `updater` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '更新者账号名',
+  PRIMARY KEY (`id`,`task_publish_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务记录表';
+
+/*Data for the table `task_info` */
+
+insert  into `task_info`(`id`,`task_publish_id`,`name`,`platform`,`module`,`task_type`,`execute_count`,`finish_count`,`finish_time`,`status`,`create_time`,`update_time`,`creator`,`updater`) values (1,0,'易车网刷帖任务','YICHE','YICHE','READ',134,0,'0000-00-00 00:00:00',1,'2018-10-02 09:41:28','2018-10-02 09:41:32','xiaoa','xiaoa');
+
+/*Table structure for table `task_publish` */
+
+DROP TABLE IF EXISTS `task_publish`;
+
+CREATE TABLE `task_publish` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `platform` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '平台，详见PlatformEnum',
   `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '板块，详见PlatFormModuleEnum',
   `task_type` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务类型，详见TaskTypeEnum',
-  `executable_count` int(10) NOT NULL COMMENT '可执行次数',
   `status` tinyint(6) NOT NULL COMMENT '状态，详见PlatformStatus',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '修改时间',
   `creator` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建者账号名',
   `updater` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '更新者账号名',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='发布任务表';
 
-/*Data for the table `task_info` */
+/*Data for the table `task_publish` */
 
-insert  into `task_info`(`id`,`platform`,`module`,`task_type`,`executable_count`,`status`,`create_time`,`update_time`,`creator`,`updater`) values (1,'YICHE','YICHE','READ',134,1,'2018-10-02 09:41:28','2018-10-02 09:41:32','xiaoa','xiaoa');
+insert  into `task_publish`(`id`,`platform`,`module`,`task_type`,`status`,`create_time`,`update_time`,`creator`,`updater`) values (1,'QCTT','NEWS','COMMENT',1,'2018-10-02 21:22:45','2018-10-02 21:22:47','xiaoa','xiaoa');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
