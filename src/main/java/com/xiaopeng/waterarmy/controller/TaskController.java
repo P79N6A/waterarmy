@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class TaskController {
 
     @RequestMapping(value="/publish/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> taskPublishSearch(@RequestParam Map<String,String> params
+    public PageInfo<Map<String,Object>> taskPublishSearch(@RequestParam Map<String,Object> params
             , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
@@ -59,7 +60,7 @@ public class TaskController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return taskService.taskInfoPage(pageNo, pageSize, params);
+        return taskService.taskPublishPage(pageNo, pageSize, params);
     }
 
 
@@ -77,7 +78,7 @@ public class TaskController {
 
     @RequestMapping(value="/info/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> taskInfoSearch(@RequestParam Map<String,String> params
+    public PageInfo<Map<String,Object>> taskInfoSearch(@RequestParam Map<String,Object> params
             , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
@@ -87,6 +88,18 @@ public class TaskController {
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
         return taskService.taskInfoPage(pageNo, pageSize, params);
+    }
+
+    @RequestMapping(value = "/recoveryTask")
+    @ResponseBody
+    public JsonMessage recoveryTask(Long taskId) {
+        return taskService.recoveryTask(taskId);
+    }
+
+    @RequestMapping(value = "/stopTask")
+    @ResponseBody
+    public JsonMessage stopTask(Long taskId) {
+        return taskService.stopTask(taskId);
     }
 
 }

@@ -3,6 +3,9 @@ package com.xiaopeng.waterarmy.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.*;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.common.util.DateUtil;
+import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -10,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +32,9 @@ import java.util.Map;
 public class TaskServiceImpl implements TaskService {
 
     @Autowired
+    private AccountMapper accountMapper;
+
+    @Autowired
     private TaskPublishMapper taskPublishMapper;
 
     @Autowired
@@ -42,9 +50,37 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Override
-    public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params) {
+    public PageInfo<Map<String, Object>> taskPublishPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+        PageHelper.startPage(pageNo, pageSize);
+        List<Map<String,Object>> results = taskPublishMapper.getTaskPublishs(params);
+        setResults(results, true);
+        return new PageInfo<>(results);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
+        setResults(results, false);
+        return new PageInfo<>(results);
+    }
+
+    @Override
+    public JsonMessage recoveryTask(Long taskId) {
+        return null;
+    }
+
+    @Override
+    public JsonMessage stopTask(Long taskId) {
+        return null;
+    }
+
+    @Override
+    public JsonMessage getTaskDetail(Long taskId) {
+        return null;
+    }
+
+    private void setResults(List<Map<String,Object>> results, boolean isTaskPublish) {
         for (Map<String,Object> result: results) {
             String platform = MapUtils.getString(result,"platform");
             if (!ObjectUtils.isEmpty(platform)) {
@@ -59,23 +95,54 @@ public class TaskServiceImpl implements TaskService {
                 result.put("taskTypeDesc", TaskTypeEnum.getDesc(taskType));
             }
             Integer status = MapUtils.getInteger(result,"status");
-            if (!ObjectUtils.isEmpty(status)) {
-                result.put("statusDesc", TaskStatusEnum.getDesc(status));
+            if (isTaskPublish) {
+                if (!ObjectUtils.isEmpty(status)) {
+                    result.put("statusDesc", PlatformStatusEnum.getDesc(status));
+                }
+                Integer executableCount = 0;
+                if (!ObjectUtils.isEmpty(taskType) && !ObjectUtils.isEmpty(platform)) {
+                    executableCount = getExecutableCountByTaskType(taskType, platform);
+                }
+                result.put("executableCount", executableCount);
+            } else {
+                if (!ObjectUtils.isEmpty(status)) {
+                    result.put("statusDesc", TaskStatusEnum.getDesc(status));
+                }
+                Integer executeCount =  MapUtils.getInteger(result,"execute_count");
+                Integer finishCount =  MapUtils.getInteger(result,"finish_count");
+                if (!ObjectUtils.isEmpty(executeCount) && !ObjectUtils.isEmpty(finishCount)
+                        && executeCount > 0 && (executeCount - finishCount == 0)) {
+
+                }
             }
         }
-        return new PageInfo<>(results);
     }
 
-    private Integer getExecutableCountByTaskType(String taskType) {
+    private Integer getExecutableCountByTaskType(String taskType, String platform) {
         Integer executableCount = 0;
+        List<Account> accounts = accountMapper.getAccountsByPlatform(platform);
+        Date createStartDate = DateUtil.getStartTime();
+        Date createEndDate = DateUtil.getNowEndTime();
+        Map<String, Object> params = new HashMap<>();
+        params.put("createStartDate", createStartDate);
+        params.put("createEndDate", createEndDate);
+        params.put("platform", platform);
+        params.put("taskType", taskType);
+        List<Map<String,Object>> tasks = taskPublishMapper.getTaskPublishs(params);
+        Integer accountSize = !ObjectUtils.isEmpty(accounts) ? accounts.size() : 0;
+        Integer taskSize =  !ObjectUtils.isEmpty(tasks) ? tasks.size() : 0;
         if (TaskTypeEnum.POSIED.getName().equals(taskType)) {
-
+            if (accountSize - taskSize > 0) {
+                executableCount = accountSize - taskSize;
+            }
         } else if (TaskTypeEnum.COMMENT.getName().equals(taskType)){
-
+            if (accountSize - taskSize > 0) {
+                executableCount = accountSize * 3 - taskSize;
+            }
         } else {
-
+            executableCount = -1;
         }
-        return 0;
+        return executableCount;
     }
 
 }

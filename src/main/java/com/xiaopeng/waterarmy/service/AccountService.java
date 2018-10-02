@@ -17,6 +17,14 @@ import java.util.Map;
  */
 public interface AccountService {
 
+    /**
+     * 账号信息分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params);
 
     JsonMessage getAccountByUserName(String userName);

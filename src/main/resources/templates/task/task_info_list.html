@@ -59,19 +59,21 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <!--<el-table-column type="selection"></el-table-column>-->
-            <el-table-column prop="id" label="序号" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="id" label="任务ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="name" label="任务名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="executableCount" label="可执行次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="executeCount" label="执行数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="finishCount" label="完成数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="finisTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="220" align="center" fixed="right">
                 <template scope="item">
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="status == 0">停止</el-button>
-                    <el-button size="mini" type="primary" @click="showEdit(item)" v-if="status == 1">恢复</el-button>
+                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
+                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 1">恢复</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
                             +item.row.id,'任务记录')">任务记录</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='

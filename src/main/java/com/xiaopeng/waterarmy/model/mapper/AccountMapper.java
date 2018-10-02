@@ -13,4 +13,6 @@ public interface AccountMapper extends MyMapper<Account> {
 
     Account getAccountByUserName(@Param("userName") String userName);
 
+    List<Account> getAccountsByPlatform(@Param("platform") String platform);
+
 }

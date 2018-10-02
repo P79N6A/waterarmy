@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 
 import java.util.Map;
 
@@ -16,8 +17,48 @@ import java.util.Map;
  */
 public interface TaskService {
 
-    PageInfo<Map<String,Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params);
+    /**
+     * 任务发布列表分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> taskPublishPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
+    /**
+     * 任务列表分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
+    /**
+     * 获取任务详情
+     *
+     * @param taskId
+     * @return
+     */
+    JsonMessage getTaskDetail(Long taskId);
+
+    /**
+     * 恢复任务
+     *
+     * @param taskId
+     * @return
+     */
+    JsonMessage recoveryTask(Long taskId);
+
+    /**
+     * 停止任务
+     *
+     * @param taskId
+     * @return
+     */
+    JsonMessage stopTask(Long taskId);
 
 }

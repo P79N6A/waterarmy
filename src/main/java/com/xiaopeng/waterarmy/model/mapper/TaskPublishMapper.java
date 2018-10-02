@@ -9,6 +9,6 @@ import java.util.Map;
 
 public interface TaskPublishMapper extends MyMapper<TaskPublish> {
 
-    List<Map<String,Object>> getTaskPublishs(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getTaskPublishs(@Param("params") Map<String, Object> params);
 
 }

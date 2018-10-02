@@ -17,6 +17,12 @@ public class ContentInfo implements Serializable {
     private Long id;
 
     /**
+     * 任务ID，对应task_info表主键
+     */
+    @Column(name = "task_info_id")
+    private Long taskInfoId;
+
+    /**
      * 标题
      */
     @Column(name = "title")
@@ -67,6 +73,14 @@ public class ContentInfo implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTaskInfoId() {
+        return taskInfoId;
+    }
+
+    public void setTaskInfoId(Long taskInfoId) {
+        this.taskInfoId = taskInfoId;
     }
 
     public String getTitle() {

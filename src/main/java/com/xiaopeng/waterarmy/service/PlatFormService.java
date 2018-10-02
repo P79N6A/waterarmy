@@ -17,6 +17,14 @@ import java.util.Map;
  */
 public interface PlatFormService {
 
+    /**
+     * 平台管理分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, String> params);
 
 }

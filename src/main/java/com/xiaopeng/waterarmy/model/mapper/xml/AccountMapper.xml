@@ -13,4 +13,8 @@
         SELECT * FROM account WHERE user_name=#{userName} AND status = 1
     </select>
 
+    <select id="getAccountsByPlatform" resultType="com.xiaopeng.waterarmy.model.dao.Account">
+        SELECT * FROM account WHERE status = 1 AND platform = #{platform}
+    </select>
+
 </mapper>

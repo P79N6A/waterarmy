@@ -16,7 +16,13 @@ public class TaskInfo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+
+    /**
+     * 发布任务ID，对应task_publish表主键
+     */
+    @Column(name = "task_publish_id")
+    private Long taskPublishId;
 
     /**
      * 任务名称
@@ -55,6 +61,12 @@ public class TaskInfo implements Serializable {
     private Integer finishCount;
 
     /**
+     * 任务完成时间
+     */
+    @Column(name = "finish_time")
+    private Date finishTime;
+
+    /**
      * 任务状态，详见TaskStatusEnum
      */
     @Column(name = "status")
@@ -87,12 +99,20 @@ public class TaskInfo implements Serializable {
     public TaskInfo() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTaskPublishId() {
+        return taskPublishId;
+    }
+
+    public void setTaskPublishId(Long taskPublishId) {
+        this.taskPublishId = taskPublishId;
     }
 
     public String getName() {
@@ -141,6 +161,14 @@ public class TaskInfo implements Serializable {
 
     public void setFinishCount(Integer finishCount) {
         this.finishCount = finishCount;
+    }
+
+    public Date getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
     }
 
     public Integer getStatus() {
