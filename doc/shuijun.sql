@@ -124,6 +124,7 @@ DROP TABLE IF EXISTS `task_info`;
 
 CREATE TABLE `task_info` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `platform` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '平台，详见PlatformEnum',
   `module` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '板块，详见PlantFormModuleEnum',
   `task_type` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务类型，详见TaskTypeEnum',
   `executable_count` int(10) NOT NULL COMMENT '可执行次数',
@@ -133,9 +134,11 @@ CREATE TABLE `task_info` (
   `creator` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建者账号名',
   `updater` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '更新者账号名',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务记录表';
 
 /*Data for the table `task_info` */
+
+insert  into `task_info`(`id`,`platform`,`module`,`task_type`,`executable_count`,`status`,`create_time`,`update_time`,`creator`,`updater`) values (1,'YICHE','YICHE','READ',134,1,'2018-10-02 09:41:28','2018-10-02 09:41:32','xiaoa','xiaoa');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
