@@ -1,5 +1,10 @@
 package com.xiaopeng.waterarmy.common.enums;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * * 功能描述：汽车网站平台枚举
  * <p> 版权所有：优视科技
@@ -33,6 +38,17 @@ public enum TaskTypeEnum {
     private TaskTypeEnum(String name, String desc) {
         this.name = name;
         this.desc = desc;
+    }
+
+    public static List<Map<String, Object>> parseMap() {
+        List<Map<String, Object>> lists = new ArrayList<>();
+        for (TaskTypeEnum taskTypeEnum : TaskTypeEnum.values()) {
+            Map<String, Object> taskType = new HashMap<>();
+            taskType.put("name", taskTypeEnum.getName());
+            taskType.put("desc", taskTypeEnum.getDesc());
+            lists.add(taskType);
+        }
+        return lists;
     }
 
     public static String getDesc(String name) {

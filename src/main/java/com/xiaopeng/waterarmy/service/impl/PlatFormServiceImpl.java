@@ -3,7 +3,7 @@ package com.xiaopeng.waterarmy.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.PlantFormModuleEnum;
-import com.xiaopeng.waterarmy.common.enums.PlatformStatus;
+import com.xiaopeng.waterarmy.common.enums.PlatformStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.model.mapper.PlatFormMapper;
 import com.xiaopeng.waterarmy.service.PlatFormService;
@@ -46,7 +46,7 @@ public class PlatFormServiceImpl implements PlatFormService {
             }
             Integer status = MapUtils.getInteger(result,"status");
             if (!ObjectUtils.isEmpty(status)) {
-                result.put("statusDesc", PlatformStatus.getDesc(status));
+                result.put("statusDesc", PlatformStatusEnum.getDesc(status));
             }
         }
         return new PageInfo<>(results);

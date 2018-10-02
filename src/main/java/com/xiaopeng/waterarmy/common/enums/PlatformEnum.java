@@ -1,5 +1,10 @@
 package com.xiaopeng.waterarmy.common.enums;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * * 功能描述：汽车网站平台枚举
  * <p> 版权所有：优视科技
@@ -48,6 +53,17 @@ public enum PlatformEnum {
     private PlatformEnum(String name, String desc) {
         this.name = name;
         this.desc = desc;
+    }
+
+    public static List<Map<String, Object>> parseMap() {
+        List<Map<String, Object>> lists = new ArrayList<>();
+        for (PlatformEnum platformEnum : PlatformEnum.values()) {
+            Map<String, Object> platform = new HashMap<>();
+            platform.put("name", platformEnum.getName());
+            platform.put("desc", platformEnum.getDesc());
+            lists.add(platform);
+        }
+        return lists;
     }
 
     public static String getDesc(String name) {

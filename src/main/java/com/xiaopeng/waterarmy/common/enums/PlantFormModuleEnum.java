@@ -1,5 +1,10 @@
 package com.xiaopeng.waterarmy.common.enums;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * * 功能描述：模块枚举
  * <p> 版权所有：优视科技
@@ -28,6 +33,17 @@ public enum PlantFormModuleEnum {
     private PlantFormModuleEnum(String name, String desc) {
         this.name = name;
         this.desc = desc;
+    }
+
+    public static List<Map<String, Object>> parseMap() {
+        List<Map<String, Object>> lists = new ArrayList<>();
+        for (PlantFormModuleEnum plantFormModuleEnum : PlantFormModuleEnum.values()) {
+            Map<String, Object> plantFormModule = new HashMap<>();
+            plantFormModule.put("name", plantFormModuleEnum.getName());
+            plantFormModule.put("desc", plantFormModuleEnum.getDesc());
+            lists.add(plantFormModule);
+        }
+        return lists;
     }
 
     public static String getDesc(String name) {

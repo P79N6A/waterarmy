@@ -1,5 +1,10 @@
 package com.xiaopeng.waterarmy.common.enums;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * * 功能描述：账号等级枚举
  * <p> 版权所有：优视科技
@@ -50,6 +55,17 @@ public enum AccountLevelEnum {
             }
         }
         return null;
+    }
+
+    public static List<Map<String, Object>> parseMap() {
+        List<Map<String, Object>> lists = new ArrayList<>();
+        for (AccountLevelEnum accountLevelEnum : AccountLevelEnum.values()) {
+            Map<String, Object> accountLevel = new HashMap<>();
+            accountLevel.put("index", accountLevelEnum.getIndex());
+            accountLevel.put("desc", accountLevelEnum.getDesc());
+            lists.add(accountLevel);
+        }
+        return lists;
     }
 
     public int getIndex() {
