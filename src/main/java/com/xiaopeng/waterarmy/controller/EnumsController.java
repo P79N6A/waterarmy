@@ -104,7 +104,6 @@ public class EnumsController {
         return message;
     }
 
-
     /**
      * 功能描述: 获取PV停留时间枚举列表
      *
@@ -117,6 +116,22 @@ public class EnumsController {
         List<Map<String, Object>> lists = PVStayTimeEnum.parseMap();
         JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
         message.setMsg("获取PV停留时间枚举列表成功!");
+        message.data(lists);
+        return message;
+    }
+
+    /**
+     * 功能描述: 获取任务状态枚举列表
+     *
+     * @author <a href="1206401391@qq.com">iason</a>
+     * @date 2018年8月21日
+     */
+    @RequestMapping(value = "/getTaskStatus", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonMessage getTaskStatus() {
+        List<Map<String, Object>> lists = TaskStatusEnum.parseMap();
+        JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
+        message.setMsg("获取任务状态枚举列表成功!");
         message.data(lists);
         return message;
     }

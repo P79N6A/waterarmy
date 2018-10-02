@@ -25,6 +25,10 @@ import java.util.Map;
 @Controller
 public class TaskController {
 
+    private static final String TASK_PUBLISH_INDEX_PAGE = "/task/task_publish_list.html";
+
+    private static final String TASK_PUBLISH_DETAIL_PAGE = "/task/task_publish_detail.html";
+
     private static final String TASK_INFO_INDEX_PAGE = "/task/task_info_list.html";
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
@@ -32,21 +36,21 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @RequestMapping(value = "/index")
-    public ModelAndView taskInfoIndex() {
-        ModelAndView view = new ModelAndView(TASK_INFO_INDEX_PAGE);
+    @RequestMapping(value = "/publish/index")
+    public ModelAndView taskPublishIndex() {
+        ModelAndView view = new ModelAndView(TASK_PUBLISH_INDEX_PAGE);
         return view;
     }
 
-    @RequestMapping(value = "/detail")
-    public ModelAndView taskInfoDetail(Integer id) {
-        ModelAndView view = new ModelAndView(TASK_INFO_DETAIL_PAGE);
+    @RequestMapping(value = "/publish/detail")
+    public ModelAndView taskPublishDetail(Integer id) {
+        ModelAndView view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
         return view;
     }
 
-    @RequestMapping(value="/search/{pageNo}",method = RequestMethod.POST)
+    @RequestMapping(value="/publish/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,String> params
+    public PageInfo<Map<String,Object>> taskPublishSearch(@RequestParam Map<String,String> params
             , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
@@ -55,7 +59,34 @@ public class TaskController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return taskService.page(pageNo, pageSize, params);
+        return taskService.taskInfoPage(pageNo, pageSize, params);
+    }
+
+
+    @RequestMapping(value = "/info/index")
+    public ModelAndView taskInfoIndex() {
+        ModelAndView view = new ModelAndView(TASK_INFO_INDEX_PAGE);
+        return view;
+    }
+
+    @RequestMapping(value = "/info/detail")
+    public ModelAndView taskInfoDetail(Integer id) {
+        ModelAndView view = new ModelAndView(TASK_INFO_DETAIL_PAGE);
+        return view;
+    }
+
+    @RequestMapping(value="/info/search/{pageNo}",method = RequestMethod.POST)
+    @ResponseBody
+    public PageInfo<Map<String,Object>> taskInfoSearch(@RequestParam Map<String,String> params
+            , @PathVariable("pageNo")Integer pageNo){
+        if (pageNo == null) {
+            pageNo = 1;
+        }
+        Integer pageSize=10;
+        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
+            pageSize = MapUtils.getInteger(params,"pageSize");
+        }
+        return taskService.taskInfoPage(pageNo, pageSize, params);
     }
 
 }

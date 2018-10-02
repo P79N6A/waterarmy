@@ -6,10 +6,7 @@ import com.xiaopeng.waterarmy.common.enums.PlatFormModuleEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
-import com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper;
-import com.xiaopeng.waterarmy.model.mapper.LinkInfoMapper;
-import com.xiaopeng.waterarmy.model.mapper.RuleInfoMapper;
-import com.xiaopeng.waterarmy.model.mapper.TaskInfoMapper;
+import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +30,9 @@ import java.util.Map;
 public class TaskServiceImpl implements TaskService {
 
     @Autowired
+    private TaskPublishMapper taskPublishMapper;
+
+    @Autowired
     private ContentInfoMapper contentInfoMapper;
 
     @Autowired
@@ -45,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Override
-    public PageInfo<Map<String, Object>> page(Integer pageNo, Integer pageSize, Map<String, String> params) {
+    public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, String> params) {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         for (Map<String,Object> result: results) {
@@ -68,4 +68,17 @@ public class TaskServiceImpl implements TaskService {
         }
         return new PageInfo<>(results);
     }
+
+    private Integer getExecutableCountByTaskType(String taskType) {
+        Integer executableCount = 0;
+        if (TaskTypeEnum.POSIED.getName().equals(taskType)) {
+
+        } else if (TaskTypeEnum.COMMENT.getName().equals(taskType)){
+
+        } else {
+
+        }
+        return 0;
+    }
+
 }

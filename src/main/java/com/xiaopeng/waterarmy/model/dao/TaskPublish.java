@@ -5,14 +5,14 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 任务信息表
+ * 发布任务表
  *
  * Created by iason on 2018/10/1.
  */
-@Table(name = "task_info")
-public class TaskInfo implements Serializable {
+@Table(name = "task_publish")
+public class TaskPublish implements Serializable {
 
-    private static final long serialVersionUID = -5682764723534464983L;
+    private static final long serialVersionUID = -4292764723564937L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,12 +35,6 @@ public class TaskInfo implements Serializable {
      */
     @Column(name = "task_type")
     private String taskType;
-
-    /**
-     * 可执行次数
-     */
-    @Column(name = "executable_count")
-    private Integer executableCount;
 
     /**
      * 状态，详见PlatformStatus
@@ -72,7 +66,7 @@ public class TaskInfo implements Serializable {
     @Column(name = "updater")
     private String updater;
 
-    public TaskInfo() {
+    public TaskPublish() {
     }
 
     public Integer getId() {
@@ -105,14 +99,6 @@ public class TaskInfo implements Serializable {
 
     public void setTaskType(String taskType) {
         this.taskType = taskType;
-    }
-
-    public Integer getExecutableCount() {
-        return executableCount;
-    }
-
-    public void setExecutableCount(Integer executableCount) {
-        this.executableCount = executableCount;
     }
 
     public Integer getStatus() {

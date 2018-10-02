@@ -22,6 +22,11 @@ public enum PlatformEnum {
 //     */
 //    AUTOHOME ("AUTOHOME", "汽车之家"),
 
+//    /**
+//     * 新浪微博
+//     */
+//    WEIBO ("WEIBO", "新浪微博"),
+
     /**
      * 太平洋汽车
      */

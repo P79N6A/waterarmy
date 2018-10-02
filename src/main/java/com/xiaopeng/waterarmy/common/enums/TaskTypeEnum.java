@@ -30,7 +30,12 @@ public enum TaskTypeEnum {
     /**
      * 阅读
      */
-    READ ("READ", "阅读");
+    READ ("READ", "阅读"),
+
+    /**
+     * 评论点赞
+     */
+    LIKE ("LIKE", "评论点赞");
 
     private String name;
     private String desc;
