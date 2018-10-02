@@ -19,6 +19,12 @@ public class TaskInfo implements Serializable {
     private Integer id;
 
     /**
+     * 任务名称
+     */
+    @Column(name = "name")
+    private String name;
+
+    /**
      * 平台，详见PlatformEnum
      */
     @Column(name = "platform")
@@ -37,13 +43,19 @@ public class TaskInfo implements Serializable {
     private String taskType;
 
     /**
-     * 可执行次数
+     * 执行数量
      */
-    @Column(name = "executable_count")
-    private Integer executableCount;
+    @Column(name = "execute_count")
+    private Integer executeCount;
 
     /**
-     * 状态，详见PlatformStatus
+     * 完成数量
+     */
+    @Column(name = "finish_count")
+    private Integer finishCount;
+
+    /**
+     * 任务状态，详见TaskStatusEnum
      */
     @Column(name = "status")
     private Integer status;
@@ -83,6 +95,14 @@ public class TaskInfo implements Serializable {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getPlatform() {
         return platform;
     }
@@ -107,12 +127,20 @@ public class TaskInfo implements Serializable {
         this.taskType = taskType;
     }
 
-    public Integer getExecutableCount() {
-        return executableCount;
+    public Integer getExecuteCount() {
+        return executeCount;
     }
 
-    public void setExecutableCount(Integer executableCount) {
-        this.executableCount = executableCount;
+    public void setExecuteCount(Integer executeCount) {
+        this.executeCount = executeCount;
+    }
+
+    public Integer getFinishCount() {
+        return finishCount;
+    }
+
+    public void setFinishCount(Integer finishCount) {
+        this.finishCount = finishCount;
     }
 
     public Integer getStatus() {
@@ -154,4 +182,5 @@ public class TaskInfo implements Serializable {
     public void setUpdater(String updater) {
         this.updater = updater;
     }
+
 }

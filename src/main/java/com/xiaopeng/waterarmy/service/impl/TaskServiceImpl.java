@@ -2,10 +2,7 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xiaopeng.waterarmy.common.enums.PlatFormModuleEnum;
-import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
-import com.xiaopeng.waterarmy.common.enums.PlatformStatusEnum;
-import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
+import com.xiaopeng.waterarmy.common.enums.*;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -63,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
             }
             Integer status = MapUtils.getInteger(result,"status");
             if (!ObjectUtils.isEmpty(status)) {
-                result.put("statusDesc", PlatformStatusEnum.getDesc(status));
+                result.put("statusDesc", TaskStatusEnum.getDesc(status));
             }
         }
         return new PageInfo<>(results);

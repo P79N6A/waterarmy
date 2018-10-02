@@ -3,15 +3,15 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskInfoMapper">
 
     <select id="getTaskInfos" resultType="java.util.HashMap">
-        SELECT id, platform, module, task_type AS taskType
-        , executable_count AS executableCount, status
+        SELECT id, name, platform, module, task_type AS taskType
+        , execute_count AS executeCount, finish_count AS finishCount, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info WHERE 1=1
         <if test="params.platform != null and params.platform != '' " >
             AND platform = #{params.platform}
         </if>
-        <if test="params.module != null and params.module != '' " >
-            AND module = #{params.module}
+        <if test="params.name != null and params.name != '' " >
+            AND name = #{params.name}
         </if>
         <if test="params.taskType != null and params.taskType != '' " >
             AND task_type = #{params.taskType}
@@ -19,6 +19,11 @@
         <if test="params.status != null and params.status != '' " >
             AND status = #{params.status}
         </if>
+        <if test="params.createStartDate != null and params.createStartDate != ''
+        and params.createEndDate != '' and params.createEndDate != '' " >
+            AND create_time  &gt;= #{params.createStartDate} and create_time &lt;= #{params.createEndDate}
+        </if>
+
         ORDER BY update_time DESC
     </select>
 

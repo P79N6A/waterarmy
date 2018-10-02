@@ -25,7 +25,17 @@ public enum PlatFormModuleEnum {
     /**
      * 新闻
      */
-    NEWS ("YICHE", "新闻");
+    NEWS ("NEWS", "新闻"),
+
+    /**
+     * 车家号
+     */
+    CHEJIAHAO ("CHEJIAHAO", "车家号"),
+
+    /**
+     * 口碑
+     */
+    KOUBEI ("KOUBEI", "口碑"),;
 
     private String name;
     private String desc;
