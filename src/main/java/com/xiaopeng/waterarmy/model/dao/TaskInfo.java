@@ -25,6 +25,24 @@ public class TaskInfo implements Serializable {
     private Long taskPublishId;
 
     /**
+     * 链接ID
+     */
+    @Column(name = "link_info_id")
+    private Long linkInfoId;
+
+    /**
+     * 内容ID
+     */
+    @Column(name = "content_info_id")
+    private Long contentInfoId;
+
+    /**
+     * 规则ID
+     */
+    @Column(name = "rule_info_id")
+    private Long ruleInfoId;
+
+    /**
      * 任务名称
      */
     @Column(name = "name")
@@ -113,6 +131,30 @@ public class TaskInfo implements Serializable {
 
     public void setTaskPublishId(Long taskPublishId) {
         this.taskPublishId = taskPublishId;
+    }
+
+    public Long getLinkInfoId() {
+        return linkInfoId;
+    }
+
+    public void setLinkInfoId(Long linkInfoId) {
+        this.linkInfoId = linkInfoId;
+    }
+
+    public Long getContentInfoId() {
+        return contentInfoId;
+    }
+
+    public void setContentInfoId(Long contentInfoId) {
+        this.contentInfoId = contentInfoId;
+    }
+
+    public Long getRuleInfoId() {
+        return ruleInfoId;
+    }
+
+    public void setRuleInfoId(Long ruleInfoId) {
+        this.ruleInfoId = ruleInfoId;
     }
 
     public String getName() {
