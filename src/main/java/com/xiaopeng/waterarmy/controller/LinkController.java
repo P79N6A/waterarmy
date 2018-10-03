@@ -53,7 +53,6 @@ public class LinkController {
         return linkService.page(pageNo, pageSize, params);
     }
 
-    //@PostMapping("/importData")
     @RequestMapping(value = "/importData", method = RequestMethod.POST)
     @ResponseBody
     public JsonMessage addUser(@RequestParam("file") MultipartFile file) {

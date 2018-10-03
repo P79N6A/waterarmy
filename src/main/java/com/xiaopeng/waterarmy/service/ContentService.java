@@ -1,6 +1,8 @@
 package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -25,5 +27,7 @@ public interface ContentService {
      * @return
      */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params);
+
+    JsonMessage importData(MultipartFile file);
 
 }

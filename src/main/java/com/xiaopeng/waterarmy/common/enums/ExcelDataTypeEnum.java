@@ -23,9 +23,9 @@ public enum ExcelDataTypeEnum {
     LINK ("LINK", "链接"),
 
     /**
-     * RULE
+     * 账号
      */
-    RULE ("RULE", "规则"),
+    ACCOUNT ("ACCOUNT", "账号"),
 
     /**
      * 内容

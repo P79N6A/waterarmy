@@ -1,8 +1,11 @@
 package com.xiaopeng.waterarmy.common.util;
 
+import com.xiaopeng.waterarmy.common.enums.AccountLevelEnum;
 import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.ContentInfo;
 import com.xiaopeng.waterarmy.model.dao.LinkInfo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -91,6 +94,37 @@ public class ExcelUtil {
                     break;
                 }
                 info.setLink(link);
+                datas.add(info);
+            } else if (ExcelDataTypeEnum.CONTENT.getName().equals(type)) {
+                ContentInfo info = new ContentInfo();
+                String title = row.getCell(0).getStringCellValue();
+                String content = row.getCell(1).getStringCellValue();
+                if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(content)) {
+                    break;
+                }
+                info.setTitle(title);
+                info.setContent(content);
+                datas.add(info);
+            } else if (ExcelDataTypeEnum.ACCOUNT.getName().equals(type)) {
+                Account info = new Account();
+                String userName = row.getCell(0).getStringCellValue();
+                String fullName = row.getCell(1).getStringCellValue();
+                String password = row.getCell(2).getStringCellValue();
+                String mobile = row.getCell(3).getStringCellValue();
+                String email = row.getCell(4).getStringCellValue();
+                Integer level = !ObjectUtils.isEmpty(row.getCell(5).getStringCellValue())
+                        ? Integer.parseInt(row.getCell(5).getStringCellValue()) : AccountLevelEnum.PRIMARY.getIndex();
+                String platform = row.getCell(6).getStringCellValue();
+                if (ObjectUtils.isEmpty(userName) || ObjectUtils.isEmpty(password) ||  ObjectUtils.isEmpty(platform)) {
+                    break;
+                }
+                info.setUserName(userName);
+                info.setFullName(fullName);
+                info.setPassword(password);
+                info.setMobile(mobile);
+                info.setEmail(email);
+                info.setLevel(level);
+                info.setPlatform(platform);
                 datas.add(info);
             }
         }

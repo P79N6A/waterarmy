@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper">
 
+    <insert id="save">
+        INSERT INTO content_info (title, content, count
+        , create_time, update_time, creator, updater)
+        VALUES (#{contentInfo.title}, #{contentInfo.content}, #{contentInfo.count}
+        , #{contentInfo.createTime}, #{contentInfo.updateTime}, #{contentInfo.creator}, #{contentInfo.updater})
+    </insert>
+
     <select id="getContentInfos" resultType="java.util.HashMap">
         SELECT id, title, content, count
         , create_time AS createTime, update_time AS updateTime
