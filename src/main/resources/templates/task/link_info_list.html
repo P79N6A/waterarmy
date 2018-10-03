@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>任务列表</title>
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/element-ui.css?v=${PROJECT_VERSION}">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/style.css?v=${PROJECT_VERSION}">
+</head>
+<body>
+<div id="app" v-cloak>
+    <!-- 表单组件 -->
+    <div class="ui-form">
+        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
+            <el-form-item label="平台" prop="role">
+                <el-select v-model="form.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="任务类型" prop="role">
+                <el-select v-model="form.taskType" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="任务状态" prop="role">
+                <el-select v-model="form.status" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.index" v-for="item in taskStatus"
+                               :key="item.index"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="任务名称" prop="ver">
+                <el-input v-model="form.name"></el-input>
+            </el-form-item>
+            <el-form-item label="创建时间" prop="createTime" class="ui-form-item-large ">
+                <daterange :start-date.sync="form.createStartDate" :end-date.sync="form.createEndDate" :init-range="[15,1]"></daterange>
+            </el-form-item>
+            <div class="ui-form__bd">
+                <el-row>
+                    <el-col :span="24">
+                        <div class="ui-text-right">
+                            <el-button type="primary" @click="search" size="small">查询</el-button>
+                            <el-button @click="reset" size="small">重置</el-button>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+
+        </el-form>
+    </div>
+
+    <!-- 表格组件 -->
+    <div class="ui-table">
+        <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
+            <!-- 多选 -->
+            <!--<el-table-column type="selection"></el-table-column>-->
+            <el-table-column prop="id" label="任务ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="name" label="任务名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="executeCount" label="执行数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="finishCount" label="完成数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="finisTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <!-- 自定义模块 -->
+            <el-table-column label="操作" min-width="220" align="center" fixed="right">
+                <template scope="item">
+                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
+                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 1">恢复</el-button>
+                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
+                            +item.row.id,'任务记录')">任务记录</el-button>
+                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
+                            +item.row.id,'查看规则')">查看规则</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+
+    <!-- 分页组件 -->
+    <div class="ui-table__ft-fix">
+        <el-row type="flex" class="ui-table__ft">
+            <!--<el-col :span="10">-->
+                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--</el-col>-->
+            <el-col :span="24">
+                <div class="ui-page">
+                    <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
+                                   @current-change="onPageChange" @size-change="onSizeChange"></el-pagination>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+
+</div>
+</body>
+</html>
+
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/vue.min.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/element-ui.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
+<script type="text/javascript">
+    var urls = {
+        getDataUrl:'/task/info/search/',
+        getPlatformsUrl:'/enums/getPlatforms',
+        getPlatFormModulesUrl:'/enums/getPlatFormModules',
+        getTaskTypesUrl:'/enums/getTaskTypes',
+        getTaskStatusUrl:'/enums/getTaskStatus',
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {
+                platform: '',
+                module: '',
+                taskType: '',
+                status: '',
+                createStartDate: '',
+                createEndDate: '',
+                name: '',
+            },
+            tableData: [], // 表格数据
+            isLoading: false, // 是否加载中
+            // 是否显示编辑弹窗
+            isShowEdit: false,
+            // 编辑的内容
+            formEdit: {},
+            // 编辑的条目
+            formEditItem: {},
+            pageTotal: 0, // 总条数
+            pageNo: 1, // 当前分页
+            pageSize: 10, // 每页条数
+            tableSelect: [],// 储存表格选择的数据
+            roleSelectOptions:[],
+            // 表单验证规则
+            rules: {
+            },
+            platforms: [], // 平台枚举列表
+            platFormModules: [], // 板块枚举列表
+            taskTypes: [], // 任务类型枚举列表
+            taskStatus: [], // 任务状态枚举列表
+        },
+        methods: {
+
+            getData: function(params) {
+                var _this = this;
+                _this.isLoading = true;
+                var url = urls.getDataUrl + _this.pageNo;
+                params = params || {};
+                params["pageSize"] = _this.pageSize;
+                _this.post(url,params, function(data, res) {
+                    _this.tableData = data.list;
+                    _this.pageTotal = data.total;
+                    _this.isLoading = false;
+                })
+            },
+
+            /**
+             * 重置表单
+             * @return {[type]} [description]
+             */
+            reset: function() {
+                location.reload();
+            },
+
+            search: function() {
+                var _this = this;
+                _this.getData(_this.form);
+            },
+
+            onPageChange: function(page) {
+                this.pageNo = page;
+                this.getData(this.form);
+            },
+
+            onSizeChange: function(size) {
+                this.pageSize = size;
+                this.getData(this.form);
+            },
+
+            showEdit: function(item) {
+                var _this = this;
+                if (item.row) {
+                    var content = item.row;
+                    for (var key in content) {
+                        if (content.hasOwnProperty(key)) {
+                            _this.$set(_this.formEdit, key, content[key])
+                        }
+                    }
+                    _this.isShowEdit = true;
+                    _this.formEditItem = content;
+                }
+            },
+
+            submitEdit: function() {
+                var _this = this;
+                for (var key in _this.formEdit) {
+                    if (_this.formEdit.hasOwnProperty(key)) {
+                        _this.$set(_this.formEditItem, key, _this.formEdit[key])
+                    }
+                }
+                var url = urls.updateUrl;
+                var params = _this.formEditItem;
+                _this.post(url,params, function(data) {
+                    if(data.success){
+                        _this.isShowEdit = false;
+                        _this.message('修改成功 !');
+                    }else{
+                        _this.message('修改失败 !');
+                    }
+                })
+            },
+
+            /**
+             * 删除事件
+             * @param  {[type]} item [description]
+             * @return {[type]}       [description]
+             */
+            remove: function(item) {
+                var _this = this;
+                var index = item.$index;
+                _this.confirm('确定删除 ?', function() {
+                    var params = {
+                        id:item.row.id,
+                        userName:item.row.userName,
+                    }
+                    var url=urls.deleteUrl;
+                    _this.post(url,params, function(data) {
+                        if(data.success){
+                            _this.message('删除成功 !');
+                            _this.tableData.splice(index, 1);
+                        }else {
+                            _this.message('删除失败 !');
+                        }
+                    })
+                })
+            },
+
+            onTableSelect: function(val) {
+                this.tableSelect = val;
+            },
+
+            inputData: function() {
+            },
+
+            exportData: function() {
+            },
+
+            getPlatforms: function() {
+                var _this = this;
+                this.get(urls.getPlatformsUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platforms = data["data"];
+                    }
+                });
+            },
+
+            getPlatFormModules: function() {
+                var _this = this;
+                this.get(urls.getPlatFormModulesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platFormModules = data["data"];
+                    }
+                });
+            },
+
+            getTaskStatus: function() {
+                var _this = this;
+                this.get(urls.getTaskStatusUrl, function(data) {
+                    if (data["success"]) {
+                        _this.taskStatus = data["data"];
+                    }
+                });
+            },
+
+            getTaskTypes: function() {
+                var _this = this;
+                this.get(urls.getTaskTypesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.taskTypes = data["data"];
+                    }
+                });
+            },
+
+        },
+        mounted: function() {
+            this.getData();
+            this.getPlatforms();
+            this.getPlatFormModules();
+            this.getTaskTypes();
+            this.getTaskStatus();
+        }
+    })
+</script>

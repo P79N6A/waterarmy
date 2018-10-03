@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.service.LinkService;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,10 @@ import java.util.Map;
 @Controller
 public class LinkController {
 
-    private static final String INDEX_PAGE = "/task/link_list.html";
+    private static final String INDEX_PAGE = "/task/link_info_list.html";
 
     @Autowired
-    private PlatFormService platFormService;
+    private LinkService linkService;
 
     @RequestMapping(value = "/index")
     public ModelAndView index() {
@@ -47,7 +48,7 @@ public class LinkController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return platFormService.page(pageNo, pageSize, params);
+        return linkService.page(pageNo, pageSize, params);
     }
 
 }

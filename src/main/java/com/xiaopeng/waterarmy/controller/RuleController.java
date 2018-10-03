@@ -2,7 +2,7 @@ package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.service.ContentService;
-import com.xiaopeng.waterarmy.service.PlatFormService;
+import com.xiaopeng.waterarmy.service.RuleService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,14 +22,14 @@ import java.util.Map;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-@RequestMapping("/content")
+@RequestMapping("/rule")
 @Controller
-public class ContentController {
+public class RuleController {
 
-    private static final String INDEX_PAGE = "/task/content_info_list.html";
+    private static final String INDEX_PAGE = "/task/rule_info_list.html";
 
     @Autowired
-    private ContentService contentService;
+    private RuleService ruleService;
 
     @RequestMapping(value = "/index")
     public ModelAndView index() {
@@ -48,7 +48,7 @@ public class ContentController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return contentService.page(pageNo, pageSize, params);
+        return ruleService.page(pageNo, pageSize, params);
     }
 
 }
