@@ -9,6 +9,8 @@ import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -30,6 +32,8 @@ import java.util.Map;
  */
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    private static Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Autowired
     private AccountMapper accountMapper;

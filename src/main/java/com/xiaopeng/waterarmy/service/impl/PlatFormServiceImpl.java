@@ -8,6 +8,8 @@ import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.model.mapper.PlatFormMapper;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -27,6 +29,8 @@ import java.util.Map;
  */
 @Service
 public class PlatFormServiceImpl implements PlatFormService {
+
+    private static Logger logger = LoggerFactory.getLogger(PlatFormServiceImpl.class);
 
     @Autowired
     private PlatFormMapper platFormMapper;
