@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface AccountMapper extends MyMapper<Account> {
 
-    List<Map<String,Object>> getAccounts(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getAccounts(@Param("params") Map<String, Object> params);
 
     Account getAccountByUserName(@Param("userName") String userName);
 

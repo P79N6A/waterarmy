@@ -39,7 +39,8 @@ public class PlatformController {
 
     @RequestMapping(value="/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,String> params, @PathVariable("pageNo")Integer pageNo){
+    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,Object> params
+            , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
         }

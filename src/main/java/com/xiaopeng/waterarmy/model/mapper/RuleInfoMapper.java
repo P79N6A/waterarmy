@@ -10,6 +10,6 @@ import java.util.Map;
 
 public interface RuleInfoMapper extends MyMapper<RuleInfo> {
 
-    List<Map<String,Object>> getRuleInfos(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getRuleInfos(@Param("params") Map<String, Object> params);
 
 }

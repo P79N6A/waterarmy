@@ -38,6 +38,16 @@ public interface TaskService {
     PageInfo<Map<String,Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
     /**
+     * 任务执行记录分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
+
+    /**
      * 获取任务详情
      *
      * @param taskId

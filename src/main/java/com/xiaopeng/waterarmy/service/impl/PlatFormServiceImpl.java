@@ -32,7 +32,7 @@ public class PlatFormServiceImpl implements PlatFormService {
     private PlatFormMapper platFormMapper;
 
     @Override
-    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params){
+    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = platFormMapper.getPlatForms(params);
         for (Map<String,Object> result: results) {

@@ -34,6 +34,8 @@ public class TaskController {
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
 
+    private static final String TASK_EXCUTE_LOG_INDEX_PAGE = "/task/task_excute_log_list.html";
+
     @Autowired
     private TaskService taskService;
 
@@ -63,7 +65,6 @@ public class TaskController {
         return taskService.taskPublishPage(pageNo, pageSize, params);
     }
 
-
     @RequestMapping(value = "/info/index")
     public ModelAndView taskInfoIndex() {
         ModelAndView view = new ModelAndView(TASK_INFO_INDEX_PAGE);
@@ -88,6 +89,26 @@ public class TaskController {
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
         return taskService.taskInfoPage(pageNo, pageSize, params);
+    }
+
+    @RequestMapping(value = "/excutelog/index")
+    public ModelAndView taskExcuteLogIndex() {
+        ModelAndView view = new ModelAndView(TASK_EXCUTE_LOG_INDEX_PAGE);
+        return view;
+    }
+
+    @RequestMapping(value="/excutelog/search/{pageNo}",method = RequestMethod.POST)
+    @ResponseBody
+    public PageInfo<Map<String,Object>> taskExcuteLogSearch(@RequestParam Map<String,Object> params
+            , @PathVariable("pageNo")Integer pageNo){
+        if (pageNo == null) {
+            pageNo = 1;
+        }
+        Integer pageSize=10;
+        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
+            pageSize = MapUtils.getInteger(params,"pageSize");
+        }
+        return taskService.taskExcuteLogPage(pageNo, pageSize, params);
     }
 
     @RequestMapping(value = "/recoveryTask")

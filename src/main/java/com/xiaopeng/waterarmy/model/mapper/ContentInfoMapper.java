@@ -10,6 +10,6 @@ import java.util.Map;
 
 public interface ContentInfoMapper extends MyMapper<ContentInfo> {
 
-    List<Map<String,Object>> getContentInfos(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getContentInfos(@Param("params") Map<String, Object> params);
 
 }

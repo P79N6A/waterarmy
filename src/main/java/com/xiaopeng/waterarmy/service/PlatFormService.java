@@ -25,6 +25,6 @@ public interface PlatFormService {
      * @param params
      * @return
      */
-    PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, String> params);
+    PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
 }

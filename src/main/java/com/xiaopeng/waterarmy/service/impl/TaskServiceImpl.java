@@ -49,6 +49,9 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskInfoMapper taskInfoMapper;
 
+    @Autowired
+    private TaskExcuteLogMapper taskExcuteLogMapper;
+
     @Override
     public PageInfo<Map<String, Object>> taskPublishPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
@@ -62,6 +65,19 @@ public class TaskServiceImpl implements TaskService {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         setResults(results, false);
+        return new PageInfo<>(results);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+        PageHelper.startPage(pageNo, pageSize);
+        List<Map<String,Object>> results = taskExcuteLogMapper.getTaskExcuteLogs(params);
+        for (Map<String,Object> result: results) {
+            Integer excuteStatus = MapUtils.getInteger(result,"excuteStatus");
+            if (!ObjectUtils.isEmpty(excuteStatus)) {
+                result.put("excuteStatusDesc", ExcuteStatusEnum.getDesc(excuteStatus));
+            }
+        }
         return new PageInfo<>(results);
     }
 

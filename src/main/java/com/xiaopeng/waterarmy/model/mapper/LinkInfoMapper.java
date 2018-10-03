@@ -9,6 +9,6 @@ import java.util.Map;
 
 public interface LinkInfoMapper extends MyMapper<LinkInfo> {
 
-    List<Map<String,Object>> getLinkInfos(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getLinkInfos(@Param("params") Map<String, Object> params);
 
 }

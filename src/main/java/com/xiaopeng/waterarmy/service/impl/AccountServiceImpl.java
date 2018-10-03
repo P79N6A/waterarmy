@@ -35,7 +35,7 @@ public class AccountServiceImpl implements AccountService {
     private AccountMapper accountMapper;
 
     @Override
-    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,String> params){
+    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = accountMapper.getAccounts(params);
         for (Map<String,Object> result: results) {

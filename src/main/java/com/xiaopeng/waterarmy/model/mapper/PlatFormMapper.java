@@ -10,6 +10,6 @@ import java.util.Map;
 
 public interface PlatFormMapper extends MyMapper<PlatformConfig> {
 
-    List<Map<String,Object>> getPlatForms(@Param("params") Map<String, String> params);
+    List<Map<String,Object>> getPlatForms(@Param("params") Map<String, Object> params);
 
 }
