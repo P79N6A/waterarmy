@@ -8,4 +8,10 @@
         , creator, updater FROM link_info
     </select>
 
+    <insert id="save">
+        INSERT INTO link_info (name, link, count, create_time
+        , update_time, creator, updater) VALUES (#{linkInfo.name}, #{linkInfo.link}, #{linkInfo.count}
+        , #{linkInfo.createTime}, #{linkInfo.updateTime}, #{linkInfo.creator}, #{linkInfo.updater})
+    </insert>
+
 </mapper>

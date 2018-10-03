@@ -11,4 +11,6 @@ public interface LinkInfoMapper extends MyMapper<LinkInfo> {
 
     List<Map<String,Object>> getLinkInfos(@Param("params") Map<String, Object> params);
 
+    void save(@Param("linkInfo") LinkInfo linkInfo);
+
 }
