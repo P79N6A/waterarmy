@@ -58,7 +58,7 @@ public class ContentServiceImpl implements ContentService {
             info.setUpdater("xiaoa");
             contentInfoMapper.save(info);
         }
-        message.success(CodeEnum.SUCCESS).setMsg("导入链接数据成功!");
+        message.success(CodeEnum.SUCCESS).setMsg("导入内容数据成功!");
         return message;
     }
 }

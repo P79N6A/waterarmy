@@ -24,6 +24,11 @@ import java.util.List;
 public class WaterarmyApplicationTests {
 
 	@Test
+	public void test1() {
+		//(int) Double.parseDouble(row.getCell(5).getStringCellValue());
+	}
+
+	@Test
 	public void contextLoads() {
 		System.out.println("去请求");
 		File file = new File("E:/水军系统研发/link.xls");

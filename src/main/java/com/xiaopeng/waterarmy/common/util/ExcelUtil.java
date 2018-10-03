@@ -43,6 +43,12 @@ public class ExcelUtil {
         return fileName.matches("^.+\\.(?i)(xlsx)$");
     }
 
+    /**
+     * 单元格为Numeric格式(譬如电话号)，带有指数E。因此，若想获取其String类型时，需要进行格式转换
+     *
+     * @param cell
+     * @return
+     */
     public static String getStringFromNumericCell(Cell cell) {
         return new DecimalFormat("#").format(cell.getNumericCellValue());
     }
@@ -110,10 +116,10 @@ public class ExcelUtil {
                 String userName = row.getCell(0).getStringCellValue();
                 String fullName = row.getCell(1).getStringCellValue();
                 String password = row.getCell(2).getStringCellValue();
-                String mobile = row.getCell(3).getStringCellValue();
+                String mobile = getStringFromNumericCell(row.getCell(3));//.getStringCellValue();
                 String email = row.getCell(4).getStringCellValue();
-                Integer level = !ObjectUtils.isEmpty(row.getCell(5).getStringCellValue())
-                        ? Integer.parseInt(row.getCell(5).getStringCellValue()) : AccountLevelEnum.PRIMARY.getIndex();
+//                Integer level = !ObjectUtils.isEmpty(row.getCell(5).getStringCellValue())
+//                        ? Integer.parseInt(row.getCell(5).getStringCellValue()) : AccountLevelEnum.PRIMARY.getIndex();
                 String platform = row.getCell(6).getStringCellValue();
                 if (ObjectUtils.isEmpty(userName) || ObjectUtils.isEmpty(password) ||  ObjectUtils.isEmpty(platform)) {
                     break;
@@ -123,7 +129,7 @@ public class ExcelUtil {
                 info.setPassword(password);
                 info.setMobile(mobile);
                 info.setEmail(email);
-                info.setLevel(level);
+                //info.setLevel(level);
                 info.setPlatform(platform);
                 datas.add(info);
             }

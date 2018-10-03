@@ -75,14 +75,16 @@ public class AccountServiceImpl implements AccountService {
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.ACCOUNT.getName());
         for (Object data: datas) {
             Account info = (Account) data;
-            info.setUuid(UUID.randomUUID().toString());
+            info.setUUID(UUID.randomUUID().toString());
+            info.setLevel(AccountLevelEnum.PRIMARY.getIndex());
+            info.setTaskCount(0);
             info.setCreateTime(new Date());
             info.setUpdateTime(new Date());
             info.setCreator("xiaoa");
             info.setUpdater("xiaoa");
             accountMapper.save(info);
         }
-        message.success(CodeEnum.SUCCESS).setMsg("导入链接数据成功!");
+        message.success(CodeEnum.SUCCESS).setMsg("导入账号数据成功!");
         return message;
     }
 
