@@ -2,6 +2,7 @@ package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -70,5 +71,13 @@ public interface TaskService {
      * @return
      */
     JsonMessage stopTask(Long taskId);
+
+    /**
+     * 发布任务
+     *
+     * @param params
+     * @return
+     */
+    JsonMessage publishTask(@RequestParam Map<String,Object> params);
 
 }

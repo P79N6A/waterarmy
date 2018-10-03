@@ -9,6 +9,8 @@ import java.util.Map;
 
 public interface TaskInfoMapper extends MyMapper<TaskInfo> {
 
-    List<Map<String,Object>> getTaskInfos(@Param("params") Map<String, Object> params);
+    List<Map<String, Object>> getTaskInfos(@Param("params") Map<String, Object> params);
+
+    void save(@Param("taskInfo") Map<String, Object> taskInfo);
 
 }

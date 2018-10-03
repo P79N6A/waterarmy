@@ -2,10 +2,13 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.xiaopeng.waterarmy.common.enums.*;
+import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.TaskInfo;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -93,6 +96,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public JsonMessage stopTask(Long taskId) {
         return null;
+    }
+
+    @Override
+    public JsonMessage publishTask(Map<String, Object> params) {
+        JsonMessage message = JsonMessage.init();
+        taskInfoMapper.save(params);
+        message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
+        return message;
     }
 
     @Override

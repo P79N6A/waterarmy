@@ -51,6 +51,13 @@ public class TaskController {
         return view;
     }
 
+    /**
+     * 分页查询发布任务列表
+     *
+     * @param params
+     * @param pageNo
+     * @return
+     */
     @RequestMapping(value="/publish/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
     public PageInfo<Map<String,Object>> taskPublishSearch(@RequestParam Map<String,Object> params
@@ -63,6 +70,18 @@ public class TaskController {
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
         return taskService.taskPublishPage(pageNo, pageSize, params);
+    }
+
+    /**
+     * 发布任务
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value="/publish/publishTask",method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage publishTask(@RequestParam Map<String,Object> params) {
+        return taskService.publishTask(params);
     }
 
     @RequestMapping(value = "/info/index")
@@ -122,5 +141,6 @@ public class TaskController {
     public JsonMessage stopTask(Long taskId) {
         return taskService.stopTask(taskId);
     }
+
 
 }
