@@ -28,16 +28,19 @@
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="任务状态" prop="role">
-                <el-select v-model="form.status" placeholder="请选择">
-                    <el-option :label="item.desc" :value="item.index" v-for="item in taskStatus"
+            <el-form-item label="任务名称" prop="name">
+                <el-input v-model="form.taskName"></el-input>
+            </el-form-item>
+            <el-form-item label="发布状态" prop="role">
+                <el-select v-model="form.excuteStatus" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.index" v-for="item in taskExcuteStatus"
                                :key="item.index"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="任务名称" prop="ver">
-                <el-input v-model="form.name"></el-input>
+            <el-form-item label="账号名称" prop="executor">
+                <el-input v-model="form.executor"></el-input>
             </el-form-item>
-            <el-form-item label="创建时间" prop="createTime" class="ui-form-item-large ">
+            <el-form-item label="开始结束时间" prop="createTime" class="ui-form-item-large ">
                 <daterange :start-date.sync="form.createStartDate" :end-date.sync="form.createEndDate" :init-range="[15,1]"></daterange>
             </el-form-item>
             <div class="ui-form__bd">
@@ -59,27 +62,18 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <!--<el-table-column type="selection"></el-table-column>-->
-            <el-table-column prop="id" label="任务ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="name" label="任务名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="taskInfoId" label="任务ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="taskName" label="任务名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="executeCount" label="执行数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="finishCount" label="完成数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="finisTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <!-- 自定义模块 -->
-            <el-table-column label="操作" min-width="220" align="center" fixed="right">
-                <template scope="item">
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 1">恢复</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
-                            +item.row.id,'任务记录')">任务记录</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
-                            +item.row.id,'查看规则')">查看规则</el-button>
-                </template>
-            </el-table-column>
+            <el-table-column prop="executor" label="账号名" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="excuteStatusDesc" label="发布状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="link" label="链接" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="linkName" label="链接名称" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="contentTitle" label="标题" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="content" label="内容" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
         </el-table>
     </div>
 
@@ -108,11 +102,12 @@
 <script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
 <script type="text/javascript">
     var urls = {
-        getDataUrl:'/task/info/search/',
+        getDataUrl:'/task/excutelog/search/',
         getPlatformsUrl:'/enums/getPlatforms',
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getTaskStatusUrl:'/enums/getTaskStatus',
+        getTaskExcuteStatusUrl:'/enums/getTaskExcuteStatus',
     }
 
     var app = new Vue({
@@ -120,12 +115,12 @@
         data: {
             form: {
                 platform: '',
-                module: '',
                 taskType: '',
-                status: '',
+                excuteStatus: '',
                 createStartDate: '',
                 createEndDate: '',
-                name: '',
+                taskName: '',
+                executor: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -147,6 +142,7 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             taskStatus: [], // 任务状态枚举列表
+            taskExcuteStatus: [], // 任务执行状态枚举列表
         },
         methods: {
 
@@ -289,7 +285,14 @@
                     }
                 });
             },
-
+            getTaskExcuteStatus: function() {
+                var _this = this;
+                this.get(urls.getTaskExcuteStatusUrl, function(data) {
+                    if (data["success"]) {
+                        _this.taskExcuteStatus = data["data"];
+                    }
+                });
+            },
         },
         mounted: function() {
             this.getData();
@@ -297,6 +300,7 @@
             this.getPlatFormModules();
             this.getTaskTypes();
             this.getTaskStatus();
+            this.getTaskExcuteStatus();
         }
     })
 </script>

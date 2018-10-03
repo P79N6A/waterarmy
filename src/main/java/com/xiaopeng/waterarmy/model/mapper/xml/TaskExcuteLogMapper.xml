@@ -3,15 +3,36 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskExcuteLogMapper">
 
     <select id="getTaskExcuteLogs" resultType="java.util.HashMap">
-        SELECT tel.id, tel.task_info_id AS taskInfoId, tel.executor,
+        SELECT tel.id, tel.task_info_id AS taskInfoId, tel.executor
         , tel.excute_status AS excuteStatus, tel.create_time AS createTime
         , ti.name AS taskName, ti.platform, ti.module, ti.task_type AS taskType
         , li.name AS linkName, li.link
-        , ci.contentTitle, ci.content
+        , ci.title AS contentTitle, ci.content
         FROM task_excute_log tel
         LEFT JOIN task_info ti ON tel.task_info_id = ti.id
         LEFT JOIN link_info li ON tel.task_info_id = li.task_info_id
         LEFT JOIN content_info ci ON tel.task_info_id = ci.task_info_id
+        WHERE 1=1
+        <if test="params.platform != null and params.platform != '' " >
+            AND ti.platform = #{params.platform}
+        </if>
+        <if test="params.taskType != null and params.taskType != '' " >
+            AND ti.task_type = #{params.taskType}
+        </if>
+        <if test="params.taskName != null and params.taskName != '' " >
+            AND ti.name = #{params.taskName}
+        </if>
+        <if test="params.excuteStatus != null and params.excuteStatus != '' " >
+            AND tel.excute_status = #{params.excuteStatus}
+        </if>
+        <if test="params.executor != null and params.executor != '' " >
+            AND tel.executor = #{params.executor}
+        </if>
+        <if test="params.createStartDate != null and params.createStartDate != ''
+        and params.createEndDate != '' and params.createEndDate != '' " >
+            AND tel.create_time  &gt;= #{params.createStartDate} and tel.create_time &lt;= #{params.createEndDate}
+        </if>
+
     </select>
 
 </mapper>

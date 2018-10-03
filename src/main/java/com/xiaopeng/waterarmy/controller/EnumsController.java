@@ -137,4 +137,20 @@ public class EnumsController {
     }
 
 
+    /**
+     * 功能描述: 获取任务执行状态枚举列表
+     *
+     * @author <a href="1206401391@qq.com">iason</a>
+     * @date 2018年8月21日
+     */
+    @RequestMapping(value = "/getTaskExcuteStatus", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonMessage getTaskExcuteStatus() {
+        List<Map<String, Object>> lists = ExcuteStatusEnum.parseMap();
+        JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
+        message.setMsg("获取任务执行状态枚举列表成功!");
+        message.data(lists);
+        return message;
+    }
+
 }

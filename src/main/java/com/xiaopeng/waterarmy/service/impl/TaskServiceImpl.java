@@ -138,6 +138,14 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    /**
+     *
+     * 获取可执行次数
+     *
+     * @param taskType
+     * @param platform
+     * @return
+     */
     private Integer getExecutableCountByTaskType(String taskType, String platform) {
         Integer executableCount = 0;
         List<Account> accounts = accountMapper.getAccountsByPlatform(platform);

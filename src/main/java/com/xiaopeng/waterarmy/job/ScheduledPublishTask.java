@@ -23,6 +23,6 @@ public class ScheduledPublishTask {
 
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
-        System.out.println("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
+        logger.info("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
     }
 }
