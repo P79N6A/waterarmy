@@ -78,8 +78,7 @@
             <el-upload
                     class="upload-demo"
                     action="/link/importData"
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove"
+                    :on-success="successUpload"
                     multiple
                     :limit="1"
                     :file-list="fileList">
@@ -234,22 +233,15 @@
                 });
             },
 
-            handleRemove: function(file, fileList) {
-                console.log(file, fileList);
-            },
-            handlePreview: function(file) {
-                console.log(file);
-            },
-
-            importData: function(file) {
-                this.$refs.upload.submit();
-//                _this.post(url.importDataUrl, file, function(data) {
-//                    if(data.success){
-//                        _this.message('导入成功 !');
-//                    }else {
-//                        _this.message('导入失败 !');
-//                    }
-//                })
+            successUpload : function(response, file, fileList, $event) {
+                // 上传成功在表单的某个字段里加一个值
+                //this.ruleForm.fileList.push(file.response.result[0].url)
+                console.log(JSON.stringify(response));
+                if(response.code == 200){
+                    this.message('导入成功 !');
+                }else {
+                    this.message('导入失败 !');
+                }
             },
         },
         mounted: function() {
