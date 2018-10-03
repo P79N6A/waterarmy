@@ -82,7 +82,7 @@
                     multiple
                     :limit="1"
                     :file-list="fileList">
-                <el-button size="small" type="primary">导入</el-button>
+                <el-button size="small" type="primary">批量导入</el-button>
             </el-upload>
 
             <!--<el-col :span="10">-->
@@ -191,12 +191,6 @@
                 this.tableSelect = val;
             },
 
-            inputData: function() {
-            },
-
-            exportData: function() {
-            },
-
             getPlatforms: function() {
                 var _this = this;
                 this.get(urls.getPlatformsUrl, function(data) {
@@ -235,8 +229,6 @@
 
             successUpload : function(response, file, fileList, $event) {
                 var _this = this;
-                // 上传成功在表单的某个字段里加一个值
-                //this.ruleForm.fileList.push(file.response.result[0].url)
                 console.log(JSON.stringify(response));
                 _this.message('导入成功 !');
                 if(response.code == 200){

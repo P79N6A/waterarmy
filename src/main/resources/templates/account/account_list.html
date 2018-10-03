@@ -71,10 +71,19 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
-            <el-col :span="10">
-                <el-button size="small" type="primary" @click="inputData">导入</el-button>
-                <el-button size="small" @click="exportData">导出</el-button>
-            </el-col>
+            <el-upload
+                    class="upload-demo"
+                    action="/link/importData"
+                    :on-success="successUpload"
+                    multiple
+                    :limit="1"
+                    :file-list="fileList">
+                <el-button size="small" type="primary">批量导入</el-button>
+            </el-upload>
+            <!--<el-col :span="10">-->
+                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--</el-col>-->
             <el-col :span="24">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
@@ -83,36 +92,6 @@
             </el-col>
         </el-row>
     </div>
-
-    <!-- 编辑弹窗 -->
-    <el-dialog title="编辑弹窗" :visible.sync="isShowEdit" :close-on-click-modal="false" top="0%" size="small"
-               :show-close="false" :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
-        <el-form :model="formEdit" label-width="100px" :inline="false" :rules="rules" ref="formEdit">
-            <el-form-item label="用户名">
-                {{formEdit.userName}}
-            </el-form-item>
-            <el-form-item label="角色" required>
-                <el-select v-model="formEdit.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
-                               :key="item.name"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="工作代号" prop="workId">
-                <el-input v-model="formEdit.workId" placeholder="请输入"></el-input>
-            </el-form-item>
-            <el-form-item label="状态" prop="status" required>
-                <el-radio-group v-model="formEdit.status">
-                    <el-radio :label="1">有效</el-radio>
-                    <el-radio :label="0">无效</el-radio>
-                </el-radio-group>
-            </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-            <el-button @click="isShowEdit = false">取 消</el-button>
-            <el-button type="primary" @click="submitEdit">确 定</el-button>
-        </div>
-    </el-dialog>
-    <!-- 编辑弹窗 -->
 
 </div>
 </body>
@@ -151,6 +130,7 @@
             // 表单验证规则
             rules: {
             },
+            fileList: [], // 上传文件
         },
         methods: {
 
@@ -190,72 +170,21 @@
                 this.getData(this.form);
             },
 
-            showEdit: function(item) {
-                var _this = this;
-                if (item.row) {
-                    var content = item.row;
-                    for (var key in content) {
-                        if (content.hasOwnProperty(key)) {
-                            _this.$set(_this.formEdit, key, content[key])
-                        }
-                    }
-                    _this.isShowEdit = true;
-                    _this.formEditItem = content;
-                }
-            },
-
-            submitEdit: function() {
-                var _this = this;
-                for (var key in _this.formEdit) {
-                    if (_this.formEdit.hasOwnProperty(key)) {
-                        _this.$set(_this.formEditItem, key, _this.formEdit[key])
-                    }
-                }
-                var url = urls.updateUrl;
-                var params = _this.formEditItem;
-                _this.post(url,params, function(data) {
-                    if(data.success){
-                        _this.isShowEdit = false;
-                        _this.message('修改成功 !');
-                    }else{
-                        _this.message('修改失败 !');
-                    }
-                })
-            },
-
-            /**
-             * 删除事件
-             * @param  {[type]} item [description]
-             * @return {[type]}       [description]
-             */
-            remove: function(item) {
-                var _this = this;
-                var index = item.$index;
-                _this.confirm('确定删除 ?', function() {
-                    var params = {
-                        id:item.row.id,
-                        userName:item.row.userName,
-                    }
-                    var url=urls.deleteUrl;
-                    _this.post(url,params, function(data) {
-                        if(data.success){
-                            _this.message('删除成功 !');
-                            _this.tableData.splice(index, 1);
-                        }else {
-                            _this.message('删除失败 !');
-                        }
-                    })
-                })
-            },
-
             onTableSelect: function(val) {
                 this.tableSelect = val;
             },
 
-            inputData: function() {
-            },
-
-            exportData: function() {
+            successUpload : function(response, file, fileList, $event) {
+                var _this = this;
+                console.log(JSON.stringify(response));
+                _this.message('导入成功 !');
+                if(response.code == 200){
+                    setTimeout(function() {
+                        _this.refresh();
+                    }, 500)
+                }else {
+                    this.message('导入失败 !');
+                }
             },
 
         },
