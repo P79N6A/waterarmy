@@ -234,11 +234,15 @@
             },
 
             successUpload : function(response, file, fileList, $event) {
+                var _this = this;
                 // 上传成功在表单的某个字段里加一个值
                 //this.ruleForm.fileList.push(file.response.result[0].url)
                 console.log(JSON.stringify(response));
+                _this.message('导入成功 !');
                 if(response.code == 200){
-                    this.message('导入成功 !');
+                    setTimeout(function() {
+                        _this.refresh();
+                    }, 500)
                 }else {
                     this.message('导入失败 !');
                 }
