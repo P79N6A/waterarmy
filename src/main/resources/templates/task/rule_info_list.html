@@ -59,25 +59,17 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <!-- 多选 -->
             <!--<el-table-column type="selection"></el-table-column>-->
-            <el-table-column prop="id" label="任务ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="name" label="任务名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
-            <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="executeCount" label="执行数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="finishCount" label="完成数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="id" label="规则ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="name" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="platformDesc" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="moduleDesc" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="taskTypeDesc" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="executeCount" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="finisTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="220" align="center" fixed="right">
                 <template scope="item">
                     <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 1">恢复</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
-                            +item.row.id,'任务记录')">任务记录</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
-                            +item.row.id,'查看规则')">查看规则</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -86,6 +78,9 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
+            <el-col :span="10">
+                <el-button size="small" type="primary" @click="showNew">新增规则</el-button>
+            </el-col>
             <!--<el-col :span="10">-->
                 <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
                 <!--<el-button size="small" @click="exportData">导出</el-button>-->
@@ -98,6 +93,53 @@
             </el-col>
         </el-row>
     </div>
+
+    <!-- 新增弹窗 -->
+    <el-dialog title="新增规则" :visible.sync="isShowNew" :close-on-click-modal="false" top="0%" size="small" :show-close="false"
+               :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
+
+        <el-form :model="form" label-width="80px" :inline="false" :rules="rules" ref="form">
+
+                    <el-form-item prop="isRandomSelectLink" label="随机选择链接">
+                        <el-radio-group v-model="form.isRandomSelectLink">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item prop="isRandomSelectContent" label="随机选择内容">
+                        <el-radio-group v-model="form.isRandomSelectContent">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="时间间隔(随机)" prop="role">
+                        <el-row :gutter="40">
+                            <el-col :span="8">
+                                <div class="grid-content bg-purple">
+                                    <el-input v-model="form.startTimeInterval"></el-input>
+                                </div>
+                            </el-col>
+                            <el-col :span="8">
+                                <div class="grid-content bg-purple">
+                                    <el-input v-model="form.endTimeInterval"></el-input>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form-item>
+                    <el-form-item label="PV停留时间" prop="role">
+                        <el-select v-model="form.pvStayTime" placeholder="请选择">
+                            <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
+                                       :key="item.index"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="isShowNew = false">取 消</el-button>
+            <el-button type="primary" @click="submitNew">确 定</el-button>
+        </div>
+    </el-dialog>
 
 </div>
 </body>
@@ -113,6 +155,7 @@
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getTaskStatusUrl:'/enums/getTaskStatus',
+        getPVStayTimesUrl:'/enums/getPVStayTimes',
     }
 
     var app = new Vue({
@@ -147,6 +190,8 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             taskStatus: [], // 任务状态枚举列表
+            PVStayTimes: [], // PV停留时间枚举列表
+            isShowNew: false,// 是否显示新增弹窗
         },
         methods: {
 
@@ -226,6 +271,53 @@
                 });
             },
 
+            /**
+             * 新增弹窗提交
+             * @return {[type]} [description]
+             */
+            submitNew: function() {
+                var _this = this;
+                // 表单验证
+                _this.$refs['form'].validate(function(valid) {
+                    // 验证通过
+                    if (valid) {
+                        var url = urls.addUrl;
+                        var params = _this.formNew;
+                        _this.post(url,params, function(data) {
+                            if(data.success){
+                                _this.isShowNew = false;
+                                _this.refresh();
+                                _this.message('添加成功 !');
+                            }else{
+                                _this.message(data.msg);
+                            }
+                        })
+                    }
+                })
+            },
+
+            /**
+             * 新增弹窗
+             * @param  {[type]} item [description]
+             * @return {[type]}      [description]
+             */
+            showNew: function() {
+                var _this = this;
+                _this.isShowNew = true;
+                _this.$nextTick(function() {
+                    _this.$refs['form'].resetFields();
+                })
+            },
+
+            getPVStayTimes: function() {
+                var _this = this;
+                this.get(urls.getPVStayTimesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.PVStayTimes = data["data"];
+                    }
+                });
+            },
+
         },
         mounted: function() {
             this.getData();
@@ -233,6 +325,7 @@
             this.getPlatFormModules();
             this.getTaskTypes();
             this.getTaskStatus();
+            this.getPVStayTimes();
         }
     })
 </script>
