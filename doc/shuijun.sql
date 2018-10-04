@@ -239,6 +239,28 @@ VALUES
 UNLOCK TABLES;
 
 
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4541
+#
+# http://www.sequelpro.com/
+# https://github.com/sequelpro/sequelpro
+#
+# Host: 127.0.0.1 (MySQL 5.6.15)
+# Database: shuijun
+# Generation Time: 2018-10-04 16:42:59 +0000
+# ************************************************************
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
 # Dump of table publish_info
 # ------------------------------------------------------------
 
@@ -249,14 +271,34 @@ CREATE TABLE `publish_info` (
   `platform` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `userId` int(11) DEFAULT NULL,
   `outUserName` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `createTime` date NOT NULL,
-  `modifyTime` date NOT NULL,
+  `createTime` datetime NOT NULL,
+  `modifyTime` datetime NOT NULL,
   `status` int(11) NOT NULL,
   `targetUrl` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `detailResult` text COLLATE utf8mb4_unicode_ci,
+  `title` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `body` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+LOCK TABLES `publish_info` WRITE;
+/*!40000 ALTER TABLE `publish_info` DISABLE KEYS */;
+
+INSERT INTO `publish_info` (`id`, `platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`, `title`, `body`)
+VALUES
+	(1,'PCAUTO',3,'15283867540','2018-10-05 00:42:06','2018-10-05 00:42:06',1,'https://bbs.pcauto.com.cn/topic-17512107.html','{\"status\":0,\"tid\":17512107}','这车什么时候量产上市','我很想知道这车什么时候上市');
+
+/*!40000 ALTER TABLE `publish_info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
 
