@@ -15,4 +15,11 @@ public interface AccountMapper extends MyMapper<Account> {
 
     List<Account> getAccountsByPlatform(@Param("platform") String platform);
 
+    /**
+     * 通过id查询 第三方系统账号
+     * @param id
+     * @return
+     */
+    Account getAccountById(@Param("id") Long id);
+
 }
