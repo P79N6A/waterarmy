@@ -75,6 +75,16 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
+            <el-upload
+                    class="upload-demo"
+                    action="/link/importData"
+                    :on-success="successUpload"
+                    multiple
+                    :limit="1"
+                    :file-list="fileList">
+                <el-button size="small" type="primary">批量导入</el-button>
+            </el-upload>
+
             <!--<el-col :span="10">-->
                 <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
                 <!--<el-button size="small" @click="exportData">导出</el-button>-->
@@ -102,6 +112,7 @@
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getTaskStatusUrl:'/enums/getTaskStatus',
+        importDataUrl:'/enums/importData',
     }
 
     var app = new Vue({
@@ -136,6 +147,7 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             taskStatus: [], // 任务状态枚举列表
+            fileList: [], // 上传文件
         },
         methods: {
 
@@ -175,72 +187,8 @@
                 this.getData(this.form);
             },
 
-            showEdit: function(item) {
-                var _this = this;
-                if (item.row) {
-                    var content = item.row;
-                    for (var key in content) {
-                        if (content.hasOwnProperty(key)) {
-                            _this.$set(_this.formEdit, key, content[key])
-                        }
-                    }
-                    _this.isShowEdit = true;
-                    _this.formEditItem = content;
-                }
-            },
-
-            submitEdit: function() {
-                var _this = this;
-                for (var key in _this.formEdit) {
-                    if (_this.formEdit.hasOwnProperty(key)) {
-                        _this.$set(_this.formEditItem, key, _this.formEdit[key])
-                    }
-                }
-                var url = urls.updateUrl;
-                var params = _this.formEditItem;
-                _this.post(url,params, function(data) {
-                    if(data.success){
-                        _this.isShowEdit = false;
-                        _this.message('修改成功 !');
-                    }else{
-                        _this.message('修改失败 !');
-                    }
-                })
-            },
-
-            /**
-             * 删除事件
-             * @param  {[type]} item [description]
-             * @return {[type]}       [description]
-             */
-            remove: function(item) {
-                var _this = this;
-                var index = item.$index;
-                _this.confirm('确定删除 ?', function() {
-                    var params = {
-                        id:item.row.id,
-                        userName:item.row.userName,
-                    }
-                    var url=urls.deleteUrl;
-                    _this.post(url,params, function(data) {
-                        if(data.success){
-                            _this.message('删除成功 !');
-                            _this.tableData.splice(index, 1);
-                        }else {
-                            _this.message('删除失败 !');
-                        }
-                    })
-                })
-            },
-
             onTableSelect: function(val) {
                 this.tableSelect = val;
-            },
-
-            inputData: function() {
-            },
-
-            exportData: function() {
             },
 
             getPlatforms: function() {
@@ -279,6 +227,18 @@
                 });
             },
 
+            successUpload : function(response, file, fileList, $event) {
+                var _this = this;
+                console.log(JSON.stringify(response));
+                _this.message('导入成功 !');
+                if(response.code == 200){
+                    setTimeout(function() {
+                        _this.refresh();
+                    }, 500)
+                }else {
+                    this.message('导入失败 !');
+                }
+            },
         },
         mounted: function() {
             this.getData();

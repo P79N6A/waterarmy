@@ -19,8 +19,8 @@ public class Account implements Serializable {
     /**
      * 用户账号UUID
      */
-    @Column(name = "uuid")
-    private String uuid;
+    @Column(name = "UUID")
+    private String UUID;
 
     /**
      * 账号名
@@ -111,12 +111,12 @@ public class Account implements Serializable {
         this.id = id;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getUUID() {
+        return UUID;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     public String getUserName() {

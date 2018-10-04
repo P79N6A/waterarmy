@@ -2,13 +2,21 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
+import com.xiaopeng.waterarmy.common.message.CodeEnum;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.common.util.ExcelUtil;
+import com.xiaopeng.waterarmy.model.dao.ContentInfo;
+import com.xiaopeng.waterarmy.model.dao.LinkInfo;
 import com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper;
 import com.xiaopeng.waterarmy.service.ContentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,4 +45,20 @@ public class ContentServiceImpl implements ContentService {
         return new PageInfo<>(results);
     }
 
+    @Override
+    public JsonMessage importData(MultipartFile file) {
+        JsonMessage message = JsonMessage.init();
+        List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());
+        for (Object data: datas) {
+            ContentInfo info = (ContentInfo) data;
+            info.setCreateTime(new Date());
+            info.setUpdateTime(new Date());
+            info.setCount(0);
+            info.setCreator("xiaoa");
+            info.setUpdater("xiaoa");
+            contentInfoMapper.save(info);
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("导入内容数据成功!");
+        return message;
+    }
 }

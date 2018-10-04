@@ -166,6 +166,7 @@
         getTaskTypesUrl:'/enums/getTaskTypes',
         getPlatformStatusUrl:'/enums/getPlatformStatus',
         getPVStayTimesUrl:'/enums/getPVStayTimes',
+        publishTaskUrl:'/task/publish/publishTask',
     }
 
     var app = new Vue({
@@ -305,13 +306,16 @@
                 this.tableSelect = val;
             },
 
-            inputData: function() {
-            },
-
-            exportData: function() {
-            },
-
             publishTask: function() {
+                var _this = this;
+                _this.post(urls.publishTaskUrl, _this.form, function(data) {
+                    if(data.success){
+                        _this.message('发布成功 !');
+                        _this.tableData.splice(index, 1);
+                    }else {
+                        _this.message('发布失败 !');
+                    }
+                })
             },
 
             getPlatforms: function() {

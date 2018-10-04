@@ -2,6 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountMapper">
 
+    <insert id="save">
+        INSERT INTO account (UUID, user_name, full_name, password
+        , mobile, email, level, platform, task_count
+        , create_time, update_time, creator, updater)
+        VALUES (#{account.UUID}, #{account.userName}, #{account.fullName}, #{account.password}
+        , #{account.mobile}, #{account.email}, #{account.level}, #{account.platform}, #{account.taskCount}
+        , #{account.createTime}, #{account.updateTime}, #{account.creator}, #{account.updater})
+    </insert>
+
     <select id="getAccounts" resultType="java.util.HashMap">
         SELECT id, user_name AS userName, full_name AS fullName, password
         , mobile, email, level, platform, task_count as taskCount

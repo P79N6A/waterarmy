@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.ContentService;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
@@ -50,5 +52,12 @@ public class ContentController {
         }
         return contentService.page(pageNo, pageSize, params);
     }
+
+    @RequestMapping(value = "/importData", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage addUser(@RequestParam("file") MultipartFile file) {
+        return  contentService.importData(file);
+    }
+
 
 }

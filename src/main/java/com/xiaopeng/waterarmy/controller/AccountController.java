@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
@@ -49,5 +50,12 @@ public class AccountController {
         }
         return accountService.page(pageNo, pageSize, params);
     }
+
+    @RequestMapping(value = "/importData", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage addUser(@RequestParam("file") MultipartFile file) {
+        return  accountService.importData(file);
+    }
+
 
 }

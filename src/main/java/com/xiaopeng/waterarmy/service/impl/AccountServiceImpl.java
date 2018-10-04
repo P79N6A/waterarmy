@@ -3,10 +3,13 @@ package com.xiaopeng.waterarmy.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.AccountLevelEnum;
+import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.LinkInfo;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import org.apache.commons.collections4.MapUtils;
@@ -15,9 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * * 功能描述：
@@ -63,6 +69,24 @@ public class AccountServiceImpl implements AccountService {
         return message;
     }
 
+    @Override
+    public JsonMessage importData(MultipartFile file) {
+        JsonMessage message = JsonMessage.init();
+        List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.ACCOUNT.getName());
+        for (Object data: datas) {
+            Account info = (Account) data;
+            info.setUUID(UUID.randomUUID().toString());
+            info.setLevel(AccountLevelEnum.PRIMARY.getIndex());
+            info.setTaskCount(0);
+            info.setCreateTime(new Date());
+            info.setUpdateTime(new Date());
+            info.setCreator("xiaoa");
+            info.setUpdater("xiaoa");
+            accountMapper.save(info);
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("导入账号数据成功!");
+        return message;
+    }
 
 
 }

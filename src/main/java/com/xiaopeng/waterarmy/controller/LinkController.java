@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.LinkService;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
@@ -37,18 +39,24 @@ public class LinkController {
         return view;
     }
 
-    @RequestMapping(value="/search/{pageNo}",method = RequestMethod.POST)
+    @RequestMapping(value = "/search/{pageNo}", method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> search(@RequestParam Map<String,Object> params
-            , @PathVariable("pageNo")Integer pageNo){
+    public PageInfo<Map<String, Object>> search(@RequestParam Map<String, Object> params
+            , @PathVariable("pageNo") Integer pageNo) {
         if (pageNo == null) {
             pageNo = 1;
         }
-        Integer pageSize=10;
-        if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
-            pageSize = MapUtils.getInteger(params,"pageSize");
+        Integer pageSize = 10;
+        if (!ObjectUtils.isEmpty(MapUtils.getString(params, "pageSize"))) {
+            pageSize = MapUtils.getInteger(params, "pageSize");
         }
         return linkService.page(pageNo, pageSize, params);
+    }
+
+    @RequestMapping(value = "/importData", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage addUser(@RequestParam("file") MultipartFile file) {
+        return  linkService.importData(file);
     }
 
 }
