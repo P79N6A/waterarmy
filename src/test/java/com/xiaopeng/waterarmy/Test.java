@@ -1,5 +1,7 @@
 package com.xiaopeng.waterarmy;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.constants.HttpConstants;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import org.jsoup.Jsoup;
@@ -7,9 +9,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.HashMap;
+
 public class Test {
     public static void main(String []args) {
-        try {
+
+        test();
+       /* try {
             //String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=32920945";
             String url = "https://www.d1ev.com/carnews/xinche/77669";
             Document doc = Jsoup.connect(url).timeout(2000).get();
@@ -29,7 +35,7 @@ public class Test {
             String tid = contents.attr("data-src");
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 
@@ -50,6 +56,15 @@ public class Test {
         FetchParamUtil.getMatherStr(targetUserId,commonPattern);
 
         System.out.println("123");
+    }
+
+    private static void test() {
+        String str = "{\"list\":[{\"editor\":1,\"fid\":16488,\"floor\":1,\"forumName\":\"新奥拓论坛\",\"forumUrl\":\"//bbs.pcauto.com.cn/forum-16488.html\",\"image\":\"\",\"isContainImage\":false,\"isNew\":true,\"lastPostAt\":\"18-10-04 22:50\",\"message\":\"邻居说，轮胎蹭大梁，花了100大洋去做四轮定位回来……拿着两桶清洗剂说，准备自己清洗积碳！我也是醉了，就两桶清洗剂自己就搞了……说话中，邻居停车完毕，就打算自己操作了！\\n带大家欣赏一下这个奇葩的清洗积碳吧……\",\"pick\":0,\"pick1\":0,\"pid\":156977580,\"replyCount\":0,\"title\":\"国庆遇到巨坑\",\"topicCreateAt\":1538664652000,\"topicId\":17512037,\"url\":\"//bbs.pcauto.com.cn/topic-17512037.html\",\"userName\":\"eiaxal8142\",\"userUrl\":\"//my.pcauto.com.cn/47446648\",\"viewCount\":10}],\"listCount\":1}";
+        JSONObject jsonObject = JSONObject.parseObject(str);
+        JSONArray jsonArray = (JSONArray) jsonObject.get("list");
+        JSONObject object = (JSONObject)jsonArray.get(0);
+        String url = (String) object.get("url");
+
     }
 
 

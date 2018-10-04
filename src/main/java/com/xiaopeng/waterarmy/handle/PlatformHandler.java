@@ -54,12 +54,22 @@ public abstract class PlatformHandler implements  RequestHandler{
                         if (saveContext.getData() != null) {
                             Object object = saveContext.getData();
                             if (object instanceof CommentInfo) {
-                                CommentInfo commentInfo = (CommentInfo) object;
-                                commentInfoMapper.save(commentInfo);
+                                try {
+                                    CommentInfo commentInfo = (CommentInfo) object;
+                                    commentInfoMapper.save(commentInfo);
+                                }catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                             if (object instanceof PublishInfo) {
-                                PublishInfo publishInfo = (PublishInfo)object;
-                                publishInfoMapper.save(publishInfo);
+                                try {
+                                    PublishInfo publishInfo = (PublishInfo)object;
+                                    publishInfoMapper.save(publishInfo);
+                                }catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         }
                     }

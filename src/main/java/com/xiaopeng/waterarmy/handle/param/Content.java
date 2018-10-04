@@ -7,6 +7,19 @@ public class Content {
      */
     private String text;
 
+    /**
+     * 标题
+     */
+    private String title;
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getText() {
         return text;

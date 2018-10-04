@@ -69,4 +69,15 @@ public class LoginResultDTO {
     public void setToken(String token) {
         this.token = token;
     }
+
+    @Override
+    public String toString() {
+        return "LoginResultDTO{" +
+                "outId=" + outId +
+                ", id=" + id +
+                ", userId='" + userId + '\'' +
+                ", token='" + token + '\'' +
+                ", httpClient=" + httpClient +
+                '}';
+    }
 }

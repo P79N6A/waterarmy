@@ -3,10 +3,8 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.PublishInfoMapper">
 
     <insert id="save">
-       INSERT INTO `publish_info` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
+       INSERT INTO `publish_info` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`,`title`,`body`)
        VALUES
-       (#{commentInfo.platform}, #{commentInfo.userId}, #{commentInfo.outUserName}, now(),now(),
-        ,  #{commentInfo.status}, #{commentInfo.targetUrl},  #{commentInfo.detailResult})
+       (#{publishInfo.platform}, #{publishInfo.userId}, #{publishInfo.outUserName}, now(),now(), #{publishInfo.status}, #{publishInfo.targetUrl}, #{publishInfo.detailResult}, #{publishInfo.title}, #{publishInfo.body})
     </insert>
-
 </mapper>

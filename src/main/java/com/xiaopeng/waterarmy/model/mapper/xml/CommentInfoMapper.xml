@@ -5,8 +5,7 @@
     <insert id="save">
        INSERT INTO `CommentInfo` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
        VALUES
-       (#{commentInfo.platform}, #{commentInfo.userId}, #{commentInfo.outUserName}, now(),now(),
-        ,  #{commentInfo.status}, #{commentInfo.targetUrl},  #{commentInfo.detailResult})
+       (#{commentInfo.platform}, #{commentInfo.userId}, #{commentInfo.outUserName}, now(),now(), #{commentInfo.status}, #{commentInfo.targetUrl},  #{commentInfo.detailResult})
     </insert>
 
 </mapper>

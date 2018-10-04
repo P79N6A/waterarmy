@@ -36,7 +36,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createTestContext();
+        requestContext = this.createTestPublisContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -67,4 +67,20 @@ public class HandlerDispatcher {
         requestContext.setPrefixUrl("https://bbs.pcauto.com.cn/topic-17493073.html");
         return requestContext;
     }
+
+    private RequestContext createTestPublisContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("我很想知道这车什么时候上市");
+        content.setTitle("这车什么时候量产上市");
+        requestContext.setContent(content);
+        requestContext.setUserId(3L);
+        requestContext.setUserLoginId("15283867540");
+        requestContext.setHandleType(TaskTypeEnum.POSIED);
+        requestContext.setPlatform(PlatformEnum.PCAUTO);
+        requestContext.setPrefixUrl("https://bbs.pcauto.com.cn/forum-14560.html");
+        return requestContext;
+    }
+
+
 }
