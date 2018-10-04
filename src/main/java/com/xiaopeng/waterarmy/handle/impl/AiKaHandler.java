@@ -5,7 +5,9 @@ import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AiKaHandler extends PlatformHandler {
     @Override
     public Result save(SaveContext saveContext) {

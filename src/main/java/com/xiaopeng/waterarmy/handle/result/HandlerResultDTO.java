@@ -31,6 +31,11 @@ public class HandlerResultDTO {
      */
     private String detailResult;
 
+    /**
+     * 评论的帖子链接，或者点赞的回复链接，
+     */
+    private String targetUrl;
+
 
     public Long getUserId() {
         return userId;
@@ -70,5 +75,13 @@ public class HandlerResultDTO {
 
     public void setDetailResult(String detailResult) {
         this.detailResult = detailResult;
+    }
+
+    public String getTargetUrl() {
+        return targetUrl;
+    }
+
+    public void setTargetUrl(String targetUrl) {
+        this.targetUrl = targetUrl;
     }
 }

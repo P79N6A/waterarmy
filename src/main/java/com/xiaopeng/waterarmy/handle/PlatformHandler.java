@@ -5,8 +5,22 @@ import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
+import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PublishInfo;
+import com.xiaopeng.waterarmy.model.mapper.CommentInfoMapper;
+import com.xiaopeng.waterarmy.model.mapper.PublishInfoMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class PlatformHandler implements  RequestHandler{
+
+    @Autowired
+    private CommentInfoMapper commentInfoMapper;
+
+    @Autowired
+    private PublishInfoMapper publishInfoMapper;
 
     @Override
     public Result<HandlerResultDTO> handle(RequestContext requestContext) {
@@ -26,8 +40,33 @@ public abstract class PlatformHandler implements  RequestHandler{
         }
     }
 
+
+
+
+
     @Override
-    public abstract Result save(SaveContext saveContext);
+    public Result save(SaveContext saveContext) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (saveContext.getData() != null) {
+                            Object object = saveContext.getData();
+                            if (object instanceof CommentInfo) {
+                                CommentInfo commentInfo = (CommentInfo) object;
+                                commentInfoMapper.save(commentInfo);
+                            }
+                            if (object instanceof PublishInfo) {
+                                PublishInfo publishInfo = (PublishInfo)object;
+                                publishInfoMapper.save(publishInfo);
+                            }
+                        }
+                    }
+                }
+        );
+        return new Result(true);
+    }
 
 
     /**

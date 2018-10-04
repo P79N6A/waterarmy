@@ -7,6 +7,7 @@ import com.xiaopeng.waterarmy.common.enums.*;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
+import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.TaskInfo;
 import com.xiaopeng.waterarmy.model.mapper.*;
@@ -59,6 +60,9 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskExcuteLogMapper taskExcuteLogMapper;
 
+    @Autowired
+    private HandlerDispatcher handlerDispatcher;
+
     @Override
     public PageInfo<Map<String, Object>> taskPublishPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
@@ -69,6 +73,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+
+        handlerDispatcher.dispatch(null);
+
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         setResults(results, false);

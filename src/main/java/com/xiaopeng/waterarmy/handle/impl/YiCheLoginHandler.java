@@ -22,11 +22,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Component
 public class YiCheLoginHandler  implements LoginHandler {
 
     private static Logger logger = LoggerFactory.getLogger(TaiPingYangLoginHandler.class);

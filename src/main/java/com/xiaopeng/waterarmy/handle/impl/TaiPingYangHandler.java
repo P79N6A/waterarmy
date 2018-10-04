@@ -1,12 +1,17 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
+import com.xiaopeng.waterarmy.handle.result.TaiPingYangCommentResultDTO;
+import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -35,14 +40,11 @@ public class TaiPingYangHandler extends PlatformHandler {
 
     private static final String TOPIC = "topic";
 
+    private static final String TARGET_COMMENT_URL = "https://bbs.pcauto.com.cn/action/post/create.ajax";
+
     @Autowired
     TaiPingYangLoginHandler taiPingYangLoginHandler;
 
-
-    @Override
-    public Result save(SaveContext saveContext) {
-        return null;
-    }
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
@@ -55,25 +57,37 @@ public class TaiPingYangHandler extends PlatformHandler {
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
-            logger.error("[TaiPingYangHandler.comment] requestContext"+ requestContext);
-            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(),ResultCodeEnum.LOGIN_FAILED.getDesc());
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
         try {
-            LoginResultDTO loginResultDTO =  resultDTOResult.getData();
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createCommentPost(requestContext);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
-            if (entity!=null) {
+            if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
+                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
+                if (resultDTO.getStatus().equals("0")) {
+                    //评论成功
+                    HandlerResultDTO handlerResultDTO = createHandlerResultDTO(requestContext, content);
+                    CommentInfo commentInfo = createCommentInfo(requestContext, content);
+
+                    save(new SaveContext(commentInfo));
+
+                    return new Result(handlerResultDTO);
+                }
             }
-            HandlerResultDTO handlerResultDTO = createHandlerResultDTO(requestContext,content);
-            return new Result<>(handlerResultDTO);
-        }catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!",e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
-        return  new Result<>(ResultCodeEnum.HANDLE_FAILED);
+
     }
 
     @Override
@@ -87,41 +101,6 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
     private HttpPost createCommentPost(RequestContext requestContext) {
-        //评论
-       /* HttpPost httpPost1 = new HttpPost("https://bbs.pcauto.com.cn/action/post/create.ajax");
-        List<NameValuePair> nameValuePairs1 = new ArrayList<NameValuePair>();
-        nameValuePairs1.add(new BasicNameValuePair("wysiwyg", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("fid", "17965"));
-        nameValuePairs1.add(new BasicNameValuePair("topicTitleMaxLength", "40"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMinLength", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMaxLength", "500000"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadKeepSource", "false"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadMaxNumPerTime", "9999"));
-        nameValuePairs1.add(new BasicNameValuePair("checkCategory", "0"));
-        nameValuePairs1.add(new BasicNameValuePair("tid", "17338209"));
-        nameValuePairs1.add(new BasicNameValuePair("category", "综合"));
-        nameValuePairs1.add(new BasicNameValuePair("message"
-                , "[size=4]" + comment+ "[/size]"));//买车一个月，用起来真心不错，比想象的好很多
-        nameValuePairs1.add(new BasicNameValuePair("upload2Album", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("albumId", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("sendMsg", "true"));
-        httpPost1.setEntity(new UrlEncodedFormEntity(nameValuePairs1, "UTF-8"));
-        CloseableHttpResponse response1 = httpClient.execute(httpPost1);
-        HttpEntity entity1 = response1.getEntity();
-        String content1 = EntityUtils.toString(entity1, "utf-8");
-        System.out.println(content1);
-
-        httpClient.close();*/
-
-
-        /**
-         * 自动评论的流程
-         * 1.获取需要评论的帖子的url
-         * 2.爬取该url，通过content获取相应参数
-         * 3.组装页面参数及动态参数
-         */
-
-
         //太平洋评论需要的参数
         /**
          * tid: 16868614
@@ -151,7 +130,11 @@ public class TaiPingYangHandler extends PlatformHandler {
             }
         }
 
-        HttpPost httpPost = new HttpPost();
+        String targetUrl = requestContext.getTargetUrl();
+        if (StringUtils.isBlank(targetUrl)) {
+            targetUrl = TARGET_COMMENT_URL;
+        }
+        HttpPost httpPost = new HttpPost(targetUrl);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair("message", requestContext.getContent().getText()));
         nameValuePairs.add(new BasicNameValuePair("fid", this.getFid(requestContext.getPrefixUrl())));
@@ -161,60 +144,50 @@ public class TaiPingYangHandler extends PlatformHandler {
         nameValuePairs.add(new BasicNameValuePair("maxContentLength", "500000"));
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
             return null;
         }
         return httpPost;
-
-       /* HttpPost httpPost1 = new HttpPost(requestContext.getPrefixUrl());
-        List<NameValuePair> nameValuePairs1 = new ArrayList<NameValuePair>();
-        nameValuePairs1.add(new BasicNameValuePair("wysiwyg", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("fid", "17965"));
-        nameValuePairs1.add(new BasicNameValuePair("topicTitleMaxLength", "40"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMinLength", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMaxLength", "500000"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadKeepSource", "false"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadMaxNumPerTime", "9999"));
-        nameValuePairs1.add(new BasicNameValuePair("checkCategory", "0"));
-        nameValuePairs1.add(new BasicNameValuePair("tid", "17338209"));
-        nameValuePairs1.add(new BasicNameValuePair("category", "综合"));
-        nameValuePairs1.add(new BasicNameValuePair("message"
-                , "[size=4]" + comment+ "[/size]"));//买车一个月，用起来真心不错，比想象的好很多
-        nameValuePairs1.add(new BasicNameValuePair("upload2Album", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("albumId", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("sendMsg", "true"));
-        httpPost1.setEntity(new UrlEncodedFormEntity(nameValuePairs1, "UTF-8"));
-        CloseableHttpResponse response1 = httpClient.execute(httpPost1);
-        HttpEntity entity1 = response1.getEntity();
-        String content1 = EntityUtils.toString(entity1, "utf-8");
-        System.out.println(content1);
-
-        httpClient.close();*/
-
-        //return null;
     }
 
     private String getFid(String url) {
-        try {
-            Document doc = Jsoup.connect(url).timeout(2000).get();
-            Element content = doc.getElementById("fixBox");
-            String tid = content.attr("data-src");
-            return tid;
-        } catch (Exception e) {
 
+        int count = 3;
+        while (count > 0) {
+            try {
+                Document doc = Jsoup.connect(url).timeout(2000).get();
+                Element content = doc.getElementById("fixBox");
+                String tid = content.attr("data-src");
+                return tid;
+            } catch (Exception e) {
+                count--;
+            }
         }
         return null;
     }
 
-    private HandlerResultDTO createHandlerResultDTO(RequestContext requestContext,String content){
+    private HandlerResultDTO createHandlerResultDTO(RequestContext requestContext, String content) {
         HandlerResultDTO handlerResultDTO = new HandlerResultDTO();
         handlerResultDTO.setHandleType(requestContext.getHandleType());
         handlerResultDTO.setDetailResult(content);
         handlerResultDTO.setPlatform(requestContext.getPlatform());
         handlerResultDTO.setUserId(requestContext.getUserId());
         handlerResultDTO.setUserLoginId(requestContext.getUserLoginId());
+        handlerResultDTO.setTargetUrl(requestContext.getTargetUrl());
         return handlerResultDTO;
+    }
+
+
+    private CommentInfo createCommentInfo(RequestContext requestContext, String content) {
+        CommentInfo commentInfo = new CommentInfo();
+        commentInfo.setOutUserName(requestContext.getUserLoginId());
+        commentInfo.setDetailResult(content);
+        commentInfo.setPlatform(requestContext.getPlatform().getName());
+        commentInfo.setStatus(ResultConstants.STATUS_ENABLE);
+        commentInfo.setUserId(requestContext.getUserId());
+        commentInfo.setTargetUrl(requestContext.getTargetUrl());
+        return commentInfo;
     }
 }
 

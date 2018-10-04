@@ -26,4 +26,12 @@
         SELECT * FROM account WHERE status = 1 AND platform = #{platform}
     </select>
 
+
+    <select id="getAccountById" resultType="com.xiaopeng.waterarmy.model.dao.Account">
+       SELECT id,UUID, user_name AS userName, full_name AS fullName, password
+        , mobile, email, level, platform, task_count as taskCount
+        , create_time AS createTime, update_time AS updateTime
+        , status, creator, updater FROM account WHERE id=#{id} AND status = 1
+    </select>
+
 </mapper>

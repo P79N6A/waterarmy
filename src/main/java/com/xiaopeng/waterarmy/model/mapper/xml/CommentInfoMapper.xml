@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.CommentInfoMapper">
+
+    <insert id="save">
+       INSERT INTO `CommentInfo` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
+       VALUES
+       (#{commentInfo.platform}, #{commentInfo.userId}, #{commentInfo.outUserName}, now(),now(),
+        ,  #{commentInfo.status}, #{commentInfo.targetUrl},  #{commentInfo.detailResult})
+    </insert>
+
+</mapper>
