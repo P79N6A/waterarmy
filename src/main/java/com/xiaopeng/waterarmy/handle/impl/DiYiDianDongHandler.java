@@ -1,7 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
 import com.xiaopeng.waterarmy.common.Result.Result;
-import com.xiaopeng.waterarmy.common.constants.HttpConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
@@ -18,8 +17,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
