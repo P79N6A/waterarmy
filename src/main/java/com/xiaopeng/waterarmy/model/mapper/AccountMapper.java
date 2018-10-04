@@ -9,10 +9,18 @@ import java.util.Map;
 
 public interface AccountMapper extends MyMapper<Account> {
 
-    List<Map<String,Object>> getAccounts(@Param("params") Map<String, Object> params);
+    List<Map<String, Object>> getAccounts(@Param("params") Map<String, Object> params);
 
     Account getAccountByUserName(@Param("userName") String userName);
 
     List<Account> getAccountsByPlatform(@Param("platform") String platform);
 
+    /**
+     * 通过id查询 第三方系统账号
+     * @param id
+     * @return
+     */
+    Account getAccountById(@Param("id") Long id);
+
+    void save(@Param("account") Account account);
 }
