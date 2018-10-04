@@ -19,6 +19,10 @@ public class LoginResultDTO {
      */
     private String userId;
 
+    /**
+     * 某些需要token
+     */
+    private String token;
 
     /**
      * 使用的httpClient
@@ -56,5 +60,13 @@ public class LoginResultDTO {
 
     public void setHttpClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

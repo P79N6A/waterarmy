@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.handle.impl;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
+import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
@@ -84,33 +85,6 @@ public class YiCheHandler extends PlatformHandler {
     }
 
     private HttpPost createCommentPost(RequestContext requestContext) {
-        //评论
-       /* HttpPost httpPost1 = new HttpPost("https://bbs.pcauto.com.cn/action/post/create.ajax");
-        List<NameValuePair> nameValuePairs1 = new ArrayList<NameValuePair>();
-        nameValuePairs1.add(new BasicNameValuePair("wysiwyg", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("fid", "17965"));
-        nameValuePairs1.add(new BasicNameValuePair("topicTitleMaxLength", "40"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMinLength", "1"));
-        nameValuePairs1.add(new BasicNameValuePair("topicContentMaxLength", "500000"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadKeepSource", "false"));
-        nameValuePairs1.add(new BasicNameValuePair("uploadMaxNumPerTime", "9999"));
-        nameValuePairs1.add(new BasicNameValuePair("checkCategory", "0"));
-        nameValuePairs1.add(new BasicNameValuePair("tid", "17338209"));
-        nameValuePairs1.add(new BasicNameValuePair("category", "综合"));
-        nameValuePairs1.add(new BasicNameValuePair("message"
-                , "[size=4]" + comment+ "[/size]"));//买车一个月，用起来真心不错，比想象的好很多
-        nameValuePairs1.add(new BasicNameValuePair("upload2Album", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("albumId", "2982656"));
-        nameValuePairs1.add(new BasicNameValuePair("sendMsg", "true"));
-        httpPost1.setEntity(new UrlEncodedFormEntity(nameValuePairs1, "UTF-8"));
-        CloseableHttpResponse response1 = httpClient.execute(httpPost1);
-        HttpEntity entity1 = response1.getEntity();
-        String content1 = EntityUtils.toString(entity1, "utf-8");
-        System.out.println(content1);
-
-        httpClient.close();*/
-
-
         /**
          * 自动评论的流程
          * 1.获取需要评论的帖子的url
@@ -188,20 +162,13 @@ public class YiCheHandler extends PlatformHandler {
 
     private String getTopic(String url) {
         String pattern = "(\\d+)";
-        return getMatherStr(url,pattern);
+        return FetchParamUtil.getMatherStr(url,pattern);
     }
 
     private String getForumApp(String url) {
         String pattern = "(\\/.*\\/)";
-        return getMatherStr(url,pattern);
+        return FetchParamUtil.getMatherStr(url,pattern);
     }
 
-    private String getMatherStr(String url,String pattern) {
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(url);
-        if (m.find()) {
-            return m.group(0);
-        }
-        return null;
-    }
+
 }

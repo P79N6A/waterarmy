@@ -121,9 +121,6 @@ public class YiCheLoginHandler  implements LoginHandler {
         loginResultDTO.setHttpClient(httpClient);
         loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
         return new Result<>(loginResultDTO);
-
-
-
     }
 
     private void setHeader(HttpPost httpPost) {
