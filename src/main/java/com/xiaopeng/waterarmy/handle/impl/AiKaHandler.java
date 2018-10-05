@@ -9,10 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AiKaHandler extends PlatformHandler {
-    @Override
-    public Result save(SaveContext saveContext) {
-        return null;
-    }
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {

@@ -59,12 +59,23 @@ public class Test {
     }
 
     private static void test() {
-        String str = "{\"list\":[{\"editor\":1,\"fid\":16488,\"floor\":1,\"forumName\":\"新奥拓论坛\",\"forumUrl\":\"//bbs.pcauto.com.cn/forum-16488.html\",\"image\":\"\",\"isContainImage\":false,\"isNew\":true,\"lastPostAt\":\"18-10-04 22:50\",\"message\":\"邻居说，轮胎蹭大梁，花了100大洋去做四轮定位回来……拿着两桶清洗剂说，准备自己清洗积碳！我也是醉了，就两桶清洗剂自己就搞了……说话中，邻居停车完毕，就打算自己操作了！\\n带大家欣赏一下这个奇葩的清洗积碳吧……\",\"pick\":0,\"pick1\":0,\"pid\":156977580,\"replyCount\":0,\"title\":\"国庆遇到巨坑\",\"topicCreateAt\":1538664652000,\"topicId\":17512037,\"url\":\"//bbs.pcauto.com.cn/topic-17512037.html\",\"userName\":\"eiaxal8142\",\"userUrl\":\"//my.pcauto.com.cn/47446648\",\"viewCount\":10}],\"listCount\":1}";
+       /* String str = "{\"list\":[{\"editor\":1,\"fid\":16488,\"floor\":1,\"forumName\":\"新奥拓论坛\",\"forumUrl\":\"//bbs.pcauto.com.cn/forum-16488.html\",\"image\":\"\",\"isContainImage\":false,\"isNew\":true,\"lastPostAt\":\"18-10-04 22:50\",\"message\":\"邻居说，轮胎蹭大梁，花了100大洋去做四轮定位回来……拿着两桶清洗剂说，准备自己清洗积碳！我也是醉了，就两桶清洗剂自己就搞了……说话中，邻居停车完毕，就打算自己操作了！\\n带大家欣赏一下这个奇葩的清洗积碳吧……\",\"pick\":0,\"pick1\":0,\"pid\":156977580,\"replyCount\":0,\"title\":\"国庆遇到巨坑\",\"topicCreateAt\":1538664652000,\"topicId\":17512037,\"url\":\"//bbs.pcauto.com.cn/topic-17512037.html\",\"userName\":\"eiaxal8142\",\"userUrl\":\"//my.pcauto.com.cn/47446648\",\"viewCount\":10}],\"listCount\":1}";
         JSONObject jsonObject = JSONObject.parseObject(str);
         JSONArray jsonArray = (JSONArray) jsonObject.get("list");
         JSONObject object = (JSONObject)jsonArray.get(0);
-        String url = (String) object.get("url");
+        String url = (String) object.get("url");*/
 
+       /* String pattern = "(\\d+).html";
+        String str = FetchParamUtil.getMatherStr("http://baa.bitauto.com/baoma3xi/koubei-15758125.html",pattern);
+        System.out.println(str);*/
+
+        String url = "http://baa.bitauto.com/xiaopengqicheg3/thread-15742669.html";
+        String pattern = ".com(\\/.*\\/)";
+        String temp = FetchParamUtil.getMatherStr(url,pattern);
+        String temp2 = FetchParamUtil.getMatherStr(temp,"\\/(.*)\\/");
+        temp2 = temp2.replaceAll("/","");
+        String temp3 = FetchParamUtil.getMatherStr(temp2,"([0-9a-zA-Z]*)");
+        System.out.println("");
     }
 
 

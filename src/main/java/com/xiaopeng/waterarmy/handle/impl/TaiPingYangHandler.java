@@ -8,6 +8,7 @@ import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
@@ -84,9 +85,9 @@ public class TaiPingYangHandler extends PlatformHandler {
                 Integer tid = (Integer) jsonObject.get("tid");
                 if (status.intValue()==0 && tid >0) {
                     String url = generatePublishUrlByTopicId(tid);
-                    PublishInfo publishInfo = this.createPublishInfo(requestContext, content, url);
+                    PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, url);
                     save(new SaveContext(publishInfo));
-                    HandlerResultDTO handlerResultDTO = this.createHandlerResultDTO(requestContext, content, url);
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, url);
                     return new Result(handlerResultDTO);
                 }
             }
@@ -121,8 +122,8 @@ public class TaiPingYangHandler extends PlatformHandler {
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //评论成功
-                    HandlerResultDTO handlerResultDTO = createHandlerResultDTO(requestContext, content);
-                    CommentInfo commentInfo = createCommentInfo(requestContext, content);
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
 
                     save(new SaveContext(commentInfo));
 
@@ -216,52 +217,8 @@ public class TaiPingYangHandler extends PlatformHandler {
         return null;
     }
 
-    private HandlerResultDTO createHandlerResultDTO(RequestContext requestContext, String content) {
-        HandlerResultDTO handlerResultDTO = new HandlerResultDTO();
-        handlerResultDTO.setHandleType(requestContext.getHandleType());
-        handlerResultDTO.setDetailResult(content);
-        handlerResultDTO.setPlatform(requestContext.getPlatform());
-        handlerResultDTO.setUserId(requestContext.getUserId());
-        handlerResultDTO.setUserLoginId(requestContext.getUserLoginId());
-        handlerResultDTO.setTargetUrl(requestContext.getTargetUrl());
-        return handlerResultDTO;
-    }
 
-    private HandlerResultDTO createHandlerResultDTO(RequestContext requestContext, String content, String targetUrl) {
-        HandlerResultDTO handlerResultDTO = new HandlerResultDTO();
-        handlerResultDTO.setHandleType(requestContext.getHandleType());
-        handlerResultDTO.setDetailResult(content);
-        handlerResultDTO.setPlatform(requestContext.getPlatform());
-        handlerResultDTO.setUserId(requestContext.getUserId());
-        handlerResultDTO.setUserLoginId(requestContext.getUserLoginId());
-        handlerResultDTO.setTargetUrl(targetUrl);
-        return handlerResultDTO;
-    }
 
-    private CommentInfo createCommentInfo(RequestContext requestContext, String content) {
-        CommentInfo commentInfo = new CommentInfo();
-        commentInfo.setOutUserName(requestContext.getUserLoginId());
-        commentInfo.setDetailResult(content);
-        commentInfo.setPlatform(requestContext.getPlatform().getName());
-        commentInfo.setStatus(ResultConstants.STATUS_ENABLE);
-        commentInfo.setUserId(requestContext.getUserId());
-        commentInfo.setTargetUrl(requestContext.getTargetUrl());
-        return commentInfo;
-    }
-
-    private PublishInfo createPublishInfo(RequestContext requestContext, String content, String targetUrl) {
-        PublishInfo publishInfo = new PublishInfo();
-        publishInfo.setOutUserName(requestContext.getUserLoginId());
-        publishInfo.setDetailResult(content);
-        publishInfo.setPlatform(requestContext.getPlatform().getName());
-        publishInfo.setStatus(ResultConstants.STATUS_ENABLE);
-        publishInfo.setUserId(requestContext.getUserId());
-        publishInfo.setTargetUrl(requestContext.getTargetUrl());
-        publishInfo.setTitle(requestContext.getContent().getTitle());
-        publishInfo.setBody(requestContext.getContent().getText());
-        publishInfo.setTargetUrl(targetUrl);
-        return publishInfo;
-    }
 
 
     private HttpPost createPublishHttpPost(RequestContext requestContext) {
@@ -294,12 +251,9 @@ public class TaiPingYangHandler extends PlatformHandler {
         }
         if (fid == null) { //https://bbs.pcauto.com.cn/topic-16868614.html
             //太平洋的可以直接从url中截取
-            String pattern = "(\\d+)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(requestContext.getPrefixUrl());
-            if (m.find()) {
-                fid = m.group(0);
-            }
+            String pattern = "-(\\d+).html";
+            String temp = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),pattern);
+            fid = FetchParamUtil.getMatherStr(temp,"(\\d+)");
         }
 
         String targetUrl = requestContext.getTargetUrl();

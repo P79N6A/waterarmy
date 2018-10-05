@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,11 +20,11 @@ public class TranslateCodeUtil {
 
     private static Logger logger = LoggerFactory.getLogger(TranslateCodeUtil.class);
 
-    private static final String BAIDU_APP_ID = "14336179";
+    private static final String BAIDU_APP_ID = "14336197";
 
-    private static final String BAIDU_API_KEY = "RdBvKmGcvlHgu5MyaFe8mVoZ";
+    private static final String BAIDU_API_KEY = "TTdtbnfd7hpfOE8Ee9ypiGeO";
 
-    private static final String BAIDU_SECREET_KEY = "tKce0g1lTp28pbwSKAnsqqUOeXfkO9ax";
+    private static final String BAIDU_SECREET_KEY = "Ykh2GrcrEqZUCeg4YXNrvtoxvptdgie7";
 
 
     private static TranslateCodeUtil instance;

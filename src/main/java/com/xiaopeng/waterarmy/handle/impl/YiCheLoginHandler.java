@@ -1,5 +1,7 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.HttpResultCode;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
@@ -13,12 +15,15 @@ import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +34,11 @@ import java.util.List;
 import java.util.Random;
 
 @Component
-public class YiCheLoginHandler  implements LoginHandler {
+public class YiCheLoginHandler implements LoginHandler {
 
     private static Logger logger = LoggerFactory.getLogger(TaiPingYangLoginHandler.class);
 
-    public static final String refer = "http://i.bitauto.com/AuthenService/Frame/login.aspx";
+    public static final String refer = "http://i.bitauto.com/AuthenService/Frame/login.aspx?ra=0.5758006840153429&regtype=complex";
 
     public static final String UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
 
@@ -41,7 +46,7 @@ public class YiCheLoginHandler  implements LoginHandler {
 
     public static final String Origin = "http://i.yiche.com";
 
-    public static final String XRequestedWith ="X-Requested-With";
+    public static final String XRequestedWith = "XMLHttpRequest";
 
     public static final String ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
 
@@ -49,6 +54,7 @@ public class YiCheLoginHandler  implements LoginHandler {
 
     private static final String returnUrl = "http://i.yiche.com/";
 
+    private static final int MAX_RETRY_COUNT = 10;
 
 
     @Autowired
@@ -87,69 +93,96 @@ public class YiCheLoginHandler  implements LoginHandler {
         if (loginResult != null) {
             return new Result<>(loginResult);
         }
-        CloseableHttpClient httpClient = httpFactory.getHttpClient();
 
-        String guid = generateGuid();
-        String fetchCodeUrl = generateCodeUrl(guid);
-        String code = TranslateCodeUtil.getInstance().convert(fetchCodeUrl);
 
-        HttpPost httpPost = new HttpPost(loginUrl);
-        setHeader(httpPost);
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("txt_LoginName", userName));
-        nameValuePairs.add(new BasicNameValuePair("txt_Password", passWord));
-        nameValuePairs.add(new BasicNameValuePair("txt_Code", code));
-        nameValuePairs.add(new BasicNameValuePair("guid",guid));
-        nameValuePairs.add(new BasicNameValuePair("cbx_keepState", "true"));
-        nameValuePairs.add(new BasicNameValuePair("returnurl", returnUrl));
-        nameValuePairs.add(new BasicNameValuePair("Gamut", "true"));
+        //易车登陆验证码识别比较费劲，一次登陆设置上限十次验证码校验
+        int retry = MAX_RETRY_COUNT;
+        while (retry > 0) {
+            CloseableHttpClient httpClient = httpFactory.getHttpClient();
+            String guid = generateGuid();
+            String fetchCodeUrl = generateCodeUrl(guid);
+            String code = TranslateCodeUtil.getInstance().convert(fetchCodeUrl);
 
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            if (response.getStatusLine().getStatusCode() != HttpResultCode.RESULT_OK.getResultCode()) {
-                logger.error("[YiCheLoginHandler.login] UrlEncodedFormEntity login failed! account is " + account);
-                return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+            HttpPost httpPost = new HttpPost(loginUrl);
+            setHeader(httpPost);
+
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("txt_LoginName", userName));
+            nameValuePairs.add(new BasicNameValuePair("txt_Password", passWord));
+            nameValuePairs.add(new BasicNameValuePair("txt_Code", code));
+            nameValuePairs.add(new BasicNameValuePair("cbx_keepState", "true"));
+            nameValuePairs.add(new BasicNameValuePair("guid", guid));
+            nameValuePairs.add(new BasicNameValuePair("Gamut", "true"));
+            nameValuePairs.add(new BasicNameValuePair("returnurl", returnUrl));
+
+
+            try {
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                CloseableHttpResponse response = httpClient.execute(httpPost);
+               /* if (response.getStatusLine().getStatusCode() != HttpResultCode.RESULT_OK.getResultCode()) {
+                    logger.error("[YiCheLoginHandler.login] UrlEncodedFormEntity login failed! account is " + account);
+                    return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+                }*/
+                HttpEntity entity = response.getEntity();
+                String content = EntityUtils.toString(entity, "utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(content);
+                JSONObject itemsObject = (JSONObject) jsonObject.get("items");
+                if (itemsObject != null && !content.contains("false")) {
+                    //论坛
+                    JSONObject jsonObject1 = JSONObject.parseObject(content);
+                    JSONArray jsonArray1 = jsonObject1.getJSONArray("hideImg");
+                    if (jsonArray1 != null) {
+                        for (int i = 0; i < jsonArray1.size(); i++) {
+                            String url = (String) jsonArray1.get(i);
+                            long index = 1538475697342L + i;
+                            url = "http:" + url + "&_=" + index;
+                            HttpGet httpGet = new HttpGet(url);
+                            CloseableHttpResponse response1 = httpClient.execute(httpGet);
+                        }
+                    }
+                    LoginResultDTO loginResultDTO = new LoginResultDTO();
+                    loginResultDTO.setHttpClient(httpClient);
+                    loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
+                    return new Result<>(loginResultDTO);
+                }
+            } catch (Exception e) {
+                logger.error("[YiCheLoginHandler.login] UrlEncodedFormEntity error! account is " + account, e);
             }
-            /* HttpEntity entity = response.getEntity();
-            String content = EntityUtils.toString(entity, "utf-8");
-            System.out.println(content);
-            System.out.println(httpPost.getURI());
-            System.out.println(response);*/
-        } catch (Exception e) {
-            logger.error("[YiCheLoginHandler.login] UrlEncodedFormEntity error! account is " + account, e);
+            try {
+                Thread.sleep(300);
+            } catch (Exception e) {
+
+            }
+            retry--;
         }
-        LoginResultDTO loginResultDTO = new LoginResultDTO();
-        loginResultDTO.setHttpClient(httpClient);
-        loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
-        return new Result<>(loginResultDTO);
+        return new Result<>(ResultCodeEnum.LOGIN_FAILED);
     }
 
     private void setHeader(HttpPost httpPost) {
-        httpPost.setHeader("Origin",Origin);
-        httpPost.setHeader("User-Agent",UserAgent);
-        httpPost.setHeader("Referer",refer);
-        httpPost.setHeader("Host",Host);
-        httpPost.setHeader("X-Requested-With",XRequestedWith);
-        httpPost.setHeader("Content-Type",ContentType);
+        httpPost.setHeader("Origin", Origin);
+        httpPost.setHeader("User-Agent", UserAgent);
+        httpPost.setHeader("Referer", refer);
+        httpPost.setHeader("Host", Host);
+        httpPost.setHeader("X-Requested-With", XRequestedWith);
+        httpPost.setHeader("Content-Type", ContentType);
     }
 
     private static String generateGuid() {
         StringBuilder prefix = new StringBuilder();
         StringBuilder suffix = new StringBuilder();
         Random random = new Random();
-        for (int i=0;i<7;i++) {
+        for (int i = 0; i < 7; i++) {
             prefix.append(random.nextInt(9));
         }
-        for (int i=0;i<7;i++) {
+        for (int i = 0; i < 7; i++) {
             suffix.append(random.nextInt(9));
         }
-        return "9"+prefix.toString()+"-5faf-8be7-b016-2a6cb"+suffix.toString();
+        return "9" + prefix.toString() + "-5faf-8be7-b016-2a6cb" + suffix.toString();
     }
 
     private String generateCodeUrl(String guid) {
         String url = "http://i.bitauto.com/authenservice/common/CheckCode.aspx?guid=";
-        return url+guid;
+        return url + guid;
     }
 
 }

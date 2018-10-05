@@ -33,11 +33,6 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
     private QiCheTouTiaoLoginHandler qiCheTouTiaoLoginHandler;
 
     @Override
-    public Result save(SaveContext saveContext) {
-        return null;
-    }
-
-    @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
         return null;
     }

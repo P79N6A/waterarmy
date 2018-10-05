@@ -1,13 +1,16 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
+import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -33,13 +36,10 @@ public class YiCheHandler extends PlatformHandler {
 
     private static final String ForumApp = "forumApp";
 
+    private static final String TARGET_COMMENT_URL = "http://baa.bitauto.com/baoma3xi/Ajax/CreateReply.aspx";
+
     @Autowired
     private YiCheLoginHandler yiCheLoginHandler;
-
-    @Override
-    public Result save(SaveContext saveContext) {
-        return null;
-    }
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
@@ -62,9 +62,14 @@ public class YiCheHandler extends PlatformHandler {
             String content = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
+                if (content.contains("isReply")) {//评论成功
+                    //评论成功
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                    save(new SaveContext(commentInfo));
+                    return new Result(handlerResultDTO);
+                }
             }
-            HandlerResultDTO handlerResultDTO = createHandlerResultDTO(requestContext, content);
-            return new Result<>(handlerResultDTO);
         } catch (Exception e) {
             logger.error("[TaiPingYangHandler.comment] error!", e);
         }
@@ -129,14 +134,25 @@ public class YiCheHandler extends PlatformHandler {
         }
 
 
-        HttpPost httpPost = new HttpPost();
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        HttpPost httpPost = new HttpPost(TARGET_COMMENT_URL);
+        setHeader(httpPost);
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+
+        nameValuePairs.add(new BasicNameValuePair("attachments", "[]"));
+        nameValuePairs.add(new BasicNameValuePair("title", null));
         nameValuePairs.add(new BasicNameValuePair("message", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("tid", topic));
-        nameValuePairs.add(new BasicNameValuePair("type", "1"));
-        nameValuePairs.add(new BasicNameValuePair("fgid", "0"));
         nameValuePairs.add(new BasicNameValuePair("fid", "0"));
+        nameValuePairs.add(new BasicNameValuePair("tid", topic));
+        nameValuePairs.add(new BasicNameValuePair("fgid", "0"));
         nameValuePairs.add(new BasicNameValuePair("forumApp", forumApp));
+        nameValuePairs.add(new BasicNameValuePair("type", "1"));
+        nameValuePairs.add(new BasicNameValuePair("attachdesc", null));
+        nameValuePairs.add(new BasicNameValuePair("txtCheckCode", null));
+        nameValuePairs.add(new BasicNameValuePair("parentid", null));
+        nameValuePairs.add(new BasicNameValuePair("floor", null));
+
+
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
         } catch (Exception e) {
@@ -146,25 +162,37 @@ public class YiCheHandler extends PlatformHandler {
         return httpPost;
     }
 
-    private HandlerResultDTO createHandlerResultDTO(RequestContext requestContext, String content) {
-        HandlerResultDTO handlerResultDTO = new HandlerResultDTO();
-        handlerResultDTO.setHandleType(requestContext.getHandleType());
-        handlerResultDTO.setDetailResult(content);
-        handlerResultDTO.setPlatform(requestContext.getPlatform());
-        handlerResultDTO.setUserId(requestContext.getUserId());
-        handlerResultDTO.setUserLoginId(requestContext.getUserLoginId());
-        return handlerResultDTO;
+
+    private void setHeader(HttpPost httpPost) {
+        httpPost.setHeader("Origin","http://baa.bitauto.com");
+        httpPost.setHeader("Referer","http://baa.bitauto.com");
+        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+        httpPost.setHeader("Host","baa.bitauto.com");
+        httpPost.setHeader("X-Prototype-Version","1.7.1");
+        httpPost.setHeader("X-Requested-With","XMLHttpRequest");
+        httpPost.setHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");
+        httpPost.setHeader("Connection","keep-alive");
+        httpPost.setHeader("Accept","text/javascript, text/html, application/xml, text/xml, */*");
+        httpPost.setHeader("Accept-Encoding","gzip, deflate");
+        httpPost.setHeader("Accept-Language","zh-CN,zh;q=0.9");
+        httpPost.setHeader("Connection","keep-alive");
+        httpPost.setHeader("Content-type","application/x-www-form-urlencoded; charset=UTF-8");
     }
+
+
 
 
     private String getTopic(String url) {
-        String pattern = "(\\d+)";
-        return FetchParamUtil.getMatherStr(url,pattern);
+        String pattern = "-(\\d+).html";
+        String temp = FetchParamUtil.getMatherStr(url,pattern);
+        return FetchParamUtil.getMatherStr(temp,"(\\d+)");
     }
 
     private String getForumApp(String url) {
-        String pattern = "(\\/.*\\/)";
-        return FetchParamUtil.getMatherStr(url,pattern);
+        String pattern = ".com(\\/.*\\/)";
+        String temp = FetchParamUtil.getMatherStr(url,pattern);
+        temp = FetchParamUtil.getMatherStr(temp,"(/.*\\/)");
+        return temp.replaceAll("/","");
     }
 
 

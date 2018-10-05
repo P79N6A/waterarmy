@@ -33,10 +33,6 @@ public class DiYiDianDongHandler extends PlatformHandler {
     @Autowired
     private DiYiDianDongLoginHandler diYiDianDongLoginHandler;
 
-    @Override
-    public Result save(SaveContext saveContext) {
-        return null;
-    }
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
