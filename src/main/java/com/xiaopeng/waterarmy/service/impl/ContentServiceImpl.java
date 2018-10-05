@@ -2,26 +2,31 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
 import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.model.dao.ContentInfo;
-import com.xiaopeng.waterarmy.model.dao.LinkInfo;
+import com.xiaopeng.waterarmy.model.dao.ContentInfoRepositories;
 import com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper;
+import com.xiaopeng.waterarmy.model.mapper.ContentInfoRepositoriesMapper;
 import com.xiaopeng.waterarmy.service.ContentService;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
- * * 功能描述：
+ * * 功能描述：内容库管理
  * <p> 版权所有：
  * <p> 未经本公司许可，不得以任何方式复制或使用本程序任何部分 <p>
  *
@@ -36,29 +41,93 @@ public class ContentServiceImpl implements ContentService {
     private static Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
 
     @Autowired
+    private ContentInfoRepositoriesMapper contentInfoRepositoriesMapper;
+
+    @Autowired
     private ContentInfoMapper contentInfoMapper;
+
+    @Override
+    public PageInfo<Map<String,Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String,Object> params){
+        PageHelper.startPage(pageNo, pageSize);
+        List<Map<String,Object>> results = contentInfoRepositoriesMapper.getContentInfoRepositories(params);
+        for (Map<String,Object> result: results) {
+            String type = MapUtils.getString(result,"type");
+            if (!ObjectUtils.isEmpty(type)) {
+                result.put("typeDesc", ContentRepositoriesEnum.getDesc(type));
+            }
+        }
+        return new PageInfo<>(results);
+    }
 
     @Override
     public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = contentInfoMapper.getContentInfos(params);
+        for (Map<String,Object> result: results) {
+            String contentRepositoriesType = MapUtils.getString(result,"contentRepositoriesType");
+            if (!ObjectUtils.isEmpty(contentRepositoriesType)) {
+                result.put("contentRepositoriesTypeDesc", ContentRepositoriesEnum.getDesc(contentRepositoriesType));
+            }
+        }
         return new PageInfo<>(results);
     }
 
     @Override
-    public JsonMessage importData(MultipartFile file) {
+    public JsonMessage addRepositories(ContentInfoRepositories repositories) {
+        JsonMessage message = JsonMessage.init();
+        repositories.setCount(0);
+        repositories.setCreateTime(new Date());
+        repositories.setUpdateTime(new Date());
+        repositories.setCreator("xiaoa");
+        repositories.setUpdater("xiaoa");
+        contentInfoRepositoriesMapper.save(repositories);
+        message.success(CodeEnum.SUCCESS).setMsg("新建内容库数据成功!");
+        return message;
+    }
+
+    @Override
+    public JsonMessage updateRepositories(Map<String,Object> params) {
+        JsonMessage message = JsonMessage.init();
+        ContentInfoRepositories repositories = new ContentInfoRepositories();
+        repositories.setId(MapUtils.getLong(params, "id"));
+        repositories.setName(MapUtils.getString(params, "name"));
+        repositories.setType(MapUtils.getString(params, "type"));
+        repositories.setUpdateTime(new Date());
+        repositories.setUpdater("xiaoa");
+        contentInfoRepositoriesMapper.update(repositories);
+        message.success(CodeEnum.SUCCESS).setMsg("更新内容库数据成功!");
+        return message;
+    }
+
+    @Override
+    public JsonMessage updateRepositoriesType(Map<String,Object> params) {
+        JsonMessage message = JsonMessage.init();
+        ContentInfoRepositories repositories = new ContentInfoRepositories();
+        repositories.setId(MapUtils.getLong(params, "id"));
+        repositories.setType(MapUtils.getString(params, "type"));
+        contentInfoRepositoriesMapper.update(repositories);
+        message.success(CodeEnum.SUCCESS).setMsg("更新内容库数据成功!");
+        return message;
+    }
+
+
+    @Override
+    public JsonMessage importData(MultipartFile file, String type) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());
+        List<ContentInfo> infos = new ArrayList<>();
         for (Object data: datas) {
             ContentInfo info = (ContentInfo) data;
             info.setCreateTime(new Date());
             info.setUpdateTime(new Date());
-            info.setCount(0);
+            info.setContentRepositoriesType(ContentRepositoriesEnum.COMMENT.getName());
             info.setCreator("xiaoa");
             info.setUpdater("xiaoa");
             contentInfoMapper.save(info);
+            infos.add(info);
         }
         message.success(CodeEnum.SUCCESS).setMsg("导入内容数据成功!");
+        message.setData(infos);
         return message;
     }
 }
