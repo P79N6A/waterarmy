@@ -5,41 +5,41 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 内容信息表
+ * 内容库表
  *
  * Created by iason on 2018/10/1.
  */
-@Table(name = "link_info")
-public class ContentInfo implements Serializable {
+@Table(name = "content_info_repositories")
+public class ContentInfoRepositories implements Serializable {
 
-    private static final long serialVersionUID = -5924025353446033125L;
+    private static final long serialVersionUID = -231234025353446035L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * 标题
+     * 内容库名称
      */
-    @Column(name = "title")
-    private String title;
+    @Column(name = "name")
+    private String name;
 
     /**
-     * 内容
+     * 内容库类型，详见ContentRepositoriesEnum
      */
-    @Column(name = "content")
-    private String content;
+    @Column(name = "type")
+    private String type;
 
     /**
-     * 内容类型，详见ContentRepositoriesEnum
+     * 数量
      */
-    @Column(name = "content_repositories_type")
-    private String contentRepositoriesType;
+    @Column(name = "count")
+    private Integer count;
 
     /**
      * 创建时间
      */
-    @Column(name = "cteate_time")
+    @Column(name = "create_time")
     private Date createTime;
 
     /**
@@ -60,7 +60,7 @@ public class ContentInfo implements Serializable {
     @Column(name = "updater")
     private String updater;
 
-    public ContentInfo() {
+    public ContentInfoRepositories() {
     }
 
     public Long getId() {
@@ -71,28 +71,28 @@ public class ContentInfo implements Serializable {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getContent() {
-        return content;
+    public String getType() {
+        return type;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getContentRepositoriesType() {
-        return contentRepositoriesType;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setContentRepositoriesType(String contentRepositoriesType) {
-        this.contentRepositoriesType = contentRepositoriesType;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
     public Date getCreateTime() {

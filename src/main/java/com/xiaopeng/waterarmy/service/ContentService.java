@@ -2,6 +2,7 @@ package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.ContentInfoRepositories;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -19,7 +20,17 @@ import java.util.Map;
 public interface ContentService {
 
     /**
-     * 链接管理分页查询
+     * 内容库管理分页查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String,Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
+
+    /**
+     * 内容管理分页查询
      *
      * @param pageNo
      * @param pageSize
@@ -28,6 +39,12 @@ public interface ContentService {
      */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
-    JsonMessage importData(MultipartFile file);
+    JsonMessage addRepositories(ContentInfoRepositories repositories);
+
+    JsonMessage updateRepositories(Map<String,Object> params);
+
+    JsonMessage updateRepositoriesType(Map<String,Object> params);
+
+    JsonMessage importData(MultipartFile file, String type);
 
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.ContentInfoRepositoriesMapper">
+
+    <insert id="save">
+        INSERT INTO content_info_repositories (name, type
+        , count, create_time, update_time, creator, updater)
+        VALUES (#{contentInfoRepositories.name}, #{contentInfoRepositories.type}
+        , #{contentInfoRepositories.count}
+        , #{contentInfoRepositories.createTime}, #{contentInfoRepositories.updateTime}
+        , #{contentInfoRepositories.creator}, #{contentInfoRepositories.updater})
+    </insert>
+
+    <update id="update">
+        UPDATE content_info_repositories SET update_time = #{contentInfoRepositories.updateTime}
+        , updater = #{contentInfoRepositories.updater}
+        <if test="contentInfoRepositories.name != null and contentInfoRepositories.name != '' " >
+            , name = #{contentInfoRepositories.name}
+        </if>
+        <if test="contentInfoRepositories.type != null and contentInfoRepositories.type != '' " >
+            , type = #{contentInfoRepositories.type}
+        </if>
+        WHERE id = #{contentInfoRepositories.id}
+    </update>
+
+    <select id="getContentInfoRepositories" resultType="java.util.HashMap">
+        SELECT id, name, type, count
+        , create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM content_info_repositories WHERE 1 = 1
+        <if test="params.type != null and params.type != '' " >
+            AND type = #{params.type}
+        </if>
+        <if test="params.name != null and params.name != '' " >
+            AND name = #{params.name}
+        </if>
+        <if test="params.createStartDate != null and params.createStartDate != ''
+        and params.createEndDate != '' and params.createEndDate != '' " >
+            AND create_time  &gt;= #{params.createStartDate} and create_time &lt;= #{params.createEndDate}
+        </if>
+
+        ORDER BY update_time DESC
+
+    </select>
+
+</mapper>

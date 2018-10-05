@@ -3,16 +3,36 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper">
 
     <insert id="save">
-        INSERT INTO content_info (title, content, count
+        <selectKey resultType="java.lang.Long" keyProperty="id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO content_info (title, content
+        , content_repositories_type
         , create_time, update_time, creator, updater)
-        VALUES (#{contentInfo.title}, #{contentInfo.content}, #{contentInfo.count}
+        VALUES (#{contentInfo.title}, #{contentInfo.content}
+        , #{contentInfo.contentRepositoriesType}
         , #{contentInfo.createTime}, #{contentInfo.updateTime}, #{contentInfo.creator}, #{contentInfo.updater})
     </insert>
 
     <select id="getContentInfos" resultType="java.util.HashMap">
-        SELECT id, title, content, count
+        SELECT id, title, content
+        , content_repositories_type AS contentRepositoriesType
         , create_time AS createTime, update_time AS updateTime
-        , creator, updater FROM content_info
+        , creator, updater FROM content_info WHERE 1 = 1
+        <if test="params.type != null and params.type != '' " >
+            AND content_repositories_type = #{params.type}
+        </if>
+        <if test="params.title != null and params.title != '' " >
+            AND name = #{params.title}
+        </if>
+        <if test="params.createStartDate != null and params.createStartDate != ''
+        and params.createEndDate != '' and params.createEndDate != '' " >
+            AND create_time  &gt;= #{params.createStartDate} and create_time &lt;= #{params.createEndDate}
+        </if>
+        ORDER BY update_time DESC
     </select>
+
+
 
 </mapper>

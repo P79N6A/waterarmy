@@ -18,6 +18,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -25,7 +27,18 @@ public class WaterarmyApplicationTests {
 
 	@Test
 	public void test1() {
-		//(int) Double.parseDouble(row.getCell(5).getStringCellValue());
+		String line = "11111111111/xiaopengqicheg3/2222222222";
+		String pattern = "\\/.*\\/";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(line);
+		List<String> results = new ArrayList<>();
+		if (m.find( )) {
+			String s = m.group(0);
+			results.add(s.substring(1, s.length() - 2));
+		}
+		for (String result: results) {
+			System.out.println(result);
+		}
 	}
 
 	@Test
