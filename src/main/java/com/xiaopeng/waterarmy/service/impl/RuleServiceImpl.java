@@ -4,6 +4,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
 import com.xiaopeng.waterarmy.common.enums.PVStayTimeEnum;
+import com.xiaopeng.waterarmy.common.enums.RandomSelectContentEnum;
+import com.xiaopeng.waterarmy.common.enums.RandomSelectLinkEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.model.dao.RuleInfo;
@@ -47,6 +49,14 @@ public class RuleServiceImpl implements RuleService {
             if (!ObjectUtils.isEmpty(pvStayTime)) {
                 result.put("pvStayTimeDesc", PVStayTimeEnum.getDesc(pvStayTime));
             }
+            Integer isRandomSelectLink = MapUtils.getInteger(result,"isRandomSelectLink");
+            if (!ObjectUtils.isEmpty(isRandomSelectLink)) {
+                result.put("isRandomSelectLinkDesc", RandomSelectLinkEnum.getDesc(isRandomSelectLink));
+            }
+            Integer isRandomSelectContent = MapUtils.getInteger(result,"isRandomSelectContent");
+            if (!ObjectUtils.isEmpty(isRandomSelectContent)) {
+                result.put("isRandomSelectContentDesc", RandomSelectContentEnum.getDesc(isRandomSelectContent));
+            }
         }
         return new PageInfo<>(results);
     }
@@ -57,7 +67,7 @@ public class RuleServiceImpl implements RuleService {
         RuleInfo info = new RuleInfo();
         info.setName(MapUtils.getString(params, "name"));
         info.setIsRandomSelectLink(MapUtils.getInteger(params, "isRandomSelectLink"));
-        info.setIsRandomSelectContent(MapUtils.getInteger(params, "isRandom_selectContent"));
+        info.setIsRandomSelectContent(MapUtils.getInteger(params, "isRandomSelectContent"));
         info.setStartTimeInterval(MapUtils.getInteger(params, "startTimeInterval"));
         info.setEndTimeInterval(MapUtils.getInteger(params, "endTimeInterval"));
         info.setPvStayTime(MapUtils.getInteger(params, "pvStayTime"));
@@ -67,6 +77,15 @@ public class RuleServiceImpl implements RuleService {
         info.setUpdater("xiaoa");
         ruleInfoMapper.save(info);
         message.success(CodeEnum.SUCCESS).setMsg("新增规则成功!");
+        return message;
+    }
+
+    @Override
+    public JsonMessage getRules() {
+        JsonMessage message = JsonMessage.init();
+        List<Map<String,Object>> rules = ruleInfoMapper.getRuleInfos(null);
+        message.setData(rules);
+        message.success(CodeEnum.SUCCESS).setMsg("获取规则列表成功!");
         return message;
     }
 }

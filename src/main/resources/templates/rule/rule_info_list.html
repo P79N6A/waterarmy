@@ -18,8 +18,8 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <el-table-column prop="id" label="规则ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="name" label="规则名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="isRandomSelectLink" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="isRandomSelectContent" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectLinkDesc" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectContentDesc" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="startTimeInterval" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="endTimeInterval" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="pvStayTimeDesc" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>

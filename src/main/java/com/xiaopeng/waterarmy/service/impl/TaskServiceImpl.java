@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * * 功能描述：
@@ -108,7 +105,28 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public JsonMessage publishTask(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
-        taskInfoMapper.save(params);
+        params.put("finishCount", 0);
+        params.put("status", TaskStatusEnum.DOING.getIndex());
+        params.put("creator", "xiaoa");
+        params.put("updater", "xiaoa");
+        String content = MapUtils.getString(params, "content");
+        String[] linkInfos = content.split("\n");
+        List<Map<String, Object>> links = new ArrayList<>();
+        for (String info: linkInfos) {
+            String link = info.substring(0, info.indexOf(","));
+            System.out.println(info.substring(info.indexOf(",") + 1));
+            Integer executeCount = Integer.parseInt(info.substring(info.indexOf(",") + 1));
+            Map<String, Object> param = new HashMap<>();
+            param.put("link", link);
+            param.put("executeCount", executeCount);
+            links.add(param);
+        }
+        for (Map<String, Object> link: links) {
+            params.put("link", link.get("link"));
+            params.put("executeCount", link.get("executeCount"));
+            taskInfoMapper.save(params);
+        }
+
         message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
         return message;
     }

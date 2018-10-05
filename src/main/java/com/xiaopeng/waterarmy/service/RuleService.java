@@ -29,4 +29,6 @@ public interface RuleService {
 
     JsonMessage addRule(Map<String, Object> params);
 
+    JsonMessage getRules();
+
 }

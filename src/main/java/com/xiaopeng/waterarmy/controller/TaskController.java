@@ -46,8 +46,9 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/publish/detail")
-    public ModelAndView taskPublishDetail(Integer id) {
+    public ModelAndView taskPublishDetail(Integer taskPublishId) {
         ModelAndView view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
+        view.addObject("taskPublishId", taskPublishId);
         return view;
     }
 

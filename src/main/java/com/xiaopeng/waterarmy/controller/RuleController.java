@@ -53,6 +53,11 @@ public class RuleController {
         return ruleService.page(pageNo, pageSize, params);
     }
 
+    @RequestMapping(value = "/getRules", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonMessage getRules() {
+        return  ruleService.getRules();
+    }
 
     @RequestMapping(value = "/addRule", method = RequestMethod.POST)
     @ResponseBody

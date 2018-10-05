@@ -71,48 +71,13 @@
                 </el-col>
             </el-row>
 
-
             <div class="ui-title">规则管理</div>
-            <div class="ui-form-edit">
-                <el-form :model="form" :rules="rules" ref="forms" label-width="150px">
-                    <div class="ui-block">
-                        <div class="ui-block-bd">
-                            <el-form-item prop="isRandomSelectLink" label="随机选择链接">
-                                <el-radio-group v-model="form.isRandomSelectLink">
-                                    <el-radio label="1">是</el-radio>
-                                    <el-radio label="0">否</el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            <el-form-item prop="isRandomSelectContent" label="随机选择内容">
-                                <el-radio-group v-model="form.isRandomSelectContent">
-                                    <el-radio label="1">是</el-radio>
-                                    <el-radio label="0">否</el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            <el-form-item label="时间间隔(随机)" prop="role">
-                                <el-row :gutter="40">
-                                    <el-col :span="8">
-                                        <div class="grid-content bg-purple">
-                                            <el-input v-model="form.startTimeInterval"></el-input>
-                                        </div>
-                                    </el-col>
-                                    <el-col :span="8">
-                                        <div class="grid-content bg-purple">
-                                            <el-input v-model="form.endTimeInterval"></el-input>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                            </el-form-item>
-                            <el-form-item label="PV停留时间" prop="role">
-                                <el-select v-model="form.pvStayTime" placeholder="请选择">
-                                    <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
-                                               :key="item.index"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                    </div>
-                </el-form>
-            </div>
+            <el-form-item label="请选择规则" prop="role">
+                <el-select v-model="form.ruleInfoId" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.id" v-for="item in rules"
+                               :key="item.id"></el-option>
+                </el-select>
+            </el-form-item>
 
             <div class="ui-form-edit__footer">
                 <div class="ui-block-bd">
@@ -141,21 +106,21 @@
         publishTaskUrl:'/task/publish/publishTask',
         getContentRepositoriesUrl:'/enums/getContentRepositories',
         queryContentInfoUrl:'/content/queryContentInfo',
+        getRulesUrl:'/rule/getRules',
     }
 
     var app = new Vue({
         el: '#app',
         data: {
             form: {
+                taskPublishId: '',
+                ruleInfoId: '',
                 name: '',
                 platform: '',
                 module: '',
                 taskType: '',
-                isRandomSelectLink: '',
-                isRandomSelectContent: '',
-                startTimeInterval: '',
-                endTimeInterval: '',
-                pvStayTime: '',
+                link: '',
+                linkTitle: '',
                 contentRepositoriesType: '',
                 contentRepositoriesName: '',
             },
@@ -182,6 +147,7 @@
             PVStayTimes: [], // PV停留时间枚举列表
             contentRepositories: [], // 内容库枚举列表
             contentInfos: [], //内容列表
+            rules: [], //规则列表
         },
         methods: {
 
@@ -230,7 +196,7 @@
                 _this.post(urls.publishTaskUrl, _this.form, function(data) {
                     if(data.success){
                         _this.message('发布成功 !');
-                        _this.tableData.splice(index, 1);
+                        _this.refresh();
                     }else {
                         _this.message('发布失败 !');
                     }
@@ -304,6 +270,19 @@
                 })
             },
 
+            getRules: function() {
+                var _this = this;
+                this.get(urls.getRulesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.rules = data["data"];
+                    }
+                });
+            },
+            init: function(taskPublishId) {
+                this.form.taskPublishId  = taskPublishId;
+                console.log("taskPublishId:  " + taskPublishId)
+            },
+
         },
         mounted: function() {
             this.getData();
@@ -313,6 +292,11 @@
             this.getPlatformStatus();
             this.getPVStayTimes();
             this.getContentRepositories();
+            this.getRules();
         }
     })
+</script>
+<script>
+    var taskPublishId = '${taskPublishId}';
+    app.init(taskPublishId);
 </script>

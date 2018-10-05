@@ -2,7 +2,6 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.sun.tools.javac.jvm.Code;
 import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
 import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
@@ -45,11 +44,11 @@ public class ContentServiceImpl implements ContentService {
     private ContentInfoMapper contentInfoMapper;
 
     @Override
-    public PageInfo<Map<String,Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String,Object> params){
+    public PageInfo<Map<String, Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = contentInfoRepositoriesMapper.getContentInfoRepositories(params);
-        for (Map<String,Object> result: results) {
-            String type = MapUtils.getString(result,"type");
+        List<Map<String, Object>> results = contentInfoRepositoriesMapper.getContentInfoRepositories(params);
+        for (Map<String, Object> result : results) {
+            String type = MapUtils.getString(result, "type");
             if (!ObjectUtils.isEmpty(type)) {
                 result.put("typeDesc", ContentRepositoriesEnum.getDesc(type));
             }
@@ -58,11 +57,11 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
+    public PageInfo<Map<String, Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = contentInfoMapper.getContentInfos(params);
-        for (Map<String,Object> result: results) {
-            String contentRepositoriesType = MapUtils.getString(result,"contentRepositoriesType");
+        List<Map<String, Object>> results = contentInfoMapper.getContentInfos(params);
+        for (Map<String, Object> result : results) {
+            String contentRepositoriesType = MapUtils.getString(result, "contentRepositoriesType");
             if (!ObjectUtils.isEmpty(contentRepositoriesType)) {
                 result.put("contentRepositoriesTypeDesc", ContentRepositoriesEnum.getDesc(contentRepositoriesType));
             }
@@ -84,7 +83,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage updateRepositories(Map<String,Object> params) {
+    public JsonMessage updateRepositories(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
         ContentInfoRepositories repositories = new ContentInfoRepositories();
         repositories.setId(MapUtils.getLong(params, "id"));
@@ -98,7 +97,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage updateRepositoriesType(Map<String,Object> params) {
+    public JsonMessage updateRepositoriesType(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
         ContentInfoRepositories repositories = new ContentInfoRepositories();
         repositories.setId(MapUtils.getLong(params, "id"));
@@ -113,7 +112,7 @@ public class ContentServiceImpl implements ContentService {
         JsonMessage message = JsonMessage.init();
         Map<String, Object> params = new HashMap<>();
         params.put("type", contentRepositoriesType);
-        List<Map<String, Object>>  infos = contentInfoMapper.getContentInfos(params);
+        List<Map<String, Object>> infos = contentInfoMapper.getContentInfos(params);
         message.setData(infos);
         message.success(CodeEnum.SUCCESS).setMsg("获取内容列表成功！");
         return message;
@@ -124,7 +123,7 @@ public class ContentServiceImpl implements ContentService {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());
         List<ContentInfo> infos = new ArrayList<>();
-        for (Object data: datas) {
+        for (Object data : datas) {
             ContentInfo info = (ContentInfo) data;
             info.setCreateTime(new Date());
             info.setUpdateTime(new Date());

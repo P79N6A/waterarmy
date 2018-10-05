@@ -13,7 +13,7 @@
         , #{taskInfo.contentRepositoriesType}, #{taskInfo.contentRepositoriesName}
         , #{taskInfo.executeCount}, #{taskInfo.finishCount}
         , #{taskInfo.finishTime}, #{taskInfo.status}
-        , #{taskInfo.createTime}, #{taskInfo.updateTime}, #{taskInfo.creator}, #{taskInfo.updater})
+        , now(), now(), #{taskInfo.creator}, #{taskInfo.updater})
     </insert>
 
     <select id="getTaskInfos" resultType="java.util.HashMap">
