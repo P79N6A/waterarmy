@@ -54,7 +54,7 @@ public class YiCheLoginHandler implements LoginHandler {
 
     private static final String returnUrl = "http://i.yiche.com/";
 
-    private static final int MAX_RETRY_COUNT = 10;
+    private static final int MAX_RETRY_COUNT = 15;
 
 
     @Autowired

@@ -71,14 +71,14 @@ public class HandlerDispatcher {
     private RequestContext createTestPublisContext() {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
-        content.setText("唯一不满意的地方就是车排气的单菊花，实在是太丑了");
-        //content.setTitle("这车什么时候量产上市");
+        content.setText("出来工作也有些年头了，一个人在外面的确不容易，每天上班搭公交，每次回家坐长途，真的很累，驾照考出来都两年多了");
+        content.setTitle("这车什么时候量产上市");
         requestContext.setContent(content);
         requestContext.setUserId(4L);
         requestContext.setUserLoginId("18383849422");
-        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setHandleType(TaskTypeEnum.POSIED);
         requestContext.setPlatform(PlatformEnum.YICHE);
-        requestContext.setPrefixUrl("http://baa.bitauto.com/lingxuan/thread-15744881.html");
+        requestContext.setPrefixUrl("http://baa.bitauto.com/langdong/");
         return requestContext;
     }
 

@@ -68,14 +68,18 @@ public class Test {
        /* String pattern = "(\\d+).html";
         String str = FetchParamUtil.getMatherStr("http://baa.bitauto.com/baoma3xi/koubei-15758125.html",pattern);
         System.out.println(str);*/
-
+/*
         String url = "http://baa.bitauto.com/xiaopengqicheg3/thread-15742669.html";
         String pattern = ".com(\\/.*\\/)";
         String temp = FetchParamUtil.getMatherStr(url,pattern);
         String temp2 = FetchParamUtil.getMatherStr(temp,"\\/(.*)\\/");
         temp2 = temp2.replaceAll("/","");
         String temp3 = FetchParamUtil.getMatherStr(temp2,"([0-9a-zA-Z]*)");
-        System.out.println("");
+        System.out.println("");*/
+
+        String content = "{fid:0,fgid:8775,tid:0,pid:0,parentId:0}";
+        String url = FetchParamUtil.getMatherStr(content,"\\{fid:.*\\}");
+        System.out.println();
     }
 
 
