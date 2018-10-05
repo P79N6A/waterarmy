@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.HttpResultCode;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
@@ -71,6 +72,7 @@ public class DiYiDianDongLoginHandler implements LoginHandler {
         }
         CloseableHttpClient httpClient = httpFactory.getHttpClient();
         HttpPost httpPost = new HttpPost(loginUrl);
+        setHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair("loginName", userName));
         nameValuePairs.add(new BasicNameValuePair("password", passWord));
@@ -85,11 +87,15 @@ public class DiYiDianDongLoginHandler implements LoginHandler {
             }
             HttpEntity entity = response.getEntity();
             String content = EntityUtils.toString(entity, "utf-8");
-            if (content.contains("\"error\": 0")) {
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            int stauts = (int)jsonObject.get("error");
+            if (stauts == 0) {
                 LoginResultDTO loginResultDTO = new LoginResultDTO();
                 loginResultDTO.setHttpClient(httpClient);
                 loginResultDTO.setId(account.getId());
                 loginResultDTO.setUserId(account.getUserName());
+                loginResultDTO.setHttpClient(httpClient);
+                loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
                 return new Result<>(loginResultDTO);
             }
         } catch (Exception e) {
@@ -97,5 +103,13 @@ public class DiYiDianDongLoginHandler implements LoginHandler {
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
         return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+    }
+
+    private void setHeader(HttpPost httpPost) {
+        httpPost.setHeader("Origin", "https://www.d1ev.com");
+        httpPost.setHeader("Referer", "https://www.d1ev.com/account/login");
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
+        httpPost.setHeader("Host", "www.d1ev.com");
     }
 }

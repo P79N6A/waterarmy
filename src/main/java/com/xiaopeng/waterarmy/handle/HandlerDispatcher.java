@@ -74,11 +74,11 @@ public class HandlerDispatcher {
         content.setText("出来工作也有些年头了，一个人在外面的确不容易，每天上班搭公交，每次回家坐长途，真的很累，驾照考出来都两年多了");
         content.setTitle("这车什么时候量产上市");
         requestContext.setContent(content);
-        requestContext.setUserId(4L);
-        requestContext.setUserLoginId("18383849422");
-        requestContext.setHandleType(TaskTypeEnum.POSIED);
-        requestContext.setPlatform(PlatformEnum.YICHE);
-        requestContext.setPrefixUrl("http://baa.bitauto.com/langdong/");
+        requestContext.setUserId(6L);
+        requestContext.setUserLoginId("lostever2013@163.com");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.QCTT);
+        requestContext.setPrefixUrl("https://www.qctt.cn/news/367550");
         return requestContext;
     }
 
