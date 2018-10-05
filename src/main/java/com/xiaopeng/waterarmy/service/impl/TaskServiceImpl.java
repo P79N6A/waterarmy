@@ -1,15 +1,14 @@
 package com.xiaopeng.waterarmy.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.xiaopeng.waterarmy.common.enums.*;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.model.dao.Account;
-import com.xiaopeng.waterarmy.model.dao.TaskInfo;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -86,10 +85,30 @@ public class TaskServiceImpl implements TaskService {
         for (Map<String,Object> result: results) {
             Integer excuteStatus = MapUtils.getInteger(result,"excuteStatus");
             if (!ObjectUtils.isEmpty(excuteStatus)) {
-                result.put("excuteStatusDesc", ExcuteStatusEnum.getDesc(excuteStatus));
+                result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(excuteStatus));
             }
         }
         return new PageInfo<>(results);
+    }
+
+    @Override
+    public boolean saveTaskExcuteLog(Map<String, Object> params) {
+        try {
+            taskExcuteLogMapper.getTaskExcuteLogs(params);
+        } catch (Exception e) {
+            logger.error("saveTaskExcuteLog error, params, {}, ", e, JSON.toJSONString(params));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public List<Map<String,Object>> getExecutableTaskInfos(String taskType) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("taskType", taskType);
+        params.put("status", TaskStatusEnum.DOING.getIndex());
+        List<Map<String,Object>> tasks = taskInfoMapper.getExecutableTaskInfos(params);
+        return tasks;
     }
 
     @Override

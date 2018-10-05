@@ -15,38 +15,38 @@ import java.util.Map;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-public enum ExcuteStatusEnum {
+public enum ExecuteStatusEnum {
     /**
      * 失败
      */
     FAIL (0, "失败"),
 
     /**
-     * 失败
+     * 成功
      */
-    SUCCEED (1, "失败");
+    SUCCEED (1, "成功");
 
     private int index;
     private String desc;
 
-    private ExcuteStatusEnum(int index, String desc) {
+    private ExecuteStatusEnum(int index, String desc) {
         this.index = index;
         this.desc = desc;
     }
 
     public static List<Map<String, Object>> parseMap() {
         List<Map<String, Object>> lists = new ArrayList<>();
-        for (ExcuteStatusEnum platformStatusEnum : ExcuteStatusEnum.values()) {
-            Map<String, Object> platformStatus = new HashMap<>();
-            platformStatus.put("index", platformStatusEnum.getIndex());
-            platformStatus.put("desc", platformStatusEnum.getDesc());
-            lists.add(platformStatus);
+        for (ExecuteStatusEnum executeStatusEnum : ExecuteStatusEnum.values()) {
+            Map<String, Object> executeStatus = new HashMap<>();
+            executeStatus.put("index", executeStatusEnum.getIndex());
+            executeStatus.put("desc", executeStatusEnum.getDesc());
+            lists.add(executeStatus);
         }
         return lists;
     }
 
     public static String getDesc(int index) {
-        for (ExcuteStatusEnum r : ExcuteStatusEnum.values()) {
+        for (ExecuteStatusEnum r : ExecuteStatusEnum.values()) {
             if (r.getIndex() == index) {
                 return r.desc;
             }
@@ -54,8 +54,8 @@ public enum ExcuteStatusEnum {
         return null;
     }
 
-    public static ExcuteStatusEnum getEnum(int index) {
-        for (ExcuteStatusEnum r : ExcuteStatusEnum.values()) {
+    public static ExecuteStatusEnum getEnum(int index) {
+        for (ExecuteStatusEnum r : ExecuteStatusEnum.values()) {
             if (r.getIndex() == index) {
                 return r;
             }

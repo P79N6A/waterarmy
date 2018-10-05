@@ -41,4 +41,19 @@
         ORDER BY update_time DESC
     </select>
 
+
+    <select id="getExecutableTaskInfos" resultType="java.util.HashMap">
+        SELECT id, name, platform, module, task_type AS taskType
+        , execute_count AS executeCount, finish_count AS finishCount, status
+        , create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM task_info WHERE execute_count > finish_count
+        <if test="params.taskType != null and params.taskType != '' " >
+            AND task_type = #{params.taskType}
+        </if>
+        <if test="params.status != null and params.status != '' " >
+            AND status = #{params.status}
+        </if>
+        ORDER BY update_time DESC
+    </select>
+
 </mapper>

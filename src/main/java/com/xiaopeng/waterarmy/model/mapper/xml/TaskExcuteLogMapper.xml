@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskExcuteLogMapper">
 
+    <insert id="save">
+        INSERT INTO task_excute_log (task_info_id, executor
+        , excute_status, create_time)
+        VALUES (#{taskInfo.taskInfoId}, #{taskInfo.excuteStatus}
+        , #{taskInfo.excuteStatus}, now())
+    </insert>
+
     <select id="getTaskExcuteLogs" resultType="java.util.HashMap">
         SELECT tel.id, tel.task_info_id AS taskInfoId, tel.executor
         , tel.excute_status AS excuteStatus, tel.create_time AS createTime

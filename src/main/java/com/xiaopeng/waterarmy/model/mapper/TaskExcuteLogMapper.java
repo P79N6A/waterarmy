@@ -11,4 +11,6 @@ public interface TaskExcuteLogMapper extends MyMapper<TaskExcuteLog> {
 
     List<Map<String,Object>> getTaskExcuteLogs(@Param("params") Map<String, Object> params);
 
+    void save(@Param("taskExcuteLog") Map<String, Object> taskExcuteLog);
+
 }
