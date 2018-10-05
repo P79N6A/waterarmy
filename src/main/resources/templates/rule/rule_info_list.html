@@ -13,65 +13,23 @@
 </head>
 <body>
 <div id="app" v-cloak>
-    <!-- 表单组件 -->
-    <div class="ui-form">
-        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
-            <el-form-item label="平台" prop="role">
-                <el-select v-model="form.platform" placeholder="请选择">
-                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
-                               :key="item.name"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="任务类型" prop="role">
-                <el-select v-model="form.taskType" placeholder="请选择">
-                    <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
-                               :key="item.name"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="任务状态" prop="role">
-                <el-select v-model="form.status" placeholder="请选择">
-                    <el-option :label="item.desc" :value="item.index" v-for="item in taskStatus"
-                               :key="item.index"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="任务名称" prop="ver">
-                <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="创建时间" prop="createTime" class="ui-form-item-large ">
-                <daterange :start-date.sync="form.createStartDate" :end-date.sync="form.createEndDate" :init-range="[15,1]"></daterange>
-            </el-form-item>
-            <div class="ui-form__bd">
-                <el-row>
-                    <el-col :span="24">
-                        <div class="ui-text-right">
-                            <el-button type="primary" @click="search" size="small">查询</el-button>
-                            <el-button @click="reset" size="small">重置</el-button>
-                        </div>
-                    </el-col>
-                </el-row>
-            </div>
-
-        </el-form>
-    </div>
-
     <!-- 表格组件 -->
     <div class="ui-table">
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
-            <!-- 多选 -->
-            <!--<el-table-column type="selection"></el-table-column>-->
             <el-table-column prop="id" label="规则ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="name" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="platformDesc" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="moduleDesc" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
-            <el-table-column prop="taskTypeDesc" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="executeCount" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="name" label="规则名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectLink" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectContent" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="startTimeInterval" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="endTimeInterval" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="pvStayTimeDesc" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <!-- 自定义模块 -->
-            <el-table-column label="操作" min-width="220" align="center" fixed="right">
-                <template scope="item">
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
-                </template>
-            </el-table-column>
+            <!--<el-table-column label="操作" min-width="220" align="center" fixed="right">-->
+                <!--<template scope="item">-->
+                    <!--<el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
         </el-table>
     </div>
 
@@ -81,10 +39,6 @@
             <el-col :span="10">
                 <el-button size="small" type="primary" @click="showNew">新增规则</el-button>
             </el-col>
-            <!--<el-col :span="10">-->
-                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
-                <!--<el-button size="small" @click="exportData">导出</el-button>-->
-            <!--</el-col>-->
             <el-col :span="24">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
@@ -97,37 +51,38 @@
     <!-- 新增弹窗 -->
     <el-dialog title="新增规则" :visible.sync="isShowNew" :close-on-click-modal="false" top="0%" size="small" :show-close="false"
                :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
-
-        <el-form :model="form" label-width="80px" :inline="false" :rules="rules" ref="form">
-
+        <el-form :model="formNew" label-width="80px" :inline="false" :rules="rules" ref="formNew">
+                    <el-form-item prop="name" label="规则名称">
+                        <el-input v-model="formNew.name"></el-input>
+                    </el-form-item>
                     <el-form-item prop="isRandomSelectLink" label="随机选择链接">
-                        <el-radio-group v-model="form.isRandomSelectLink">
+                        <el-radio-group v-model="formNew.isRandomSelectLink">
                             <el-radio label="1">是</el-radio>
                             <el-radio label="0">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item prop="isRandomSelectContent" label="随机选择内容">
-                        <el-radio-group v-model="form.isRandomSelectContent">
+                        <el-radio-group v-model="formNew.isRandomSelectContent">
                             <el-radio label="1">是</el-radio>
                             <el-radio label="0">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="时间间隔(随机)" prop="role">
+                    <el-form-item label="时间间隔(随机)">
                         <el-row :gutter="40">
                             <el-col :span="8">
                                 <div class="grid-content bg-purple">
-                                    <el-input v-model="form.startTimeInterval"></el-input>
+                                    <el-input v-model="formNew.startTimeInterval"></el-input>
                                 </div>
                             </el-col>
                             <el-col :span="8">
                                 <div class="grid-content bg-purple">
-                                    <el-input v-model="form.endTimeInterval"></el-input>
+                                    <el-input v-model="formNew.endTimeInterval"></el-input>
                                 </div>
                             </el-col>
                         </el-row>
                     </el-form-item>
-                    <el-form-item label="PV停留时间" prop="role">
-                        <el-select v-model="form.pvStayTime" placeholder="请选择">
+                    <el-form-item label="PV停留时间" prop="pvStayTime">
+                        <el-select v-model="formNew.pvStayTime" placeholder="请选择">
                             <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
                                        :key="item.index"></el-option>
                         </el-select>
@@ -151,24 +106,28 @@
 <script type="text/javascript">
     var urls = {
         getDataUrl:'/rule/search/',
-        getPlatformsUrl:'/enums/getPlatforms',
-        getPlatFormModulesUrl:'/enums/getPlatFormModules',
-        getTaskTypesUrl:'/enums/getTaskTypes',
-        getTaskStatusUrl:'/enums/getTaskStatus',
         getPVStayTimesUrl:'/enums/getPVStayTimes',
+        addUrl:'/rule/addRule',
     }
 
     var app = new Vue({
         el: '#app',
         data: {
             form: {
-                platform: '',
-                module: '',
-                taskType: '',
-                status: '',
-                createStartDate: '',
-                createEndDate: '',
                 name: '',
+                isRandomSelectLink: '',
+                isRandomSelectContent: '',
+                startTimeInterval: '',
+                endTimeInterval: '',
+                pvStayTime: '',
+            },
+            formNew: {
+                name: '',
+                isRandomSelectLink: '',
+                isRandomSelectContent: '',
+                startTimeInterval: '',
+                endTimeInterval: '',
+                pvStayTime: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -186,12 +145,8 @@
             // 表单验证规则
             rules: {
             },
-            platforms: [], // 平台枚举列表
-            platFormModules: [], // 板块枚举列表
-            taskTypes: [], // 任务类型枚举列表
-            taskStatus: [], // 任务状态枚举列表
-            PVStayTimes: [], // PV停留时间枚举列表
             isShowNew: false,// 是否显示新增弹窗
+            PVStayTimes: [], // PV停留时间枚举列表
         },
         methods: {
 
@@ -235,42 +190,6 @@
                 this.tableSelect = val;
             },
 
-            getPlatforms: function() {
-                var _this = this;
-                this.get(urls.getPlatformsUrl, function(data) {
-                    if (data["success"]) {
-                        _this.platforms = data["data"];
-                    }
-                });
-            },
-
-            getPlatFormModules: function() {
-                var _this = this;
-                this.get(urls.getPlatFormModulesUrl, function(data) {
-                    if (data["success"]) {
-                        _this.platFormModules = data["data"];
-                    }
-                });
-            },
-
-            getTaskStatus: function() {
-                var _this = this;
-                this.get(urls.getTaskStatusUrl, function(data) {
-                    if (data["success"]) {
-                        _this.taskStatus = data["data"];
-                    }
-                });
-            },
-
-            getTaskTypes: function() {
-                var _this = this;
-                this.get(urls.getTaskTypesUrl, function(data) {
-                    if (data["success"]) {
-                        _this.taskTypes = data["data"];
-                    }
-                });
-            },
-
             /**
              * 新增弹窗提交
              * @return {[type]} [description]
@@ -278,11 +197,12 @@
             submitNew: function() {
                 var _this = this;
                 // 表单验证
-                _this.$refs['form'].validate(function(valid) {
+                _this.$refs['formNew'].validate(function(valid) {
                     // 验证通过
                     if (valid) {
                         var url = urls.addUrl;
                         var params = _this.formNew;
+                        console.log("params: " + JSON.stringify(params));
                         _this.post(url,params, function(data) {
                             if(data.success){
                                 _this.isShowNew = false;
@@ -305,7 +225,7 @@
                 var _this = this;
                 _this.isShowNew = true;
                 _this.$nextTick(function() {
-                    _this.$refs['form'].resetFields();
+                    _this.$refs['formNew'].resetFields();
                 })
             },
 
@@ -321,10 +241,6 @@
         },
         mounted: function() {
             this.getData();
-            this.getPlatforms();
-            this.getPlatFormModules();
-            this.getTaskTypes();
-            this.getTaskStatus();
             this.getPVStayTimes();
         }
     })

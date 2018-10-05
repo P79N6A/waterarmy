@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 
 import java.util.Map;
 
@@ -25,5 +26,7 @@ public interface RuleService {
      * @return
      */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params);
+
+    JsonMessage addRule(Map<String, Object> params);
 
 }

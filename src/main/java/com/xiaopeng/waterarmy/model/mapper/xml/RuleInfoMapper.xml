@@ -2,8 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.RuleInfoMapper">
 
+
+    <insert id="save">
+        INSERT INTO rule_info (name, is_random_select_link
+        , is_random_select_content, start_time_interval
+        , end_time_interval, pv_stay_time
+        , create_time, update_time, creator, updater)
+        VALUES (#{ruleInfo.name}, #{ruleInfo.isRandomSelectLink}
+        , #{ruleInfo.isRandomSelectContent}, #{ruleInfo.startTimeInterval}
+        , #{ruleInfo.endTimeInterval}, #{ruleInfo.pvStayTime}
+        , #{ruleInfo.createTime}, #{ruleInfo.updateTime}
+        , #{ruleInfo.creator}, #{ruleInfo.updater})
+    </insert>
+
     <select id="getRuleInfos" resultType="java.util.HashMap">
-        SELECT id, is_random_select_link AS isRandomSelectLink
+        SELECT id, name, is_random_select_link AS isRandomSelectLink
         , is_random_select_content AS isRandomSelectContent
         , start_time_interval AS startTimeInterval
         , end_time_interval AS endTimeInterval, pv_stay_time AS pvStayTime

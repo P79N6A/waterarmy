@@ -2,13 +2,21 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
+import com.xiaopeng.waterarmy.common.enums.PVStayTimeEnum;
+import com.xiaopeng.waterarmy.common.message.CodeEnum;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.RuleInfo;
 import com.xiaopeng.waterarmy.model.mapper.RuleInfoMapper;
 import com.xiaopeng.waterarmy.service.RuleService;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +42,31 @@ public class RuleServiceImpl implements RuleService {
     public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = ruleInfoMapper.getRuleInfos(params);
+        for (Map<String,Object> result: results) {
+            Integer pvStayTime = MapUtils.getInteger(result,"pvStayTime");
+            if (!ObjectUtils.isEmpty(pvStayTime)) {
+                result.put("pvStayTimeDesc", PVStayTimeEnum.getDesc(pvStayTime));
+            }
+        }
         return new PageInfo<>(results);
     }
 
+    @Override
+    public JsonMessage addRule(Map<String, Object> params) {
+        JsonMessage message = JsonMessage.init();
+        RuleInfo info = new RuleInfo();
+        info.setName(MapUtils.getString(params, "name"));
+        info.setIsRandomSelectLink(MapUtils.getInteger(params, "isRandomSelectLink"));
+        info.setIsRandomSelectContent(MapUtils.getInteger(params, "isRandom_selectContent"));
+        info.setStartTimeInterval(MapUtils.getInteger(params, "startTimeInterval"));
+        info.setEndTimeInterval(MapUtils.getInteger(params, "endTimeInterval"));
+        info.setPvStayTime(MapUtils.getInteger(params, "pvStayTime"));
+        info.setCreateTime(new Date());
+        info.setUpdateTime(new Date());
+        info.setCreator("xiaoa");
+        info.setUpdater("xiaoa");
+        ruleInfoMapper.save(info);
+        message.success(CodeEnum.SUCCESS).setMsg("新增规则成功!");
+        return message;
+    }
 }

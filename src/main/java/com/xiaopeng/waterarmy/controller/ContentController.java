@@ -88,6 +88,12 @@ public class ContentController {
         return contentService.page(pageNo, pageSize, params);
     }
 
+    @RequestMapping(value = "/queryContentInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage queryContentInfo(String contentRepositoriesType) {
+        return  contentService.queryContentInfo(contentRepositoriesType);
+    }
+
     @RequestMapping(value = "/importData", method = RequestMethod.POST)
     @ResponseBody
     public JsonMessage importData(@RequestParam("file") MultipartFile file, String type) {//String type  Map<String,Object> form

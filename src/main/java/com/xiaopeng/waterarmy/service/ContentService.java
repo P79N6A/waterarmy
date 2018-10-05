@@ -45,6 +45,8 @@ public interface ContentService {
 
     JsonMessage updateRepositoriesType(Map<String,Object> params);
 
+    JsonMessage queryContentInfo(String contentRepositoriesType);
+
     JsonMessage importData(MultipartFile file, String type);
 
 }

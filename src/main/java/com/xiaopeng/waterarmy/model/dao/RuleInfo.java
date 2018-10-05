@@ -17,6 +17,12 @@ public class RuleInfo implements Serializable {
     private Long id;
 
     /**
+     * 规则名称
+     */
+    @Column(name = "name")
+    private String name;
+
+    /**
      * 是否随机选择链接，0 否 1 是
      */
     @Column(name = "is_random_select_link")
@@ -79,6 +85,14 @@ public class RuleInfo implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getIsRandomSelectLink() {

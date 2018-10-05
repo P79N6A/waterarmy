@@ -1,6 +1,8 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.ContentInfoRepositories;
 import com.xiaopeng.waterarmy.service.ContentService;
 import com.xiaopeng.waterarmy.service.RuleService;
 import org.apache.commons.collections4.MapUtils;
@@ -26,7 +28,7 @@ import java.util.Map;
 @Controller
 public class RuleController {
 
-    private static final String INDEX_PAGE = "/task/rule_info_list.html";
+    private static final String INDEX_PAGE = "/rule/rule_info_list.html";
 
     @Autowired
     private RuleService ruleService;
@@ -49,6 +51,13 @@ public class RuleController {
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
         return ruleService.page(pageNo, pageSize, params);
+    }
+
+
+    @RequestMapping(value = "/addRule", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage addRule(@RequestParam Map<String,Object> params) {
+        return  ruleService.addRule(params);
     }
 
 }

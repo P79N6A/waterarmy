@@ -2,6 +2,7 @@ package com.xiaopeng.waterarmy.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.sun.tools.javac.jvm.Code;
 import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
 import com.xiaopeng.waterarmy.common.enums.ExcelDataTypeEnum;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * * 功能描述：内容库管理
@@ -110,6 +108,16 @@ public class ContentServiceImpl implements ContentService {
         return message;
     }
 
+    @Override
+    public JsonMessage queryContentInfo(String contentRepositoriesType) {
+        JsonMessage message = JsonMessage.init();
+        Map<String, Object> params = new HashMap<>();
+        params.put("type", contentRepositoriesType);
+        List<Map<String, Object>>  infos = contentInfoMapper.getContentInfos(params);
+        message.setData(infos);
+        message.success(CodeEnum.SUCCESS).setMsg("获取内容列表成功！");
+        return message;
+    }
 
     @Override
     public JsonMessage importData(MultipartFile file, String type) {
