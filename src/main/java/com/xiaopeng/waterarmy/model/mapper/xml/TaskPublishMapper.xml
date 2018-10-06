@@ -2,6 +2,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskPublishMapper">
 
+    <insert id="save">
+        INSERT INTO task_publish (platform, module
+        , task_type, status, create_time, update_time, creator, updater)
+        VALUES (#{taskPublish.platform}, #{taskPublish.module}
+        , #{taskPublish.taskType}, #{taskPublish.status}
+        , now(), now(), #{taskPublish.creator}, #{taskPublish.updater})
+    </insert>
+
+    <update id="update">
+        UPDATE task_publish SET update_time = now()
+        , updater = #{taskPublish.updater}
+        <if test="taskPublish.platform != null and taskPublish.platform != '' " >
+            , platform = #{taskPublish.platform}
+        </if>
+        <if test="taskPublish.module != null and taskPublish.module != '' " >
+            , module = #{taskPublish.module}
+        </if>
+        <if test="taskPublish.taskType != null and taskPublish.taskType != '' " >
+            , task_type = #{taskPublish.taskType}
+        </if>
+        <if test="taskPublish.status != null and taskPublish.status != '' " >
+            , status = #{taskPublish.status}
+        </if>
+        WHERE id = #{taskPublish.id}
+    </update>
+
     <select id="getTaskPublishs" resultType="java.util.HashMap">
         SELECT id, platform, module, task_type AS taskType
         , status, create_time AS createTime, update_time AS updateTime

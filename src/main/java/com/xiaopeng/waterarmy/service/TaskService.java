@@ -105,4 +105,8 @@ public interface TaskService {
      */
     JsonMessage publishTask(@RequestParam Map<String,Object> params);
 
+    JsonMessage addPublishTask(Map<String,Object> params);
+
+    JsonMessage updatePublishTask(Map<String,Object> params);
+
 }
