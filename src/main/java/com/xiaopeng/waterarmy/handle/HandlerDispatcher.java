@@ -71,14 +71,14 @@ public class HandlerDispatcher {
     private RequestContext createTestPublisContext() {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
-        content.setText("这车什么时候量产上市");
+        content.setText("国庆过去了，我的车要买了");
         content.setTitle("这车什么时候量产上市");
         requestContext.setContent(content);
-        requestContext.setUserId(4L);
-        requestContext.setUserLoginId("18383849422");
+        requestContext.setUserId(3L);
+        requestContext.setUserLoginId("15143586942");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
-        requestContext.setPlatform(PlatformEnum.YICHE);
-        requestContext.setPrefixUrl("http://baa.bitauto.com/jilidihaogs/thread-15766298-goto179749454.html");
+        requestContext.setPlatform(PlatformEnum.XCAR);
+        requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=32993489");
         return requestContext;
     }
 

@@ -11,12 +11,14 @@ import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,10 +91,19 @@ public class AiKaLoginHandler implements LoginHandler {
         CloseableHttpClient httpClient = httpFactory.getHttpClient();
         HttpPost httpPost = new HttpPost(loginUrl);
         setHeader(httpPost);
+        /**
+         * username: 13438042646
+         * userpwd: 790db012c25dfe164b90bf172a30bda8
+         * logintype: 2
+         * checkcode: 请输入验证码
+         * uniquekey: 5e08a8ca70638d89fcb9f073adb7f8b4
+         */
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair("username", userName));
         nameValuePairs.add(new BasicNameValuePair("userpwd", DigestUtils.md5Hex(passWord)));
         nameValuePairs.add(new BasicNameValuePair("logintype", "2"));
+        nameValuePairs.add(new BasicNameValuePair("checkcode", "请输入验证码"));
+        nameValuePairs.add(new BasicNameValuePair("u", null));
 
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
@@ -101,18 +112,18 @@ public class AiKaLoginHandler implements LoginHandler {
                 logger.error("[AiKaLoginHandler.login] UrlEncodedFormEntity login failed! account is " + account);
                 return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
             }
-            /* HttpEntity entity = response.getEntity();
-            String content = EntityUtils.toString(entity, "utf-8");
-            System.out.println(content);
-            System.out.println(httpPost.getURI());
-            System.out.println(response);*/
+             HttpEntity entity = response.getEntity();
+             String content = EntityUtils.toString(entity, "utf-8");
+             if (content.contains("discuz_uid")) {
+                 LoginResultDTO loginResultDTO = new LoginResultDTO();
+                 loginResultDTO.setHttpClient(httpClient);
+                 loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
+                 return new Result<>(loginResultDTO);
+             }
         } catch (Exception e) {
             logger.error("[AiKaLoginHandler.login] UrlEncodedFormEntity error! account is " + account, e);
         }
-        LoginResultDTO loginResultDTO = new LoginResultDTO();
-        loginResultDTO.setHttpClient(httpClient);
-        loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
-        return new Result<>(loginResultDTO);
+       return new Result(ResultCodeEnum.LOGIN_FAILED);
     }
 
     private void setHeader(HttpPost httpPost) {
