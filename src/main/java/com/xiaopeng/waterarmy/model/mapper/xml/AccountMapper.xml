@@ -15,7 +15,7 @@
         SELECT id, user_name AS userName, full_name AS fullName, password
         , mobile, email, level, platform, task_count as taskCount
         , create_time AS createTime, update_time AS updateTime
-        , status, creator, updater FROM account
+        , status, creator, updater FROM account WHERE status = 1
     </select>
 
     <select id="getAccountByUserName" resultType="com.xiaopeng.waterarmy.model.dao.Account">
@@ -36,5 +36,9 @@
         , create_time AS createTime, update_time AS updateTime
         , status, creator, updater FROM account WHERE id=#{id} AND status = 1
     </select>
+
+    <update id="deleteById">
+        UPDATE account SET status = 0 WHERE id = #{id}
+    </update>
 
 </mapper>

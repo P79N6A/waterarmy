@@ -104,6 +104,7 @@
     var urls = {
         getDataUrl:'/account/search/',
         updateUrl:'/account/update',
+        deleteUrl:'/account/delete',
     }
 
     var app = new Vue({
@@ -185,6 +186,26 @@
                 }else {
                     this.message('导入失败 !');
                 }
+            },
+
+
+            remove: function(item) {
+                var _this = this;
+                var index = item.$index;
+                _this.confirm('确定删除 ?', function() {
+                    var params = {
+                        id:item.row.id,
+                    }
+                    var url=urls.deleteUrl;
+                    _this.post(url,params, function(data) {
+                        if(data.success){
+                            _this.message('删除成功 !');
+                            _this.tableData.splice(index, 1);
+                        }else {
+                            _this.message('删除失败 !');
+                        }
+                    })
+                })
             },
 
         },

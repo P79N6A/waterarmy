@@ -76,6 +76,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public JsonMessage delete(Long id) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            accountMapper.deleteById(id);
+        } catch (Exception e) {
+            logger.error("删除账号 id : {}失败, ", id, e);
+            message.fail(CodeEnum.FAIL).setMsg("删除账号失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("删除账号成功！");
+        return message;
+    }
+
+    @Override
     public JsonMessage importData(MultipartFile file) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.ACCOUNT.getName());

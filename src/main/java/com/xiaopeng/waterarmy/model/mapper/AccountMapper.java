@@ -23,4 +23,7 @@ public interface AccountMapper extends MyMapper<Account> {
     Account getAccountById(@Param("id") Long id);
 
     void save(@Param("account") Account account);
+
+    void  deleteById(@Param("id") Long id);
+
 }

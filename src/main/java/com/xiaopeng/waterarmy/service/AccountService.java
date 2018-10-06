@@ -34,6 +34,8 @@ public interface AccountService {
 
     JsonMessage getAccountByUserName(String userName);
 
+    JsonMessage delete(Long id);
+
     JsonMessage importData(MultipartFile file);
 
 }
