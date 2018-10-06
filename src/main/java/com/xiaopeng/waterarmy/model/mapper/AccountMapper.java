@@ -17,6 +17,7 @@ public interface AccountMapper extends MyMapper<Account> {
 
     /**
      * 通过id查询 第三方系统账号
+     *
      * @param id
      * @return
      */
@@ -26,6 +27,6 @@ public interface AccountMapper extends MyMapper<Account> {
 
     void update(@Param("params") Map<String, Object> params);
 
-    void  deleteById(@Param("id") Long id);
+    void deleteById(@Param("id") Long id);
 
 }

@@ -51,6 +51,12 @@ public class AccountController {
         return accountService.page(pageNo, pageSize, params);
     }
 
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage add(@RequestParam Map<String,Object> params) {
+        return  accountService.add(params);
+    }
+
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
     public JsonMessage update(@RequestParam Map<String,Object> params) {

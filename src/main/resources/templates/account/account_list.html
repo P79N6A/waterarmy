@@ -26,6 +26,7 @@
                         <div class="ui-text-right">
                             <el-button type="primary" @click="search" size="small">查询</el-button>
                             <el-button @click="reset" size="small">重置</el-button>
+                            <el-button size="small" type="primary" @click="showNew">新增</el-button>
                         </div>
                     </el-col>
                 </el-row>
@@ -61,46 +62,91 @@
         </el-table>
     </div>
 
+
+    <!-- 新增弹窗 -->
+    <el-dialog title="新增规则" :visible.sync="isShowNew" :close-on-click-modal="false" top="0%" size="small" :show-close="false"
+               :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
+        <el-form :model="formNew" label-width="100px" :inline="false" :rules="rules" ref="formNew">
+            <el-form-item label="账号名" prop="userName">
+                <el-input v-model="formNew.userName" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="昵称" prop="fullName">
+                <el-input v-model="formNew.fullName" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="formNew.password" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="mobile">
+                <el-input v-model="formNew.mobile" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="账号邮箱" prop="email">
+                <el-input v-model="formNew.email" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="账号等级" prop="level">
+                <el-select v-model="formNew.level" placeholder="请选择等级">
+                    <el-option label="初级" :value="0"></el-option>
+                    <el-option label="中级" :value="1"></el-option>
+                    <el-option label="高级" :value="2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="平台" prop="platform">
+                <el-select v-model="formNew.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="formNew.status" placeholder="请选择">
+                    <el-option label="有效" :value="1"></el-option>
+                    <el-option label="无效" :value="0"></el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="isShowNew = false">取 消</el-button>
+            <el-button type="primary" @click="submitNew">确 定</el-button>
+        </div>
+    </el-dialog>
+
+
     <!-- 编辑弹窗 -->
     <el-dialog title="编辑账号" :visible.sync="isShowEdit" :close-on-click-modal="false" top="0%" size="small"
                :show-close="false" :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
         <el-form :model="formEdit" label-width="100px" :inline="false" :rules="rules" ref="formEdit">
-            <el-form :model="formEdit" label-width="100px" :inline="false" :rules="rules" ref="formNew">
-                <el-form-item label="账号名" prop="userName">
-                    <el-input v-model="formEdit.userName" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="昵称" prop="fullName">
-                    <el-input v-model="formEdit.fullName" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="密码" prop="password">
-                    <el-input v-model="formEdit.password" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="手机号" prop="name">
-                    <el-input v-model="formEdit.userName" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="账号邮箱" prop="name">
-                    <el-input v-model="formEdit.email" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="账号等级" prop="email">
-                    <el-select v-model="formEdit.level" placeholder="请选择等级">
-                        <el-option label="初级" :value="0"></el-option>
-                        <el-option label="中级" :value="1"></el-option>
-                        <el-option label="高级" :value="2"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="平台" prop="platform">
-                    <el-select v-model="formEdit.platform" placeholder="请选择">
-                        <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
-                                   :key="item.name"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-select v-model="formEdit.status" placeholder="请选择">
-                        <el-option label="有效" :value="1"></el-option>
-                        <el-option label="无效" :value="0"></el-option>
-                    </el-select>
-                </el-form-item>
-            </el-form>
+            <el-form-item label="账号名" prop="userName">
+                <el-input v-model="formEdit.userName" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="昵称" prop="fullName">
+                <el-input v-model="formEdit.fullName" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="formEdit.password" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="name">
+                <el-input v-model="formEdit.userName" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="账号邮箱" prop="name">
+                <el-input v-model="formEdit.email" placeholder="请输入"></el-input>
+            </el-form-item>
+            <el-form-item label="账号等级" prop="email">
+                <el-select v-model="formEdit.level" placeholder="请选择等级">
+                    <el-option label="初级" :value="0"></el-option>
+                    <el-option label="中级" :value="1"></el-option>
+                    <el-option label="高级" :value="2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="平台" prop="platform">
+                <el-select v-model="formEdit.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态" prop="status">
+                <el-select v-model="formEdit.status" placeholder="请选择">
+                    <el-option label="有效" :value="1"></el-option>
+                    <el-option label="无效" :value="0"></el-option>
+                </el-select>
+            </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="isShowEdit = false">取 消</el-button>
@@ -112,20 +158,23 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
-            <el-upload
-                    class="upload-demo"
-                    action="/account/importData"
-                    :on-success="successUpload"
-                    multiple
-                    :limit="1"
-                    :file-list="fileList">
-                <el-button size="small" type="primary">批量导入</el-button>
-            </el-upload>
+            <el-col :span="10">
+                <el-upload
+                        class="upload-demo"
+                        action="/account/importData"
+                        :on-success="successUpload"
+                        multiple
+                        :limit="1"
+                        :file-list="fileList">
+                    <el-button size="small" type="primary">批量导入</el-button>
+                </el-upload>
+            </el-col>
+
             <!--<el-col :span="10">-->
                 <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
                 <!--<el-button size="small" @click="exportData">导出</el-button>-->
             <!--</el-col>-->
-            <el-col :span="24">
+            <el-col :span="14">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
                                    @current-change="onPageChange" @size-change="onSizeChange"></el-pagination>
@@ -144,6 +193,7 @@
 <script type="text/javascript">
     var urls = {
         getDataUrl:'/account/search/',
+        addUrl:'/account/add',
         updateUrl:'/account/update',
         deleteUrl:'/account/delete',
         getPlatformsUrl:'/enums/getPlatforms',
@@ -174,6 +224,17 @@
                 platform: '',
                 status: '',
             },
+            formNew: {
+                id: '',
+                userName: '',
+                fullName: '',
+                password: '',
+                mobile: '',
+                email: '',
+                level: '',
+                platform: '',
+                status: '',
+            },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
             // 是否显示编辑弹窗
@@ -191,6 +252,7 @@
             },
             fileList: [], // 上传文件
             platforms: [], // 平台枚举列表
+            isShowNew: false,// 是否显示新增弹窗
         },
         methods: {
 
@@ -287,6 +349,45 @@
                     _this.isShowEdit = true;
                     _this.formEditItem = content;
                 }
+            },
+
+
+            /**
+             * 新增弹窗提交
+             * @return {[type]} [description]
+             */
+            submitNew: function() {
+                var _this = this;
+                // 表单验证
+                _this.$refs['formNew'].validate(function(valid) {
+                    // 验证通过
+                    if (valid) {
+                        var url = urls.addUrl;
+                        var params = _this.formNew;
+                        _this.post(url,params, function(data) {
+                            if(data.success){
+                                _this.isShowNew = false;
+                                _this.refresh();
+                                _this.message('添加成功 !');
+                            }else{
+                                _this.message(data.msg);
+                            }
+                        })
+                    }
+                })
+            },
+
+            /**
+             * 新增弹窗
+             * @param  {[type]} item [description]
+             * @return {[type]}      [description]
+             */
+            showNew: function() {
+                var _this = this;
+                _this.isShowNew = true;
+                _this.$nextTick(function() {
+                    _this.$refs['formNew'].resetFields();
+                })
             },
 
             submitEdit: function() {

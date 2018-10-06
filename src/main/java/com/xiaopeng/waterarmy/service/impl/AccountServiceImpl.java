@@ -77,6 +77,35 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public JsonMessage add(Map<String, Object> params) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            Account info = new Account();
+            info.setUUID(UUID.randomUUID().toString());
+            info.setUserName(MapUtils.getString(params, "userName"));
+            info.setFullName(MapUtils.getString(params, "fullName"));
+            info.setPassword(MapUtils.getString(params, "password"));
+            info.setMobile(MapUtils.getString(params, "mobile"));
+            info.setEmail(MapUtils.getString(params, "email"));
+            info.setLevel(MapUtils.getInteger(params, "level"));
+            info.setPlatform(MapUtils.getString(params, "platform"));
+            info.setTaskCount(0);
+            info.setCreateTime(new Date());
+            info.setUpdateTime(new Date());
+            info.setStatus(MapUtils.getInteger(params, "status"));
+            info.setCreator("xiaoa");
+            info.setUpdater("xiaoa");
+            accountMapper.save(info);
+        } catch (Exception e) {
+            logger.error("新增账号 params : {}失败, ", JSON.toJSONString(params), e);
+            message.fail(CodeEnum.FAIL).setMsg("新增账号失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("新增账号成功！");
+        return message;
+    }
+
+    @Override
     public JsonMessage update(Map<String,Object> params) {
         JsonMessage message = JsonMessage.init();
         try {

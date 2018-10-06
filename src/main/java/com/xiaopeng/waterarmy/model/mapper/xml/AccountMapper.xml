@@ -16,6 +16,9 @@
         , mobile, email, level, platform, task_count as taskCount
         , create_time AS createTime, update_time AS updateTime
         , status, creator, updater FROM account WHERE status = 1
+        <if test="params.userName != null and params.userName != '' " >
+            AND user_name = #{params.userName}
+        </if>
     </select>
 
     <select id="getAccountByUserName" resultType="com.xiaopeng.waterarmy.model.dao.Account">
