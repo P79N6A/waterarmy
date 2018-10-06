@@ -64,21 +64,21 @@ public class HandlerDispatcher {
         requestContext.setUserLoginId("18482193356");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
         requestContext.setPlatform(PlatformEnum.PCAUTO);
-        requestContext.setPrefixUrl("https://bbs.pcauto.com.cn/topic-17493073.html");
+        requestContext.setPrefixUrl("http://baa.bitauto.com/jilidihaogs/thread-15766298-goto179749454.html");
         return requestContext;
     }
 
     private RequestContext createTestPublisContext() {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
-        content.setText("出来工作也有些年头了，一个人在外面的确不容易，每天上班搭公交，每次回家坐长途，真的很累，驾照考出来都两年多了");
+        content.setText("这车什么时候量产上市");
         content.setTitle("这车什么时候量产上市");
         requestContext.setContent(content);
-        requestContext.setUserId(6L);
-        requestContext.setUserLoginId("lostever2013@163.com");
+        requestContext.setUserId(4L);
+        requestContext.setUserLoginId("18383849422");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
-        requestContext.setPlatform(PlatformEnum.QCTT);
-        requestContext.setPrefixUrl("https://www.qctt.cn/news/367550");
+        requestContext.setPlatform(PlatformEnum.YICHE);
+        requestContext.setPrefixUrl("http://baa.bitauto.com/jilidihaogs/thread-15766298-goto179749454.html");
         return requestContext;
     }
 

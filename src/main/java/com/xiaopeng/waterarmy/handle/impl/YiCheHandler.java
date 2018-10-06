@@ -2,8 +2,6 @@ package com.xiaopeng.waterarmy.handle.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
-import com.xiaopeng.waterarmy.common.constants.HttpConstants;
-import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
@@ -14,7 +12,6 @@ import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -24,9 +21,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +39,14 @@ public class YiCheHandler extends PlatformHandler {
 
     private static final String ForumApp = "forumApp";
 
-    private static final String TARGET_COMMENT_URL = "http://baa.bitauto.com/baoma3xi/Ajax/CreateReply.aspx";
+    private static final String TARGET_COMMENT_SUFFIX = "/Ajax/CreateReply.aspx";
 
-    private static final String TARGET_PUBLISH_URL = "http://baa.bitauto.com/equinox/Ajax/CreateTopic.aspx";
+    private static final String TARGET_COMMON_PREFIX = "http://baa.bitauto.com/";
+
+    private static final String TARGET_PUBLISH_BASE_SUFFIX = "/Ajax/CreateTopic.aspx";
+
+
+
 
     private static final String TARGET_PUBLISH_SUFFIX = "posttopic-0.html";
 
@@ -89,7 +88,20 @@ public class YiCheHandler extends PlatformHandler {
 
 
     private String createPublishUrl(RequestContext requestContext, LoginResultDTO loginResultDTO) {
-        //http://baa.bitauto.com/equinox/Ajax/CreateTopic.aspx?fid=0&fgid=8625&tid=0&pid=0&parentId=0
+        String forumApp = null;
+        if (requestContext.getRequestParam() != null) {
+            Object object1 = requestContext.getRequestParam().get(ForumApp);
+            if (object1 != null) {
+                forumApp = (String) object1;
+            }
+        }
+
+        if (forumApp == null) {
+            forumApp = getForumApp(requestContext.getPrefixUrl());
+        }
+
+        String targetBaseUrl = TARGET_COMMON_PREFIX+forumApp+TARGET_PUBLISH_BASE_SUFFIX;
+
         try {
             String prefixUrl = null;
             if (requestContext.getPrefixUrl().endsWith("/")) {
@@ -119,7 +131,8 @@ public class YiCheHandler extends PlatformHandler {
             nameValuePairs.add(new BasicNameValuePair("parentId", String.valueOf(parentId)));
 
             String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-            String url = TARGET_PUBLISH_URL + "?" + str;
+
+            String url = targetBaseUrl + "?" + str;
             return url;
         } catch (Exception e) {
             logger.error("[YiCheHandler.createPublishUrl]", e);
@@ -151,7 +164,7 @@ public class YiCheHandler extends PlatformHandler {
          * hasContent: true
          */
 
-        //http://baa.bitauto.com/equinox/Ajax/CreateTopic.aspx?fid=0&fgid=8625&tid=0&pid=0&parentId=0
+
         String targetUrl = createPublishUrl(requestContext, loginResultDTO);
         if (targetUrl == null) {
             return null;
@@ -256,16 +269,17 @@ public class YiCheHandler extends PlatformHandler {
             }
         }
 
-        if (topic == null) { //http://baa.bitauto.com/xiaopengqicheg3/thread-15742669.html
+        if (topic == null) {
             topic = getTopic(requestContext.getPrefixUrl());
         }
 
-        if (forumApp == null) { //http://baa.bitauto.com/xiaopengqicheg3/thread-15742669.html
+        if (forumApp == null) {
             forumApp = getForumApp(requestContext.getPrefixUrl());
         }
 
+        String targetCommentUrl = TARGET_COMMON_PREFIX+forumApp+TARGET_COMMENT_SUFFIX;
 
-        HttpPost httpPost = new HttpPost(TARGET_COMMENT_URL);
+        HttpPost httpPost = new HttpPost(targetCommentUrl);
         setHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
 
@@ -328,7 +342,18 @@ public class YiCheHandler extends PlatformHandler {
 
 
     private String getTopic(String url) {
-        String pattern = "-(\\d+).html";
+        try {
+            String pattern = "-(\\d+).html";
+            String temp = FetchParamUtil.getMatherStr(url, pattern);
+            return FetchParamUtil.getMatherStr(temp, "(\\d+)");
+        }catch (Exception e) {
+            return getTopicV2(url);
+        }
+
+    }
+
+    private String getTopicV2(String url) {
+        String pattern = "-(\\d+).-";
         String temp = FetchParamUtil.getMatherStr(url, pattern);
         return FetchParamUtil.getMatherStr(temp, "(\\d+)");
     }
