@@ -12,4 +12,6 @@ public interface PlatFormMapper extends MyMapper<PlatformConfig> {
 
     List<Map<String,Object>> getPlatForms(@Param("params") Map<String, Object> params);
 
+    void update(@Param("params") Map<String, Object> params);
+
 }

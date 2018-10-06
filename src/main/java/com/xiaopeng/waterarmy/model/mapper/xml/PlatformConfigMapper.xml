@@ -7,6 +7,30 @@
         , remark, example_link AS examplelink, create_time AS createTime
         , update_time AS updateTime
         , creator, updater FROM platform_config
+        WHERE 1=1
+        <if test="params.platform != null and params.platform != '' " >
+            AND name = #{params.platform}
+        </if>
     </select>
+
+    <update id="update">
+        UPDATE platform_config SET update_time = now()
+        <if test="params.platform != null and params.platform != '' " >
+            , platform = #{params.platform}
+        </if>
+        <if test="params.module != null and params.module != '' " >
+            , module = #{params.module}
+        </if>
+        <if test="params.taskType != null and params.taskType != '' " >
+            , task_type = #{params.taskType}
+        </if>
+        <if test="params.remark != null and params.remark != '' " >
+            , remark = #{params.remark}
+        </if>
+        <if test="params.status != null and params.status != '' " >
+            , status = #{params.status}
+        </if>
+        WHERE id = #{params.id}
+    </update>
 
 </mapper>

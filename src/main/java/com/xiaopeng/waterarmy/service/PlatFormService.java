@@ -27,4 +27,6 @@ public interface PlatFormService {
      */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
+    JsonMessage update(Map<String,Object> params);
+
 }
