@@ -59,7 +59,7 @@ public class ExcelUtil {
      * @param file
      * @return
      */
-    public static List<Object> importData(MultipartFile file, String tpye) {
+    public static List<Object> importData(MultipartFile file, String type) {
         String fileName = file.getOriginalFilename();
         Workbook wb = null;
         List<Object> datas = null;
@@ -78,7 +78,7 @@ public class ExcelUtil {
             return null;
         }
         Sheet sheet = wb.getSheetAt(0);//获取第一张表
-        datas = getDatasBySheet(sheet, tpye);
+        datas = getDatasBySheet(sheet, type);
         try {
             if (ObjectUtils.isEmpty(wb)) {
                 wb.close();
@@ -91,7 +91,8 @@ public class ExcelUtil {
 
     private static List<Object> getDatasBySheet(Sheet sheet, String type) {
         List<Object> datas = new ArrayList<>();
-        for (int i = 1; i < sheet.getLastRowNum(); i++) {
+        Integer lastRowNum = sheet.getLastRowNum();
+        for (int i = 1; i <= lastRowNum; i++) {
             Row row = sheet.getRow(i);//获取索引为i的行，以1开始
             if (ExcelDataTypeEnum.LINK.getName().equals(type)) {
                 LinkInfo info = new LinkInfo();
@@ -113,8 +114,8 @@ public class ExcelUtil {
                 datas.add(info);
             } else if (ExcelDataTypeEnum.ACCOUNT.getName().equals(type)) {
                 Account info = new Account();
-                String userName = row.getCell(0).getStringCellValue();
-                String fullName = row.getCell(1).getStringCellValue();
+                String userName = getStringFromNumericCell(row.getCell(0));
+                String fullName = getStringFromNumericCell(row.getCell(1));
                 String password = row.getCell(2).getStringCellValue();
                 String mobile = getStringFromNumericCell(row.getCell(3));//.getStringCellValue();
                 String email = row.getCell(4).getStringCellValue();
