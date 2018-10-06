@@ -34,7 +34,7 @@ public class TaskController {
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
 
-    private static final String task_execute_log_INDEX_PAGE = "/task/task_execute_log_list.html";
+    private static final String TASK_EXECUTE_LOG_INDEX_PAGE = "/task/task_execute_log_list.html";
 
     @Autowired
     private TaskService taskService;
@@ -113,7 +113,7 @@ public class TaskController {
 
     @RequestMapping(value = "/executelog/index")
     public ModelAndView taskexecutelogIndex() {
-        ModelAndView view = new ModelAndView(task_execute_log_INDEX_PAGE);
+        ModelAndView view = new ModelAndView(TASK_EXECUTE_LOG_INDEX_PAGE);
         return view;
     }
 
