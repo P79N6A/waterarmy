@@ -3,7 +3,7 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.CommentInfoMapper">
 
     <insert id="save">
-       INSERT INTO `CommentInfo` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
+       INSERT INTO `comment_info` (`platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
        VALUES
        (#{commentInfo.platform}, #{commentInfo.userId}, #{commentInfo.outUserName}, now(),now(), #{commentInfo.status}, #{commentInfo.targetUrl},  #{commentInfo.detailResult})
     </insert>

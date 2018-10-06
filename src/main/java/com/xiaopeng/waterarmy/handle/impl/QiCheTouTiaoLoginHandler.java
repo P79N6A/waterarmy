@@ -15,10 +15,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.dom4j.DocumentHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -79,7 +81,8 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
         }
         CloseableHttpClient httpClient = httpFactory.getHttpClient();
         HttpPost httpPost = new HttpPost(loginUrl);
-        String token = this.getToken(tokenUrl);
+        setHeader(httpPost);
+        String token = this.getToken(tokenUrl,httpClient);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair("username", userName));
         nameValuePairs.add(new BasicNameValuePair("password", passWord));
@@ -101,6 +104,7 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
                 loginResultDTO.setId(account.getId());
                 loginResultDTO.setUserId(account.getUserName());
                 loginResultDTO.setToken(token);
+                loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
                 return new Result<>(loginResultDTO);
             }
         } catch (Exception e) {
@@ -112,13 +116,18 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
 
 
 
-    private String getToken(String url) {
+    private String getToken(String url,CloseableHttpClient httpClient) {
         String token = null;
         //获取元素的时候重试三次
         int count = 3;
         while (count>0) {
             try {
-                Document doc = Jsoup.connect(url).timeout(HttpConstants.HTTP_TIMEOUT).get();
+                HttpGet httpGet = new HttpGet(url);
+                setHeader(httpGet);
+                CloseableHttpResponse response = httpClient.execute(httpGet);
+                HttpEntity entity = response.getEntity();
+                String content = EntityUtils.toString(entity, "utf-8");
+                Document doc = Jsoup.parse(content);
                 Elements elements = doc.select("[name=_token]") ;
                 token = elements.get(0).val();
                 break;
@@ -127,6 +136,20 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
             }
         }
         return token;
+    }
+
+    private void setHeader(HttpPost httpPost) {
+        httpPost.setHeader("origin","https://www.qctt.cn");
+        httpPost.setHeader("referer","https://www.qctt.cn/login");
+        httpPost.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("x-requested-with","XMLHttpRequest");
+    }
+
+    private void setHeader(HttpGet httpGet) {
+        httpGet.setHeader("origin","https://www.qctt.cn");
+        httpGet.setHeader("referer","https://www.qctt.cn/login");
+        httpGet.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpGet.setHeader("x-requested-with","XMLHttpRequest");
     }
 
 }

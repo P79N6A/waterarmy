@@ -210,12 +210,12 @@ insert  into `task_publish`(`id`,`platform`,`module`,`task_type`,`status`,`creat
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-# Dump of table CommentInfo
+# Dump of table comment_info
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `CommentInfo`;
+DROP TABLE IF EXISTS `comment_info`;
 
-CREATE TABLE `CommentInfo` (
+CREATE TABLE `comment_info` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `platform` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `userId` int(11) DEFAULT NULL,
@@ -228,10 +228,10 @@ CREATE TABLE `CommentInfo` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-LOCK TABLES `CommentInfo` WRITE;
+LOCK TABLES `comment_info` WRITE;
 /*!40000 ALTER TABLE `CommentInfo` DISABLE KEYS */;
 
-INSERT INTO `CommentInfo` (`id`, `platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
+INSERT INTO `comment_info` (`id`, `platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`)
 VALUES
 	(1,'PCAUTO',2,'18482193356','2018-10-04','2018-10-04',1,'https://bbs.pcauto.com.cn/topic-17473908.html','{\"message\":\"天还未冷，尚有余热，鸡皮已上身\",\"need_captcha\":false,\"pid\":156974128,\"qid\":0,\"status\":0,\"tid\":17473908,\"userId\":47446648,\"userName\":\"eiaxal8142\"}');
 
