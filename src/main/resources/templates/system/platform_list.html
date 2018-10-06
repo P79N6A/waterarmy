@@ -17,8 +17,8 @@
     <div class="ui-form">
         <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
             <el-form-item label="平台" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+                <el-select v-model="form.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
@@ -43,7 +43,7 @@
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
             <el-table-column prop="id" label="序号" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="desc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
@@ -63,10 +63,6 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
-            <el-col :span="10">
-                <el-button size="small" type="primary" @click="inputData">导入</el-button>
-                <el-button size="small" @click="exportData">导出</el-button>
-            </el-col>
             <el-col :span="24">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
@@ -117,6 +113,7 @@
     var urls = {
         getDataUrl:'/platform/search/',
         updateUrl:'/platform/update',
+        getPlatformsUrl:'/enums/getPlatforms',
     }
 
     var app = new Vue({
@@ -124,7 +121,6 @@
         data: {
             form: {
                 platform: '',
-                userName: '',
                 userName: '',
             },
             tableData: [], // 表格数据
@@ -143,6 +139,7 @@
             // 表单验证规则
             rules: {
             },
+            platforms: [], // 平台枚举列表
         },
         methods: {
 
@@ -244,9 +241,19 @@
                 this.tableSelect = val;
             },
 
+            getPlatforms: function() {
+                var _this = this;
+                this.get(urls.getPlatformsUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platforms = data["data"];
+                    }
+                });
+            },
+
         },
         mounted: function() {
             this.getData();
+            this.getPlatforms();
         }
     })
 </script>

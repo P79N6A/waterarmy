@@ -3,8 +3,9 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.PlatFormMapper">
 
     <select id="getPlatForms" resultType="java.util.HashMap">
-        SELECT id, module, task_type AS taskType, status
-        , remark, create_time AS createTime, update_time AS updateTime
+        SELECT id, `name`, `desc`, module, task_type AS taskType, status
+        , remark, example_link AS examplelink, create_time AS createTime
+        , update_time AS updateTime
         , creator, updater FROM platform_config
     </select>
 
