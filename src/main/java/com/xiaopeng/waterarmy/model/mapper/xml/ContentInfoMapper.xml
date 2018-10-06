@@ -37,4 +37,8 @@
         SELECT * FROM content_info WHERE content_repositories_type = #{type}
     </select>
 
+    <delete id="deleteById">
+        DELETE FROM content_info WHERE id = #{id}
+    </delete>
+
 </mapper>

@@ -125,6 +125,20 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public JsonMessage delete(Long id) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            contentInfoMapper.deleteById(id);
+        } catch (Exception e) {
+            logger.error("删除内容 id : {}失败, ", id, e);
+            message.fail(CodeEnum.FAIL).setMsg("删除内容失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("删除内容成功！");
+        return message;
+    }
+
+    @Override
     public JsonMessage importData(MultipartFile file, String type) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());

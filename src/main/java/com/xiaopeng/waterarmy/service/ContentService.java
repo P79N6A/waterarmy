@@ -51,6 +51,8 @@ public interface ContentService {
 
     List<ContentInfo> querysByRepositoriesType(String contentRepositoriesType);
 
+    JsonMessage delete(Long id);
+
     JsonMessage importData(MultipartFile file, String type);
 
 }
