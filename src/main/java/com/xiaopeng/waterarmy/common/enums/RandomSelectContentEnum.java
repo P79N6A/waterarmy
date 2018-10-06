@@ -6,47 +6,41 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * * 功能描述：任务状态枚举
- * <p> 版权所有：优视科技
- * <p> 未经本公司许可，不得以任何方式复制或使用本程序任何部分 <p>
- *
- * @author <a href="1206401391@qq.com">iason</a>
- * @version 1.0.0
- * @since 1.0.0
- * create on: 2018/9/20
+ * 是否随机选择内容，0 否 1 是
+ * Created by iason on 2018/10/5.
  */
-public enum ExcuteStatusEnum {
+public enum RandomSelectContentEnum {
     /**
-     * 失败
+     * 否
      */
-    FAIL (0, "失败"),
+    YES(0, "否"),
 
     /**
-     * 失败
+     * 是
      */
-    SUCCEED (1, "失败");
+    NO(1, "是");
 
     private int index;
     private String desc;
 
-    private ExcuteStatusEnum(int index, String desc) {
+    private RandomSelectContentEnum(int index, String desc) {
         this.index = index;
         this.desc = desc;
     }
 
     public static List<Map<String, Object>> parseMap() {
         List<Map<String, Object>> lists = new ArrayList<>();
-        for (ExcuteStatusEnum platformStatusEnum : ExcuteStatusEnum.values()) {
-            Map<String, Object> platformStatus = new HashMap<>();
-            platformStatus.put("index", platformStatusEnum.getIndex());
-            platformStatus.put("desc", platformStatusEnum.getDesc());
-            lists.add(platformStatus);
+        for (RandomSelectContentEnum randomSelectContentEnum : RandomSelectContentEnum.values()) {
+            Map<String, Object> randomSelectContents = new HashMap<>();
+            randomSelectContents.put("index", randomSelectContentEnum.getIndex());
+            randomSelectContents.put("desc", randomSelectContentEnum.getDesc());
+            lists.add(randomSelectContents);
         }
         return lists;
     }
 
     public static String getDesc(int index) {
-        for (ExcuteStatusEnum r : ExcuteStatusEnum.values()) {
+        for (RandomSelectContentEnum r : RandomSelectContentEnum.values()) {
             if (r.getIndex() == index) {
                 return r.desc;
             }
@@ -54,8 +48,8 @@ public enum ExcuteStatusEnum {
         return null;
     }
 
-    public static ExcuteStatusEnum getEnum(int index) {
-        for (ExcuteStatusEnum r : ExcuteStatusEnum.values()) {
+    public static RandomSelectContentEnum getEnum(int index) {
+        for (RandomSelectContentEnum r : RandomSelectContentEnum.values()) {
             if (r.getIndex() == index) {
                 return r;
             }

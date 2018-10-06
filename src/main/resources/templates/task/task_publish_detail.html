@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>帖子详情</title>
+    <title>发布帖子详情</title>
     <meta name="keywords" content=""/>
     <meta name="description" content=""/>
     <meta name="renderer" content="webkit">
@@ -41,13 +41,6 @@
                                    :key="item.name"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="业务状态" prop="role">
-                    <el-select v-model="form.status" placeholder="请选择">
-                        <el-option :label="item.desc" :value="item.index" v-for="item in platformStatus"
-                                   :key="item.index"></el-option>
-                    </el-select>
-                </el-form-item>
-
             </div>
         </el-form>
     </div>
@@ -55,90 +48,36 @@
     <div class="ui-form-edit">
         <el-form :model="form" :rules="rules" ref="forms">
             <div class="ui-title">
-                链接管理
-                <span class="ui-right">
-                    <el-button size="mini" type="primary" @click="showEdit(item)">添加</el-button>
-                    <el-button size="mini" type="primary" @click="showEdit(item)">批量导入</el-button>
-                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
-                </span>
+                链接（格式：链接+半角逗号+数量; 多个链接换行区分）
             </div>
-            <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
-                <!-- 单选 -->
-                <el-table-column label="选中">
-                    <template scope="scope">
-                        <el-radio class="radio" v-model="form.id"></el-radio>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="id" label="ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-                <el-table-column prop="platformDesc" label="名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-                <el-table-column prop="moduleDesc" label="链接" show-overflow-tooltip min-width="150px" sortable></el-table-column>
-                <el-table-column prop="taskTypeDesc" label="数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            </el-table>
-
+            <el-form-item>
+                <el-input type="textarea" v-model="form.content"
+                          :rows="5"></el-input>
+            </el-form-item>
             <div class="ui-title">
-                内容管理
-                <span class="ui-right">
-                    <el-button size="mini" type="primary" @click="showEdit(item)">添加</el-button>
-                    <el-button size="mini" type="primary" @click="showEdit(item)">批量导入</el-button>
-                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
-                </span>
+                内容库
             </div>
-            <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
-                <!-- 单选 -->
-                <el-table-column label="选中">
-                    <template scope="scope">
-                        <el-radio class="radio" v-model="form.id"></el-radio>
-                    </template>
-                </el-table-column>
-                <!--<el-table-column type="selection"></el-table-column>-->
-
-                <el-table-column prop="id" label="ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-                <el-table-column prop="platformDesc" label="标题" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-                <el-table-column prop="moduleDesc" label="内容" show-overflow-tooltip min-width="150px" sortable></el-table-column>
-                <el-table-column prop="taskTypeDesc" label="数量" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            </el-table>
+            <el-row type="flex" :gutter="5">
+                <el-col>
+                    <el-select v-model="form.contentRepositoriesType" placeholder="请选择内容库类型" @change="queryContentInfo">
+                        <el-option label="发帖" value="POSIED"></el-option>
+                        <el-option label="评论" value="COMMENT"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col>
+                    <el-select v-model="form.contentRepositoriesName" placeholder="请选择内容名称">
+                        <el-option v-for="item in contentInfos" :value="item.title" :key="item.title" :label="item.title"></el-option>
+                    </el-select>
+                </el-col>
+            </el-row>
 
             <div class="ui-title">规则管理</div>
-            <div class="ui-form-edit">
-                <el-form :model="form" :rules="rules" ref="forms" label-width="150px">
-                    <div class="ui-block">
-                        <div class="ui-block-bd">
-                            <el-form-item prop="isRandomSelectLink" label="随机选择链接">
-                                <el-radio-group v-model="form.isRandomSelectLink">
-                                    <el-radio label="1">是</el-radio>
-                                    <el-radio label="0">否</el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            <el-form-item prop="isRandomSelectContent" label="随机选择内容">
-                                <el-radio-group v-model="form.isRandomSelectContent">
-                                    <el-radio label="1">是</el-radio>
-                                    <el-radio label="0">否</el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            <el-form-item label="时间间隔(随机)" prop="role">
-                                <el-row :gutter="40">
-                                    <el-col :span="8">
-                                        <div class="grid-content bg-purple">
-                                            <el-input v-model="form.startTimeInterval"></el-input>
-                                        </div>
-                                    </el-col>
-                                    <el-col :span="8">
-                                        <div class="grid-content bg-purple">
-                                            <el-input v-model="form.endTimeInterval"></el-input>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                            </el-form-item>
-                            <el-form-item label="PV停留时间" prop="role">
-                                <el-select v-model="form.pvStayTime" placeholder="请选择">
-                                    <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
-                                               :key="item.index"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                    </div>
-                </el-form>
-            </div>
+            <el-form-item label="请选择规则" prop="role">
+                <el-select v-model="form.ruleInfoId" placeholder="请选择">
+                    <el-option :label="item.name" :value="item.id" v-for="item in rules"
+                               :key="item.id"></el-option>
+                </el-select>
+            </el-form-item>
 
             <div class="ui-form-edit__footer">
                 <div class="ui-block-bd">
@@ -165,22 +104,25 @@
         getPlatformStatusUrl:'/enums/getPlatformStatus',
         getPVStayTimesUrl:'/enums/getPVStayTimes',
         publishTaskUrl:'/task/publish/publishTask',
+        getContentRepositoriesUrl:'/enums/getContentRepositories',
+        queryContentInfoUrl:'/content/queryContentInfo',
+        getRulesUrl:'/rule/getRules',
     }
 
     var app = new Vue({
         el: '#app',
         data: {
             form: {
+                taskPublishId: '',
+                ruleInfoId: '',
                 name: '',
                 platform: '',
                 module: '',
                 taskType: '',
-                status: '',
-                isRandomSelectLink: '',
-                isRandomSelectContent: '',
-                startTimeInterval: '',
-                endTimeInterval: '',
-                pvStayTime: '',
+                link: '',
+                linkTitle: '',
+                contentRepositoriesType: '',
+                contentRepositoriesName: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -203,6 +145,9 @@
             taskTypes: [], // 任务类型枚举列表
             platformStatus: [], // 业务状态枚举列表
             PVStayTimes: [], // PV停留时间枚举列表
+            contentRepositories: [], // 内容库枚举列表
+            contentInfos: [], //内容列表
+            rules: [], //规则列表
         },
         methods: {
 
@@ -242,64 +187,6 @@
                 this.getData(this.form);
             },
 
-            showEdit: function(item) {
-                var _this = this;
-                if (item.row) {
-                    var content = item.row;
-                    for (var key in content) {
-                        if (content.hasOwnProperty(key)) {
-                            _this.$set(_this.formEdit, key, content[key])
-                        }
-                    }
-                    _this.isShowEdit = true;
-                    _this.formEditItem = content;
-                }
-            },
-
-            submitEdit: function() {
-                var _this = this;
-                for (var key in _this.formEdit) {
-                    if (_this.formEdit.hasOwnProperty(key)) {
-                        _this.$set(_this.formEditItem, key, _this.formEdit[key])
-                    }
-                }
-                var url = urls.updateUrl;
-                var params = _this.formEditItem;
-                _this.post(url,params, function(data) {
-                    if(data.success){
-                        _this.isShowEdit = false;
-                        _this.message('修改成功 !');
-                    }else{
-                        _this.message('修改失败 !');
-                    }
-                })
-            },
-
-            /**
-             * 删除事件
-             * @param  {[type]} item [description]
-             * @return {[type]}       [description]
-             */
-            remove: function(item) {
-                var _this = this;
-                var index = item.$index;
-                _this.confirm('确定删除 ?', function() {
-                    var params = {
-                        id:item.row.id,
-                        userName:item.row.userName,
-                    }
-                    var url=urls.deleteUrl;
-                    _this.post(url,params, function(data) {
-                        if(data.success){
-                            _this.message('删除成功 !');
-                            _this.tableData.splice(index, 1);
-                        }else {
-                            _this.message('删除失败 !');
-                        }
-                    })
-                })
-            },
-
             onTableSelect: function(val) {
                 this.tableSelect = val;
             },
@@ -309,7 +196,7 @@
                 _this.post(urls.publishTaskUrl, _this.form, function(data) {
                     if(data.success){
                         _this.message('发布成功 !');
-                        _this.tableData.splice(index, 1);
+                        _this.refresh();
                     }else {
                         _this.message('发布失败 !');
                     }
@@ -361,6 +248,41 @@
                 });
             },
 
+            getContentRepositories: function() {
+                var _this = this;
+                this.get(urls.getContentRepositoriesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.contentRepositories = data["data"];
+                    }
+                });
+            },
+
+            queryContentInfo: function() {
+                var _this = this;
+                var params = {
+                    contentRepositoriesType:_this.form.contentRepositoriesType,
+                }
+                _this.post(urls.queryContentInfoUrl, params, function(data) {
+                    if(data.success){
+                        _this.contentInfos = data["data"];
+                        _this.form.contentRepositoriesName = '';
+                    }
+                })
+            },
+
+            getRules: function() {
+                var _this = this;
+                this.get(urls.getRulesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.rules = data["data"];
+                    }
+                });
+            },
+            init: function(taskPublishId) {
+                this.form.taskPublishId  = taskPublishId;
+                console.log("taskPublishId:  " + taskPublishId)
+            },
+
         },
         mounted: function() {
             this.getData();
@@ -369,6 +291,12 @@
             this.getTaskTypes();
             this.getPlatformStatus();
             this.getPVStayTimes();
+            this.getContentRepositories();
+            this.getRules();
         }
     })
+</script>
+<script>
+    var taskPublishId = '${taskPublishId}';
+    app.init(taskPublishId);
 </script>

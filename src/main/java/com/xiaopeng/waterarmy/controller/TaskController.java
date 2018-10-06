@@ -34,7 +34,7 @@ public class TaskController {
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
 
-    private static final String TASK_EXCUTE_LOG_INDEX_PAGE = "/task/task_excute_log_list.html";
+    private static final String TASK_EXECUTE_LOG_INDEX_PAGE = "/task/task_execute_log_list.html";
 
     @Autowired
     private TaskService taskService;
@@ -46,8 +46,9 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/publish/detail")
-    public ModelAndView taskPublishDetail(Integer id) {
+    public ModelAndView taskPublishDetail(Integer taskPublishId) {
         ModelAndView view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
+        view.addObject("taskPublishId", taskPublishId);
         return view;
     }
 
@@ -110,15 +111,15 @@ public class TaskController {
         return taskService.taskInfoPage(pageNo, pageSize, params);
     }
 
-    @RequestMapping(value = "/excutelog/index")
-    public ModelAndView taskExcuteLogIndex() {
-        ModelAndView view = new ModelAndView(TASK_EXCUTE_LOG_INDEX_PAGE);
+    @RequestMapping(value = "/executelog/index")
+    public ModelAndView taskexecutelogIndex() {
+        ModelAndView view = new ModelAndView(TASK_EXECUTE_LOG_INDEX_PAGE);
         return view;
     }
 
-    @RequestMapping(value="/excutelog/search/{pageNo}",method = RequestMethod.POST)
+    @RequestMapping(value="/executelog/search/{pageNo}",method = RequestMethod.POST)
     @ResponseBody
-    public PageInfo<Map<String,Object>> taskExcuteLogSearch(@RequestParam Map<String,Object> params
+    public PageInfo<Map<String,Object>> taskExecuteLogSearch(@RequestParam Map<String,Object> params
             , @PathVariable("pageNo")Integer pageNo){
         if (pageNo == null) {
             pageNo = 1;
@@ -127,7 +128,7 @@ public class TaskController {
         if (!ObjectUtils.isEmpty(MapUtils.getString(params,"pageSize"))){
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
-        return taskService.taskExcuteLogPage(pageNo, pageSize, params);
+        return taskService.taskExecuteLogPage(pageNo, pageSize, params);
     }
 
     @RequestMapping(value = "/recoveryTask")

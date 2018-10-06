@@ -25,18 +25,6 @@ public class TaskInfo implements Serializable {
     private Long taskPublishId;
 
     /**
-     * 链接ID
-     */
-    @Column(name = "link_info_id")
-    private Long linkInfoId;
-
-    /**
-     * 内容ID
-     */
-    @Column(name = "content_info_id")
-    private Long contentInfoId;
-
-    /**
      * 规则ID
      */
     @Column(name = "rule_info_id")
@@ -65,6 +53,30 @@ public class TaskInfo implements Serializable {
      */
     @Column(name = "task_type")
     private String taskType;
+
+    /**
+     * 执行任务链接
+     */
+    @Column(name = "link")
+    private String link;
+
+    /**
+     * 链接标题
+     */
+    @Column(name = "link_title")
+    private String linkTitle;
+
+    /**
+     * 内容库类型，详见ContentRepositoriesEnum
+     */
+    @Column(name = "content_repositories_type")
+    private String contentRepositoriesType;
+
+    /**
+     * 内容库名称
+     */
+    @Column(name = "content_repositories_name")
+    private String contentRepositoriesName;
 
     /**
      * 执行数量
@@ -133,22 +145,6 @@ public class TaskInfo implements Serializable {
         this.taskPublishId = taskPublishId;
     }
 
-    public Long getLinkInfoId() {
-        return linkInfoId;
-    }
-
-    public void setLinkInfoId(Long linkInfoId) {
-        this.linkInfoId = linkInfoId;
-    }
-
-    public Long getContentInfoId() {
-        return contentInfoId;
-    }
-
-    public void setContentInfoId(Long contentInfoId) {
-        this.contentInfoId = contentInfoId;
-    }
-
     public Long getRuleInfoId() {
         return ruleInfoId;
     }
@@ -187,6 +183,38 @@ public class TaskInfo implements Serializable {
 
     public void setTaskType(String taskType) {
         this.taskType = taskType;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public String getLinkTitle() {
+        return linkTitle;
+    }
+
+    public void setLinkTitle(String linkTitle) {
+        this.linkTitle = linkTitle;
+    }
+
+    public String getContentRepositoriesType() {
+        return contentRepositoriesType;
+    }
+
+    public void setContentRepositoriesType(String contentRepositoriesType) {
+        this.contentRepositoriesType = contentRepositoriesType;
+    }
+
+    public String getContentRepositoriesName() {
+        return contentRepositoriesName;
+    }
+
+    public void setContentRepositoriesName(String contentRepositoriesName) {
+        this.contentRepositoriesName = contentRepositoriesName;
     }
 
     public Integer getExecuteCount() {

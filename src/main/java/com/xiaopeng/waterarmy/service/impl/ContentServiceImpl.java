@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * * 功能描述：内容库管理
@@ -47,11 +44,11 @@ public class ContentServiceImpl implements ContentService {
     private ContentInfoMapper contentInfoMapper;
 
     @Override
-    public PageInfo<Map<String,Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String,Object> params){
+    public PageInfo<Map<String, Object>> repositoriesPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = contentInfoRepositoriesMapper.getContentInfoRepositories(params);
-        for (Map<String,Object> result: results) {
-            String type = MapUtils.getString(result,"type");
+        List<Map<String, Object>> results = contentInfoRepositoriesMapper.getContentInfoRepositories(params);
+        for (Map<String, Object> result : results) {
+            String type = MapUtils.getString(result, "type");
             if (!ObjectUtils.isEmpty(type)) {
                 result.put("typeDesc", ContentRepositoriesEnum.getDesc(type));
             }
@@ -60,11 +57,11 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
+    public PageInfo<Map<String, Object>> page(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = contentInfoMapper.getContentInfos(params);
-        for (Map<String,Object> result: results) {
-            String contentRepositoriesType = MapUtils.getString(result,"contentRepositoriesType");
+        List<Map<String, Object>> results = contentInfoMapper.getContentInfos(params);
+        for (Map<String, Object> result : results) {
+            String contentRepositoriesType = MapUtils.getString(result, "contentRepositoriesType");
             if (!ObjectUtils.isEmpty(contentRepositoriesType)) {
                 result.put("contentRepositoriesTypeDesc", ContentRepositoriesEnum.getDesc(contentRepositoriesType));
             }
@@ -86,7 +83,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage updateRepositories(Map<String,Object> params) {
+    public JsonMessage updateRepositories(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
         ContentInfoRepositories repositories = new ContentInfoRepositories();
         repositories.setId(MapUtils.getLong(params, "id"));
@@ -100,7 +97,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage updateRepositoriesType(Map<String,Object> params) {
+    public JsonMessage updateRepositoriesType(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
         ContentInfoRepositories repositories = new ContentInfoRepositories();
         repositories.setId(MapUtils.getLong(params, "id"));
@@ -110,13 +107,29 @@ public class ContentServiceImpl implements ContentService {
         return message;
     }
 
+    @Override
+    public JsonMessage queryContentInfo(String contentRepositoriesType) {
+        JsonMessage message = JsonMessage.init();
+        Map<String, Object> params = new HashMap<>();
+        params.put("type", contentRepositoriesType);
+        List<Map<String, Object>> infos = contentInfoMapper.getContentInfos(params);
+        message.setData(infos);
+        message.success(CodeEnum.SUCCESS).setMsg("获取内容列表成功！");
+        return message;
+    }
+
+    @Override
+    public List<ContentInfo> querysByRepositoriesType(String contentRepositoriesType) {
+        List<ContentInfo> contentInfos = contentInfoMapper.querysByRepositoriesType(contentRepositoriesType);
+        return contentInfos;
+    }
 
     @Override
     public JsonMessage importData(MultipartFile file, String type) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());
         List<ContentInfo> infos = new ArrayList<>();
-        for (Object data: datas) {
+        for (Object data : datas) {
             ContentInfo info = (ContentInfo) data;
             info.setCreateTime(new Date());
             info.setUpdateTime(new Date());

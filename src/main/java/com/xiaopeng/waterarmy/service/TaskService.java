@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +47,15 @@ public interface TaskService {
      * @param params
      * @return
      */
-    PageInfo<Map<String,Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
+    PageInfo<Map<String,Object>> taskExecuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
+
+    /**
+     * 保存任务执行记录
+     *
+     * @param params
+     * @return
+     */
+    boolean saveTaskExecuteLog(Map<String, Object> params);
 
     /**
      * 获取任务详情
@@ -55,6 +64,22 @@ public interface TaskService {
      * @return
      */
     JsonMessage getTaskDetail(Long taskId);
+
+    /**
+     * 根据任务类型获取需要执行的任务
+     *
+     * @param taskType
+     * @return
+     */
+    List<Map<String,Object>> getExecutableTaskInfos(String taskType);
+
+    /**
+     * 更新任务完成次数
+     *
+     * @param id
+     * @return
+     */
+    boolean updateFinishCount(Long id);
 
     /**
      * 恢复任务

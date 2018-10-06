@@ -15,43 +15,38 @@ import java.util.Map;
  * @since 1.0.0
  * create on: 2018/9/20
  */
-public enum TaskStatusEnum {
+public enum ExecuteStatusEnum {
     /**
-     * 进行中
+     * 失败
      */
-    DOING (0, "进行中"),
+    FAIL (0, "失败"),
 
     /**
-     * 暂停中
+     * 成功
      */
-    PAUSING (1, "暂停中"),
-
-    /**
-     * 已完成
-     */
-    FINISH (2, "已完成");
+    SUCCEED (1, "成功");
 
     private int index;
     private String desc;
 
-    private TaskStatusEnum(int index, String desc) {
+    private ExecuteStatusEnum(int index, String desc) {
         this.index = index;
         this.desc = desc;
     }
 
     public static List<Map<String, Object>> parseMap() {
         List<Map<String, Object>> lists = new ArrayList<>();
-        for (TaskStatusEnum platformStatusEnum : TaskStatusEnum.values()) {
-            Map<String, Object> platformStatus = new HashMap<>();
-            platformStatus.put("index", platformStatusEnum.getIndex());
-            platformStatus.put("desc", platformStatusEnum.getDesc());
-            lists.add(platformStatus);
+        for (ExecuteStatusEnum executeStatusEnum : ExecuteStatusEnum.values()) {
+            Map<String, Object> executeStatus = new HashMap<>();
+            executeStatus.put("index", executeStatusEnum.getIndex());
+            executeStatus.put("desc", executeStatusEnum.getDesc());
+            lists.add(executeStatus);
         }
         return lists;
     }
 
     public static String getDesc(int index) {
-        for (TaskStatusEnum r : TaskStatusEnum.values()) {
+        for (ExecuteStatusEnum r : ExecuteStatusEnum.values()) {
             if (r.getIndex() == index) {
                 return r.desc;
             }
@@ -59,8 +54,8 @@ public enum TaskStatusEnum {
         return null;
     }
 
-    public static TaskStatusEnum getEnum(int index) {
-        for (TaskStatusEnum r : TaskStatusEnum.values()) {
+    public static ExecuteStatusEnum getEnum(int index) {
+        for (ExecuteStatusEnum r : ExecuteStatusEnum.values()) {
             if (r.getIndex() == index) {
                 return r;
             }

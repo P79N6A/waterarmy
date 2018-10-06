@@ -61,6 +61,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<Account> getAccountsByPlatform(String platform) {
+        List<Account> accounts = accountMapper.getAccountsByPlatform(platform);
+        return accounts;
+    }
+
+    @Override
     public JsonMessage getAccountByUserName(String userName) {
         JsonMessage message = JsonMessage.init();
         Account account = accountMapper.getAccountByUserName(userName);

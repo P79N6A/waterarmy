@@ -2,8 +2,10 @@ package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.Account;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +29,8 @@ public interface AccountService {
      * @return
      */
     PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params);
+
+    List<Account> getAccountsByPlatform(String platform);
 
     JsonMessage getAccountByUserName(String userName);
 

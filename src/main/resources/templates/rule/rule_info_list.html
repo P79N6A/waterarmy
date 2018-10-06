@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>规则管理列表</title>
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/element-ui.css?v=${PROJECT_VERSION}">
+    <link rel="stylesheet" href="//image.uc.cn/s/uae/g/08/static/v2/img/style.css?v=${PROJECT_VERSION}">
+</head>
+<body>
+<div id="app" v-cloak>
+    <!-- 表格组件 -->
+    <div class="ui-table">
+        <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
+            <el-table-column prop="id" label="规则ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="name" label="规则名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectLinkDesc" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="isRandomSelectContentDesc" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="startTimeInterval" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
+            <el-table-column prop="endTimeInterval" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="pvStayTimeDesc" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <!-- 自定义模块 -->
+            <!--<el-table-column label="操作" min-width="220" align="center" fixed="right">-->
+                <!--<template scope="item">-->
+                    <!--<el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
+        </el-table>
+    </div>
+
+    <!-- 分页组件 -->
+    <div class="ui-table__ft-fix">
+        <el-row type="flex" class="ui-table__ft">
+            <el-col :span="10">
+                <el-button size="small" type="primary" @click="showNew">新增规则</el-button>
+            </el-col>
+            <el-col :span="24">
+                <div class="ui-page">
+                    <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
+                                   @current-change="onPageChange" @size-change="onSizeChange"></el-pagination>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
+
+    <!-- 新增弹窗 -->
+    <el-dialog title="新增规则" :visible.sync="isShowNew" :close-on-click-modal="false" top="0%" size="small" :show-close="false"
+               :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
+        <el-form :model="formNew" label-width="80px" :inline="false" :rules="rules" ref="formNew">
+                    <el-form-item prop="name" label="规则名称">
+                        <el-input v-model="formNew.name"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="isRandomSelectLink" label="随机选择链接">
+                        <el-radio-group v-model="formNew.isRandomSelectLink">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item prop="isRandomSelectContent" label="随机选择内容">
+                        <el-radio-group v-model="formNew.isRandomSelectContent">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="时间间隔(随机)">
+                        <el-row :gutter="40">
+                            <el-col :span="8">
+                                <div class="grid-content bg-purple">
+                                    <el-input v-model="formNew.startTimeInterval"></el-input>
+                                </div>
+                            </el-col>
+                            <el-col :span="8">
+                                <div class="grid-content bg-purple">
+                                    <el-input v-model="formNew.endTimeInterval"></el-input>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form-item>
+                    <el-form-item label="PV停留时间" prop="pvStayTime">
+                        <el-select v-model="formNew.pvStayTime" placeholder="请选择">
+                            <el-option :label="item.desc" :value="item.index" v-for="item in PVStayTimes"
+                                       :key="item.index"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="isShowNew = false">取 消</el-button>
+            <el-button type="primary" @click="submitNew">确 定</el-button>
+        </div>
+    </el-dialog>
+
+</div>
+</body>
+</html>
+
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/vue.min.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/element-ui.js?v=${PROJECT_VERSION}"></script>
+<script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
+<script type="text/javascript">
+    var urls = {
+        getDataUrl:'/rule/search/',
+        getPVStayTimesUrl:'/enums/getPVStayTimes',
+        addUrl:'/rule/addRule',
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {
+                name: '',
+                isRandomSelectLink: '',
+                isRandomSelectContent: '',
+                startTimeInterval: '',
+                endTimeInterval: '',
+                pvStayTime: '',
+            },
+            formNew: {
+                name: '',
+                isRandomSelectLink: '',
+                isRandomSelectContent: '',
+                startTimeInterval: '',
+                endTimeInterval: '',
+                pvStayTime: '',
+            },
+            tableData: [], // 表格数据
+            isLoading: false, // 是否加载中
+            // 是否显示编辑弹窗
+            isShowEdit: false,
+            // 编辑的内容
+            formEdit: {},
+            // 编辑的条目
+            formEditItem: {},
+            pageTotal: 0, // 总条数
+            pageNo: 1, // 当前分页
+            pageSize: 10, // 每页条数
+            tableSelect: [],// 储存表格选择的数据
+            roleSelectOptions:[],
+            // 表单验证规则
+            rules: {
+            },
+            isShowNew: false,// 是否显示新增弹窗
+            PVStayTimes: [], // PV停留时间枚举列表
+        },
+        methods: {
+
+            getData: function(params) {
+                var _this = this;
+                _this.isLoading = true;
+                var url = urls.getDataUrl + _this.pageNo;
+                params = params || {};
+                params["pageSize"] = _this.pageSize;
+                _this.post(url,params, function(data, res) {
+                    _this.tableData = data.list;
+                    _this.pageTotal = data.total;
+                    _this.isLoading = false;
+                })
+            },
+
+            /**
+             * 重置表单
+             * @return {[type]} [description]
+             */
+            reset: function() {
+                location.reload();
+            },
+
+            search: function() {
+                var _this = this;
+                _this.getData(_this.form);
+            },
+
+            onPageChange: function(page) {
+                this.pageNo = page;
+                this.getData(this.form);
+            },
+
+            onSizeChange: function(size) {
+                this.pageSize = size;
+                this.getData(this.form);
+            },
+
+            onTableSelect: function(val) {
+                this.tableSelect = val;
+            },
+
+            /**
+             * 新增弹窗提交
+             * @return {[type]} [description]
+             */
+            submitNew: function() {
+                var _this = this;
+                // 表单验证
+                _this.$refs['formNew'].validate(function(valid) {
+                    // 验证通过
+                    if (valid) {
+                        var url = urls.addUrl;
+                        var params = _this.formNew;
+                        console.log("params: " + JSON.stringify(params));
+                        _this.post(url,params, function(data) {
+                            if(data.success){
+                                _this.isShowNew = false;
+                                _this.refresh();
+                                _this.message('添加成功 !');
+                            }else{
+                                _this.message(data.msg);
+                            }
+                        })
+                    }
+                })
+            },
+
+            /**
+             * 新增弹窗
+             * @param  {[type]} item [description]
+             * @return {[type]}      [description]
+             */
+            showNew: function() {
+                var _this = this;
+                _this.isShowNew = true;
+                _this.$nextTick(function() {
+                    _this.$refs['formNew'].resetFields();
+                })
+            },
+
+            getPVStayTimes: function() {
+                var _this = this;
+                this.get(urls.getPVStayTimesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.PVStayTimes = data["data"];
+                    }
+                });
+            },
+
+        },
+        mounted: function() {
+            this.getData();
+            this.getPVStayTimes();
+        }
+    })
+</script>

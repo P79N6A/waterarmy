@@ -1,15 +1,15 @@
 package com.xiaopeng.waterarmy.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.xiaopeng.waterarmy.common.enums.*;
 import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.model.dao.Account;
-import com.xiaopeng.waterarmy.model.dao.TaskInfo;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * * 功能描述：
@@ -58,7 +55,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Autowired
-    private TaskExcuteLogMapper taskExcuteLogMapper;
+    private TaskExecuteLogMapper taskExecuteLogMapper;
 
     @Autowired
     private HandlerDispatcher handlerDispatcher;
@@ -83,16 +80,47 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+    public PageInfo<Map<String, Object>> taskExecuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = taskExcuteLogMapper.getTaskExcuteLogs(params);
+        List<Map<String,Object>> results = taskExecuteLogMapper.getTaskExecuteLogs(params);
         for (Map<String,Object> result: results) {
-            Integer excuteStatus = MapUtils.getInteger(result,"excuteStatus");
-            if (!ObjectUtils.isEmpty(excuteStatus)) {
-                result.put("excuteStatusDesc", ExcuteStatusEnum.getDesc(excuteStatus));
+            Integer executeStatus = MapUtils.getInteger(result,"executeStatus");
+            if (!ObjectUtils.isEmpty(executeStatus)) {
+                result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(executeStatus));
             }
         }
         return new PageInfo<>(results);
+    }
+
+    @Override
+    public boolean saveTaskExecuteLog(Map<String, Object> params) {
+        try {
+            taskExecuteLogMapper.save(params);
+        } catch (Exception e) {
+            logger.error("saveTaskExecuteLog error, params, {}, ", e, JSON.toJSONString(params));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean updateFinishCount(Long id) {
+        try {
+            taskInfoMapper.updateExecuteCount(id);
+        } catch (Exception e) {
+         logger.error("更新任务 id ,{}完成次数失败, ", id, e);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public List<Map<String,Object>> getExecutableTaskInfos(String taskType) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("taskType", taskType);
+        params.put("status", TaskStatusEnum.DOING.getIndex());
+        List<Map<String,Object>> tasks = taskInfoMapper.getExecutableTaskInfos(params);
+        return tasks;
     }
 
     @Override
@@ -108,7 +136,28 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public JsonMessage publishTask(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
-        taskInfoMapper.save(params);
+        params.put("finishCount", 0);
+        params.put("status", TaskStatusEnum.DOING.getIndex());
+        params.put("creator", "xiaoa");
+        params.put("updater", "xiaoa");
+        String content = MapUtils.getString(params, "content");
+        String[] linkInfos = content.split("\n");
+        List<Map<String, Object>> links = new ArrayList<>();
+        for (String info: linkInfos) {
+            String link = info.substring(0, info.indexOf(","));
+            System.out.println(info.substring(info.indexOf(",") + 1));
+            Integer executeCount = Integer.parseInt(info.substring(info.indexOf(",") + 1));
+            Map<String, Object> param = new HashMap<>();
+            param.put("link", link);
+            param.put("executeCount", executeCount);
+            links.add(param);
+        }
+        for (Map<String, Object> link: links) {
+            params.put("link", link.get("link"));
+            params.put("executeCount", link.get("executeCount"));
+            taskInfoMapper.save(params);
+        }
+
         message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
         return message;
     }

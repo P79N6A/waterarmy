@@ -9,8 +9,8 @@ import java.util.Date;
  *
  * Created by iason on 2018/10/1.
  */
-@Table(name = "task_excute_log")
-public class TaskExcuteLog implements Serializable {
+@Table(name = "task_execute_log")
+public class TaskExecuteLog implements Serializable {
 
     private static final long serialVersionUID = -5323840453451221L;
 
@@ -24,6 +24,13 @@ public class TaskExcuteLog implements Serializable {
     @Column(name = "task_info_id")
     private Long taskInfoId;
 
+
+    /**
+     * 内容ID，对应content_info表主键
+     */
+    @Column(name = "content_info_id")
+    private Long contentInfoId;
+
     /**
      * 执行账号名
      */
@@ -33,8 +40,14 @@ public class TaskExcuteLog implements Serializable {
     /**
      * 任务执行状态，0 失败 1成功
      */
-    @Column(name = "excute_status")
-    private Integer excuteStatus;
+    @Column(name = "execute_status")
+    private Integer executeStatus;
+
+    /**
+     * 执行结果返还值
+     */
+    @Column(name = "handler_result")
+    private String handlerResult;
 
     /**
      * 创建时间
@@ -43,7 +56,7 @@ public class TaskExcuteLog implements Serializable {
     private Date createTime;
 
 
-    public TaskExcuteLog() {
+    public TaskExecuteLog() {
     }
 
     public Long getId() {
@@ -62,6 +75,14 @@ public class TaskExcuteLog implements Serializable {
         this.taskInfoId = taskInfoId;
     }
 
+    public Long getContentInfoId() {
+        return contentInfoId;
+    }
+
+    public void setContentInfoId(Long contentInfoId) {
+        this.contentInfoId = contentInfoId;
+    }
+
     public String getExecutor() {
         return executor;
     }
@@ -70,12 +91,20 @@ public class TaskExcuteLog implements Serializable {
         this.executor = executor;
     }
 
-    public Integer getExcuteStatus() {
-        return excuteStatus;
+    public Integer getExecuteStatus() {
+        return executeStatus;
     }
 
-    public void setExcuteStatus(Integer excuteStatus) {
-        this.excuteStatus = excuteStatus;
+    public void setExecuteStatus(Integer executeStatus) {
+        this.executeStatus = executeStatus;
+    }
+
+    public String getHandlerResult() {
+        return handlerResult;
+    }
+
+    public void setHandlerResult(String handlerResult) {
+        this.handlerResult = handlerResult;
     }
 
     public Date getCreateTime() {
