@@ -16,7 +16,7 @@
     <!-- 表单组件 -->
     <div class="ui-form">
         <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
-            <el-form-item label="平台" prop="role">
+            <el-form-item label="平台" prop="platform">
                 <el-select v-model="form.platform" placeholder="请选择">
                     <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
                                :key="item.name"></el-option>

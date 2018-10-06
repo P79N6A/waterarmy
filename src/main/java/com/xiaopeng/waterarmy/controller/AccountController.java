@@ -51,6 +51,11 @@ public class AccountController {
         return accountService.page(pageNo, pageSize, params);
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage update(@RequestParam Map<String,Object> params) {
+        return  accountService.update(params);
+    }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody

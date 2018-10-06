@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.AccountLevelEnum;
@@ -72,6 +73,20 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountMapper.getAccountByUserName(userName);
         message.setData(account);
         message.success(CodeEnum.SUCCESS);
+        return message;
+    }
+
+    @Override
+    public JsonMessage update(Map<String,Object> params) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            accountMapper.update(params);
+        } catch (Exception e) {
+            logger.error("更新账号 params : {}失败, ", JSON.toJSONString(params), e);
+            message.fail(CodeEnum.FAIL).setMsg("更新账号失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("更新账号成功！");
         return message;
     }
 

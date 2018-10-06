@@ -74,11 +74,11 @@ public enum PVStayTimeEnum {
 
     public static List<Map<String, Object>> parseMap() {
         List<Map<String, Object>> lists = new ArrayList<>();
-        for (PVStayTimeEnum accountLevelEnum : PVStayTimeEnum.values()) {
-            Map<String, Object> accountLevel = new HashMap<>();
-            accountLevel.put("index", accountLevelEnum.getIndex());
-            accountLevel.put("desc", accountLevelEnum.getDesc());
-            lists.add(accountLevel);
+        for (PVStayTimeEnum pvStayTimeEnum : PVStayTimeEnum.values()) {
+            Map<String, Object> pvStayTime = new HashMap<>();
+            pvStayTime.put("index", pvStayTimeEnum.getIndex());
+            pvStayTime.put("desc", pvStayTimeEnum.getDesc());
+            lists.add(pvStayTime);
         }
         return lists;
     }

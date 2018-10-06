@@ -24,6 +24,8 @@ public interface AccountMapper extends MyMapper<Account> {
 
     void save(@Param("account") Account account);
 
+    void update(@Param("params") Map<String, Object> params);
+
     void  deleteById(@Param("id") Long id);
 
 }
