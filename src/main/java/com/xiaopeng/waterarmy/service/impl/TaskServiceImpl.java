@@ -107,6 +107,7 @@ public class TaskServiceImpl implements TaskService {
     public boolean updateFinishCount(Long id) {
         try {
             taskInfoMapper.updateExecuteCount(id);
+            taskInfoMapper.updateFinishStatus(id);
         } catch (Exception e) {
          logger.error("更新任务 id ,{}完成次数失败, ", id, e);
             return false;

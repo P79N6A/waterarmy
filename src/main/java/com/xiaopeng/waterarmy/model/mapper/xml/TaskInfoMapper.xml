@@ -41,10 +41,13 @@
         ORDER BY update_time DESC
     </select>
 
-
     <select id="getExecutableTaskInfos" resultType="java.util.HashMap">
-        SELECT id, name, platform, module, task_type AS taskType
-        , execute_count AS executeCount, finish_count AS finishCount, status
+        SELECT id, task_publish_id AS taskPublishId, rule_info_id AS ruleInfoId
+        , name, platform, module, task_type AS taskType, link, link_title AS linkTitle
+        , content_repositories_type AS contentRepositoriesType
+        , content_repositories_name AS contentRepositoriesName
+        , execute_count AS executeCount, finish_count AS finishCount
+        , finish_time AS finishTime, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info WHERE execute_count > finish_count
         <if test="params.taskType != null and params.taskType != '' " >
@@ -58,10 +61,13 @@
 
     <update id="updateExecuteCount">
         UPDATE task_info SET finish_count = finish_count + 1
-        <if test="execute_count == finish_count +  1" >
-            , status = 2
-        </if>
         WHERE id = #{id}
     </update>
+
+    <update id="updateFinishStatus">
+        UPDATE task_info SET STATUS = 2
+        WHERE id = #{id} AND  finish_count = finish_count
+    </update>
+
 
 </mapper>

@@ -41,7 +41,7 @@ public class ScheduledPublishTask {
 
     private static Logger logger = LoggerFactory.getLogger(ScheduledPublishTask.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private TaskService taskService;
@@ -74,7 +74,7 @@ public class ScheduledPublishTask {
                 Integer publishContentNum = NumUtil.getRandomNum(contentInfos.size());
                 ContentInfo publishContent = contentInfos.get(publishContentNum);
                 //获取发帖上下文
-                RequestContext context = createTestPublishTaskContext(task, publishAccount, publishContent);
+                RequestContext context = createPublishTaskContext(task, publishAccount, publishContent);
                 //执行发帖任务
                 if (!ObjectUtils.isEmpty(context)) {
                     publishTask(context, task, publishAccount, publishContent);
@@ -127,7 +127,7 @@ public class ScheduledPublishTask {
      * @param publishContent
      * @return
      */
-    private RequestContext createTestPublishTaskContext(Map<String, Object> task
+    private RequestContext createPublishTaskContext(Map<String, Object> task
             , Account publishAccount, ContentInfo publishContent) {
         RequestContext requestContext = null;
         try {
