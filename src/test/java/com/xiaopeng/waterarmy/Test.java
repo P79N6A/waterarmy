@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.constants.HttpConstants;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -76,10 +77,14 @@ public class Test {
         temp2 = temp2.replaceAll("/","");
         String temp3 = FetchParamUtil.getMatherStr(temp2,"([0-9a-zA-Z]*)");
         System.out.println("");*/
-
+/*
         String content = "{fid:0,fgid:8775,tid:0,pid:0,parentId:0}";
         String url = FetchParamUtil.getMatherStr(content,"\\{fid:.*\\}");
+        System.out.println();*/
+
+        String title = ResolveUtil.fetchTitle("http://baa.bitauto.com/drive/thread-15745850.html");
         System.out.println();
+
     }
 
 
