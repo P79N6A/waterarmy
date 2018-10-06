@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,77 +26,87 @@ import java.util.regex.Pattern;
 @SpringBootTest
 public class WaterarmyApplicationTests {
 
-	@Test
-	public void test1() {
-		String line = "11111111111/xiaopengqicheg3/2222222222";
-		String pattern = "\\/.*\\/";
-		Pattern r = Pattern.compile(pattern);
-		Matcher m = r.matcher(line);
-		List<String> results = new ArrayList<>();
-		if (m.find( )) {
-			String s = m.group(0);
-			results.add(s.substring(1, s.length() - 2));
-		}
-		for (String result: results) {
-			System.out.println(result);
-		}
-	}
+    @Test
+    public void test2() {
+        int max = 1;
+        int min = 0;
+        Random random = new Random();
+        int s = random.nextInt(max) % (max - min + 1) + min;
+        System.out.println(s);
+    }
 
-	@Test
-	public void contextLoads() {
-		System.out.println("去请求");
-		File file = new File("E:/水军系统研发/link.xls");
-		importData(file, LinkInfo.class);
-	}
 
-	/**
-	 * 导入excel数据
-	 *
-	 * @param file
-	 * @return
-	 */
-	public static List<Object> importData(File file, Object object) {
-		System.out.println("~~~~~~~~~~"+ (object instanceof LinkInfo));
-		Workbook wb = null;
-		List<Object> datas = null;
-		try {
-			if (ExcelUtil.isExcel2007(file.getPath())) {
-				wb = new XSSFWorkbook(new FileInputStream(file));
-			} else {
-				wb = new HSSFWorkbook(new FileInputStream(file));
-			}
-		} catch (IOException e) {
-			//logger.error("importData error, ", e);
-			return null;
-		}
-		Sheet sheet = wb.getSheetAt(0);//获取第一张表
-		datas = getDatasBySheet(sheet, object);
-		try {
-			if (ObjectUtils.isEmpty(wb)) {
-				wb.close();
-			}
-		} catch (IOException e) {
-			//logger.error("importData close wb error, ", e);
-		}
-		return datas;
-	}
+    @Test
+    public void test1() {
+        String line = "11111111111/xiaopengqicheg3/2222222222";
+        String pattern = "\\/.*\\/";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(line);
+        List<String> results = new ArrayList<>();
+        if (m.find()) {
+            String s = m.group(0);
+            results.add(s.substring(1, s.length() - 2));
+        }
+        for (String result : results) {
+            System.out.println(result);
+        }
+    }
 
-	private static List<Object> getDatasBySheet(Sheet sheet, Object object) {
-		List<Object> datas = new ArrayList<>();
-		for (int i = 1; i < sheet.getLastRowNum(); i++) {
-			Row row = sheet.getRow(i);//获取索引为i的行，以1开始
-			if (object instanceof LinkInfo) {
-				LinkInfo info = new LinkInfo();
-				String link = row.getCell(0).getStringCellValue();//获取第i行的索引为0的单元格数据
-				if (ObjectUtils.isEmpty(link)) {
-					break;
-				}
-				info.setLink(link);
-				datas.add(info);
-			}
-		}
-		return datas;
-	}
+    @Test
+    public void contextLoads() {
+        System.out.println("去请求");
+        File file = new File("E:/水军系统研发/link.xls");
+        importData(file, LinkInfo.class);
+    }
+
+    /**
+     * 导入excel数据
+     *
+     * @param file
+     * @return
+     */
+    public static List<Object> importData(File file, Object object) {
+        System.out.println("~~~~~~~~~~" + (object instanceof LinkInfo));
+        Workbook wb = null;
+        List<Object> datas = null;
+        try {
+            if (ExcelUtil.isExcel2007(file.getPath())) {
+                wb = new XSSFWorkbook(new FileInputStream(file));
+            } else {
+                wb = new HSSFWorkbook(new FileInputStream(file));
+            }
+        } catch (IOException e) {
+            //logger.error("importData error, ", e);
+            return null;
+        }
+        Sheet sheet = wb.getSheetAt(0);//获取第一张表
+        datas = getDatasBySheet(sheet, object);
+        try {
+            if (ObjectUtils.isEmpty(wb)) {
+                wb.close();
+            }
+        } catch (IOException e) {
+            //logger.error("importData close wb error, ", e);
+        }
+        return datas;
+    }
+
+    private static List<Object> getDatasBySheet(Sheet sheet, Object object) {
+        List<Object> datas = new ArrayList<>();
+        for (int i = 1; i < sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);//获取索引为i的行，以1开始
+            if (object instanceof LinkInfo) {
+                LinkInfo info = new LinkInfo();
+                String link = row.getCell(0).getStringCellValue();//获取第i行的索引为0的单元格数据
+                if (ObjectUtils.isEmpty(link)) {
+                    break;
+                }
+                info.setLink(link);
+                datas.add(info);
+            }
+        }
+        return datas;
+    }
 
 
 }

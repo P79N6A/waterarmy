@@ -56,4 +56,12 @@
         ORDER BY update_time DESC
     </select>
 
+    <update id="updateExecuteCount">
+        UPDATE task_info SET finish_count = finish_count + 1
+        <if test="execute_count == finish_count +  1" >
+            , status = 2
+        </if>
+        WHERE id = #{id}
+    </update>
+
 </mapper>

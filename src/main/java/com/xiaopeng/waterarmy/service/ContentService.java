@@ -2,9 +2,11 @@ package com.xiaopeng.waterarmy.service;
 
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
+import com.xiaopeng.waterarmy.model.dao.ContentInfo;
 import com.xiaopeng.waterarmy.model.dao.ContentInfoRepositories;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +48,8 @@ public interface ContentService {
     JsonMessage updateRepositoriesType(Map<String,Object> params);
 
     JsonMessage queryContentInfo(String contentRepositoriesType);
+
+    List<ContentInfo> querysByRepositoriesType(String contentRepositoriesType);
 
     JsonMessage importData(MultipartFile file, String type);
 

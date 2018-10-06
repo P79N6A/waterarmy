@@ -29,7 +29,7 @@ public enum TaskStatusEnum {
     /**
      * 已完成
      */
-    FINISH (1, "已完成");
+    FINISH (2, "已完成");
 
     private int index;
     private String desc;

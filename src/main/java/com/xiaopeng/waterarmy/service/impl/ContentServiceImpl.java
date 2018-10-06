@@ -119,6 +119,12 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public List<ContentInfo> querysByRepositoriesType(String contentRepositoriesType) {
+        List<ContentInfo> contentInfos = contentInfoMapper.querysByRepositoriesType(contentRepositoriesType);
+        return contentInfos;
+    }
+
+    @Override
     public JsonMessage importData(MultipartFile file, String type) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());

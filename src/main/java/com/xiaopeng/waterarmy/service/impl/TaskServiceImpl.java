@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.*;
@@ -97,6 +98,17 @@ public class TaskServiceImpl implements TaskService {
             taskExcuteLogMapper.getTaskExcuteLogs(params);
         } catch (Exception e) {
             logger.error("saveTaskExcuteLog error, params, {}, ", e, JSON.toJSONString(params));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean updateFinishCount(Long id) {
+        try {
+            taskInfoMapper.updateExecuteCount(id);
+        } catch (Exception e) {
+         logger.error("更新任务 id ,{}完成次数失败, ", id, e);
             return false;
         }
         return true;

@@ -4,8 +4,8 @@
 
     <insert id="save">
         INSERT INTO task_excute_log (task_info_id, executor
-        , excute_status, create_time)
-        VALUES (#{taskInfo.taskInfoId}, #{taskInfo.excuteStatus}
+        , excute_status, handler_result, create_time)
+        VALUES (#{taskInfo.taskInfoId}, #{taskInfo.excuteStatus}, #{taskInfo.handlerResult}
         , #{taskInfo.excuteStatus}, now())
     </insert>
 
@@ -13,11 +13,10 @@
         SELECT tel.id, tel.task_info_id AS taskInfoId, tel.executor
         , tel.excute_status AS excuteStatus, tel.create_time AS createTime
         , ti.name AS taskName, ti.platform, ti.module, ti.task_type AS taskType
-        , li.name AS linkName, li.link
+        , ti.link_title AS linkTitle, ti.link
         , ci.title AS contentTitle, ci.content
         FROM task_excute_log tel
         LEFT JOIN task_info ti ON tel.task_info_id = ti.id
-        LEFT JOIN link_info li ON ti.link_info_id = li.id
         LEFT JOIN content_info ci ON ti.content_info_id = ci.id
         WHERE 1=1
         <if test="params.platform != null and params.platform != '' " >

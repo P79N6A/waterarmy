@@ -74,6 +74,14 @@ public interface TaskService {
     List<Map<String,Object>> getExecutableTaskInfos(String taskType);
 
     /**
+     * 更新任务完成次数
+     *
+     * @param id
+     * @return
+     */
+    boolean updateFinishCount(Long id);
+
+    /**
      * 恢复任务
      *
      * @param taskId

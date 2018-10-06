@@ -37,6 +37,12 @@ public class TaskExcuteLog implements Serializable {
     private Integer excuteStatus;
 
     /**
+     * 执行结果返还值
+     */
+    @Column(name = "handler_result")
+    private String handlerResult;
+
+    /**
      * 创建时间
      */
     @Column(name = "create_time")
@@ -76,6 +82,14 @@ public class TaskExcuteLog implements Serializable {
 
     public void setExcuteStatus(Integer excuteStatus) {
         this.excuteStatus = excuteStatus;
+    }
+
+    public String getHandlerResult() {
+        return handlerResult;
+    }
+
+    public void setHandlerResult(String handlerResult) {
+        this.handlerResult = handlerResult;
     }
 
     public Date getCreateTime() {

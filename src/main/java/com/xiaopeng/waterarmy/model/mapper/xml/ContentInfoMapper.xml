@@ -33,6 +33,8 @@
         ORDER BY update_time DESC
     </select>
 
-
+    <select id="querysByRepositoriesType" resultType="com.xiaopeng.waterarmy.model.dao.ContentInfo">
+        SELECT * FROM content_info WHERE content_repositories_type = #{type}
+    </select>
 
 </mapper>
