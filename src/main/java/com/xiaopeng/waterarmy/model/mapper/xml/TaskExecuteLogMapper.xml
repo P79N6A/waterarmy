@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskExcuteLogMapper">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskExecuteLogMapper">
 
     <insert id="save">
-        INSERT INTO task_excute_log (task_info_id, executor
-        , excute_status, handler_result, create_time)
-        VALUES (#{taskInfo.taskInfoId}, #{taskInfo.excuteStatus}, #{taskInfo.handlerResult}
-        , #{taskInfo.excuteStatus}, now())
+        INSERT INTO task_execute_log (task_info_id, content_info_id, executor
+        , execute_status, handler_result, create_time)
+        VALUES (#{taskExecuteLog.taskInfoId}, #{taskExecuteLog.contentInfoId}, #{taskExecuteLog.executor}
+        , #{taskExecuteLog.executeStatus}, #{taskExecuteLog.handlerResult}, now())
     </insert>
 
-    <select id="getTaskExcuteLogs" resultType="java.util.HashMap">
-        SELECT tel.id, tel.task_info_id AS taskInfoId, tel.executor
-        , tel.excute_status AS excuteStatus, tel.create_time AS createTime
+    <select id="getTaskExecuteLogs" resultType="java.util.HashMap">
+        SELECT tel.id, tel.task_info_id AS taskInfoId, tel.content_info_id AS contentInfoId, tel.executor
+        , tel.execute_status AS executeStatus, tel.create_time AS createTime
         , ti.name AS taskName, ti.platform, ti.module, ti.task_type AS taskType
         , ti.link_title AS linkTitle, ti.link
         , ci.title AS contentTitle, ci.content
-        FROM task_excute_log tel
+        FROM task_execute_log tel
         LEFT JOIN task_info ti ON tel.task_info_id = ti.id
-        LEFT JOIN content_info ci ON ti.content_info_id = ci.id
+        LEFT JOIN content_info ci ON tel.content_info_id = ti.id
         WHERE 1=1
         <if test="params.platform != null and params.platform != '' " >
             AND ti.platform = #{params.platform}
@@ -28,8 +28,8 @@
         <if test="params.taskName != null and params.taskName != '' " >
             AND ti.name = #{params.taskName}
         </if>
-        <if test="params.excuteStatus != null and params.excuteStatus != '' " >
-            AND tel.excute_status = #{params.excuteStatus}
+        <if test="params.executeStatus != null and params.executeStatus != '' " >
+            AND tel.execute_status = #{params.executeStatus}
         </if>
         <if test="params.executor != null and params.executor != '' " >
             AND tel.executor = #{params.executor}

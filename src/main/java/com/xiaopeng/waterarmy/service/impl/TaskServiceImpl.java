@@ -55,7 +55,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Autowired
-    private TaskExcuteLogMapper taskExcuteLogMapper;
+    private TaskExecuteLogMapper taskExecuteLogMapper;
 
     @Autowired
     private HandlerDispatcher handlerDispatcher;
@@ -80,24 +80,24 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+    public PageInfo<Map<String, Object>> taskExecuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = taskExcuteLogMapper.getTaskExcuteLogs(params);
+        List<Map<String,Object>> results = taskExecuteLogMapper.getTaskExecuteLogs(params);
         for (Map<String,Object> result: results) {
-            Integer excuteStatus = MapUtils.getInteger(result,"excuteStatus");
-            if (!ObjectUtils.isEmpty(excuteStatus)) {
-                result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(excuteStatus));
+            Integer executeStatus = MapUtils.getInteger(result,"executeStatus");
+            if (!ObjectUtils.isEmpty(executeStatus)) {
+                result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(executeStatus));
             }
         }
         return new PageInfo<>(results);
     }
 
     @Override
-    public boolean saveTaskExcuteLog(Map<String, Object> params) {
+    public boolean saveTaskExecuteLog(Map<String, Object> params) {
         try {
-            taskExcuteLogMapper.getTaskExcuteLogs(params);
+            taskExecuteLogMapper.save(params);
         } catch (Exception e) {
-            logger.error("saveTaskExcuteLog error, params, {}, ", e, JSON.toJSONString(params));
+            logger.error("saveTaskExecuteLog error, params, {}, ", e, JSON.toJSONString(params));
             return false;
         }
         return true;

@@ -32,8 +32,8 @@
                 <el-input v-model="form.taskName"></el-input>
             </el-form-item>
             <el-form-item label="发布状态" prop="role">
-                <el-select v-model="form.excuteStatus" placeholder="请选择">
-                    <el-option :label="item.desc" :value="item.index" v-for="item in taskExcuteStatus"
+                <el-select v-model="form.executeStatus" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.index" v-for="item in taskExecuteStatus"
                                :key="item.index"></el-option>
                 </el-select>
             </el-form-item>
@@ -102,12 +102,12 @@
 <script src="//image.uc.cn/s/uae/g/08/static/v2/js/app.js?v=${PROJECT_VERSION}"></script>
 <script type="text/javascript">
     var urls = {
-        getDataUrl:'/task/excutelog/search/',
+        getDataUrl:'/task/executelog/search/',
         getPlatformsUrl:'/enums/getPlatforms',
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getTaskStatusUrl:'/enums/getTaskStatus',
-        getTaskExcuteStatusUrl:'/enums/getTaskExcuteStatus',
+        getTaskExecuteStatusUrl:'/enums/getTaskExecuteStatus',
     }
 
     var app = new Vue({
@@ -116,7 +116,7 @@
             form: {
                 platform: '',
                 taskType: '',
-                excuteStatus: '',
+                executeStatus: '',
                 createStartDate: '',
                 createEndDate: '',
                 taskName: '',
@@ -142,7 +142,7 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             taskStatus: [], // 任务状态枚举列表
-            taskExcuteStatus: [], // 任务执行状态枚举列表
+            taskExecuteStatus: [], // 任务执行状态枚举列表
         },
         methods: {
 
@@ -279,11 +279,11 @@
                     }
                 });
             },
-            getTaskExcuteStatus: function() {
+            getTaskExecuteStatus: function() {
                 var _this = this;
-                this.get(urls.getTaskExcuteStatusUrl, function(data) {
+                this.get(urls.getTaskExecuteStatusUrl, function(data) {
                     if (data["success"]) {
-                        _this.taskExcuteStatus = data["data"];
+                        _this.taskExecuteStatus = data["data"];
                     }
                 });
             },
@@ -294,7 +294,7 @@
             this.getPlatFormModules();
             this.getTaskTypes();
             this.getTaskStatus();
-            this.getTaskExcuteStatus();
+            this.getTaskExecuteStatus();
         }
     })
 </script>

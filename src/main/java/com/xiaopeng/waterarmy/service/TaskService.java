@@ -47,7 +47,7 @@ public interface TaskService {
      * @param params
      * @return
      */
-    PageInfo<Map<String,Object>> taskExcuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
+    PageInfo<Map<String,Object>> taskExecuteLogPage(Integer pageNo, Integer pageSize, Map<String, Object> params);
 
     /**
      * 保存任务执行记录
@@ -55,7 +55,7 @@ public interface TaskService {
      * @param params
      * @return
      */
-    boolean saveTaskExcuteLog(Map<String, Object> params);
+    boolean saveTaskExecuteLog(Map<String, Object> params);
 
     /**
      * 获取任务详情

@@ -77,7 +77,7 @@ public class ScheduledPublishTask {
                 RequestContext context = createTestPublishTaskContext(task, publishAccount, publishContent);
                 //执行发帖任务
                 if (!ObjectUtils.isEmpty(context)) {
-                    publishTask(context, task, publishAccount);
+                    publishTask(context, task, publishAccount, publishContent);
                 } else {
                     logger.error("获取发帖上下文为空! task：{}", JSON.toJSONString(task));
                 }
@@ -95,22 +95,25 @@ public class ScheduledPublishTask {
      * @param task
      * @param publishAccount
      */
-    private void publishTask(RequestContext context, Map<String, Object> task, Account publishAccount) {
+    private void publishTask(RequestContext context, Map<String, Object> task
+            , Account publishAccount, ContentInfo publishContent) {
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
-        Map<String, Object> taskExcuteLog = new HashMap<>();
+        Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
         Long taskInfoId = id.longValue();
-        taskExcuteLog.put("taskInfoId", taskInfoId);
-        taskExcuteLog.put("executor", publishAccount.getUserName());
+        taskExecuteLog.put("taskInfoId", taskInfoId);
+        taskExecuteLog.put("contentInfoId", publishContent.getId());
+        taskExecuteLog.put("executor", publishAccount.getUserName());
         if (handlerResult.getSuccess()) {
-            taskExcuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
+            taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
         } else {
-            taskExcuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
+            taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("发帖失败，handlerResult: {}", JSON.toJSONString(handlerResult));
         }
         try {
-            taskService.saveTaskExcuteLog(taskExcuteLog);
+            taskExecuteLog.put("handlerResult", JSON.toJSONString(handlerResult));
+            taskService.saveTaskExecuteLog(taskExecuteLog);
         } catch (Exception e) {
             logger.error("保存执行log失败, ", e);
         }

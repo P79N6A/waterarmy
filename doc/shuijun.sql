@@ -119,20 +119,20 @@ CREATE TABLE `rule_info` (
 
 /*Data for the table `rule_info` */
 
-/*Table structure for table `task_excute_log` */
+/*Table structure for table `task_execute_log` */
 
-DROP TABLE IF EXISTS `task_excute_log`;
+DROP TABLE IF EXISTS `task_execute_log`;
 
-CREATE TABLE `task_excute_log` (
+CREATE TABLE `task_execute_log` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '任务log ID',
   `task_info_id` bigint(20) NOT NULL COMMENT '任务ID，对应task_info表主键',
   `executor` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '执行账号名',
-  `excute_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '任务执行状态，0 失败 1成功,详见ExcuteStatusEnum',
+  `excute_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '任务执行状态，0 失败 1成功,详见ExecuteStatusEnum',
   `create_time` datetime NOT NULL COMMENT '完成时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='任务执行记录表';
 
-/*Data for the table `task_excute_log` */
+/*Data for the table `task_execute_log` */
 
 /*Table structure for table `task_info` */
 
