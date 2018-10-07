@@ -51,6 +51,24 @@ public class AccountController {
         return accountService.page(pageNo, pageSize, params);
     }
 
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage add(@RequestParam Map<String,Object> params) {
+        return  accountService.add(params);
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage update(@RequestParam Map<String,Object> params) {
+        return  accountService.update(params);
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage delete(Long id) {
+        return  accountService.delete(id);
+    }
+
     @RequestMapping(value = "/importData", method = RequestMethod.POST)
     @ResponseBody
     public JsonMessage addUser(@RequestParam("file") MultipartFile file) {

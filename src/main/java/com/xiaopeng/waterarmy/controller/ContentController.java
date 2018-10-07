@@ -94,11 +94,23 @@ public class ContentController {
         return  contentService.queryContentInfo(contentRepositoriesType);
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage delete(Long id) {
+        return  contentService.delete(id);
+    }
+
     @RequestMapping(value = "/importData", method = RequestMethod.POST)
     @ResponseBody
     public JsonMessage importData(@RequestParam("file") MultipartFile file, String type) {//String type  Map<String,Object> form
         return  contentService.importData(file, type);
     }
 
+
+    @RequestMapping(value = "/updateContentRepositoriesType", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage updateContentRepositoriesType(@RequestParam Map<String,Object> params) {
+        return  contentService.updateContentRepositoriesType(params);
+    }
 
 }

@@ -15,6 +15,8 @@ public interface TaskInfoMapper extends MyMapper<TaskInfo> {
 
     void updateExecuteCount(@Param("id")  Long id);
 
+    void updateFinishStatus(@Param("id")  Long id);
+
     void save(@Param("taskInfo") Map<String, Object> taskInfo);
 
 }

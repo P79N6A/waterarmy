@@ -18,6 +18,16 @@
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <el-table-column prop="id" label="规则ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="name" label="规则名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <!--<el-table-column prop="status" label="是否随机选择链接" show-overflow-tooltip min-width="300px" sortable>-->
+                <!--<template scope="item">-->
+                    <!--<el-button size="mini" :type="item.row.isRandomSelectLink ? '1' : '0'">{{item.row.status ? '是' : '否'}}</el-button>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
+            <!--<el-table-column prop="status" label="是否随机选择内容" show-overflow-tooltip min-width="300px" sortable>-->
+                <!--<template scope="item">-->
+                    <!--<el-button size="mini" :type="item.row.isRandomSelectContent ? '1' : '0'">{{item.row.status ? '是' : '否'}}</el-button>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
             <el-table-column prop="isRandomSelectLinkDesc" label="是否随机选择链接" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="isRandomSelectContentDesc" label="是否随机选择内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="startTimeInterval" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>

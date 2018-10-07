@@ -85,6 +85,19 @@ public class TaskController {
         return taskService.publishTask(params);
     }
 
+    @RequestMapping(value = "/publish/add", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage add(@RequestParam Map<String,Object> params) {
+        return  taskService.addPublishTask(params);
+    }
+
+    @RequestMapping(value = "/publish/update", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage update(@RequestParam Map<String,Object> params) {
+        return  taskService.updatePublishTask(params);
+    }
+
+
     @RequestMapping(value = "/info/index")
     public ModelAndView taskInfoIndex() {
         ModelAndView view = new ModelAndView(TASK_INFO_INDEX_PAGE);

@@ -15,14 +15,13 @@
 <div id="app" v-cloak>
     <!-- 表单组件 -->
     <div class="ui-form">
-        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
-            <el-form-item label="平台" prop="role">
-                <el-select v-model="form.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+        <el-form :model="form" :inline="true" label-width="110px" ref="form">
+            <el-form-item label="平台" prop="platform">
+                <el-select v-model="form.platform" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
-
             <div class="ui-form__bd">
                 <el-row>
                     <el-col :span="24">
@@ -43,7 +42,7 @@
             <!-- 多选 -->
             <el-table-column type="selection"></el-table-column>
             <el-table-column prop="id" label="序号" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="desc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
@@ -54,7 +53,7 @@
             <el-table-column label="操作" min-width="120" align="center" fixed="right">
                 <template scope="item">
                     <el-button size="mini" type="primary" @click="showEdit(item)">修改</el-button>
-                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                    <!--<el-button size="mini" type="danger" @click="remove(item)">删除</el-button>-->
                 </template>
             </el-table-column>
         </el-table>
@@ -63,10 +62,6 @@
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
-            <el-col :span="10">
-                <el-button size="small" type="primary" @click="inputData">导入</el-button>
-                <el-button size="small" @click="exportData">导出</el-button>
-            </el-col>
             <el-col :span="24">
                 <div class="ui-page">
                     <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="pageTotal"
@@ -80,22 +75,28 @@
     <el-dialog title="编辑弹窗" :visible.sync="isShowEdit" :close-on-click-modal="false" top="0%" size="small"
                :show-close="false" :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
         <el-form :model="formEdit" label-width="100px" :inline="false" :rules="rules" ref="formEdit">
-            <el-form-item label="用户名">
-                {{formEdit.userName}}
+            <el-form-item label="平台">
+                {{formEdit.desc}}
             </el-form-item>
-            <el-form-item label="角色" required>
-                <el-select v-model="formEdit.role" placeholder="请选择">
-                    <el-option :label="item.name" :value="item.name" v-for="item in roleSelectOptions"
+            <el-form-item label="板块" prop="module">
+                <el-select v-model="formEdit.module" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in platFormModules"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="工作代号" prop="workId">
-                <el-input v-model="formEdit.workId" placeholder="请输入"></el-input>
+            <el-form-item label="任务类型" prop="role">
+                <el-select v-model="formEdit.taskType" placeholder="请选择">
+                    <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
+                               :key="item.name"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="示例链接" prop="textarea">
+                <el-input v-model="formEdit.remark" placeholder="请输入" :rows="5" type="textarea"></el-input>
             </el-form-item>
             <el-form-item label="状态" prop="status" required>
                 <el-radio-group v-model="formEdit.status">
-                    <el-radio :label="1">有效</el-radio>
-                    <el-radio :label="0">无效</el-radio>
+                    <el-radio :label="0">正常</el-radio>
+                    <el-radio :label="1">维护中</el-radio>
                 </el-radio-group>
             </el-form-item>
         </el-form>
@@ -117,6 +118,9 @@
     var urls = {
         getDataUrl:'/platform/search/',
         updateUrl:'/platform/update',
+        getPlatformsUrl:'/enums/getPlatforms',
+        getPlatFormModulesUrl:'/enums/getPlatFormModules',
+        getTaskTypesUrl:'/enums/getTaskTypes',
     }
 
     var app = new Vue({
@@ -124,7 +128,6 @@
         data: {
             form: {
                 platform: '',
-                userName: '',
                 userName: '',
             },
             tableData: [], // 表格数据
@@ -143,6 +146,9 @@
             // 表单验证规则
             rules: {
             },
+            platforms: [], // 平台枚举列表
+            platFormModules: [], // 板块枚举列表
+            taskTypes: [], // 任务类型枚举列表
         },
         methods: {
 
@@ -204,11 +210,13 @@
                     }
                 }
                 var url = urls.updateUrl;
-                var params = _this.formEditItem;
+                _this.formEdit.id = _this.formEditItem.id;
+                var params = _this.formEdit;
                 _this.post(url,params, function(data) {
                     if(data.success){
                         _this.isShowEdit = false;
                         _this.message('修改成功 !');
+                        _this.refresh();
                     }else{
                         _this.message('修改失败 !');
                     }
@@ -244,9 +252,39 @@
                 this.tableSelect = val;
             },
 
+            getPlatforms: function() {
+                var _this = this;
+                this.get(urls.getPlatformsUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platforms = data["data"];
+                    }
+                });
+            },
+
+            getPlatFormModules: function() {
+                var _this = this;
+                this.get(urls.getPlatFormModulesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.platFormModules = data["data"];
+                    }
+                });
+            },
+
+            getTaskTypes: function() {
+                var _this = this;
+                this.get(urls.getTaskTypesUrl, function(data) {
+                    if (data["success"]) {
+                        _this.taskTypes = data["data"];
+                    }
+                });
+            },
+
         },
         mounted: function() {
             this.getData();
+            this.getPlatforms();
+            this.getPlatFormModules();
+            this.getTaskTypes();
         }
     })
 </script>

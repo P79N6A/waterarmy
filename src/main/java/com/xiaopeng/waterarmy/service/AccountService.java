@@ -34,6 +34,12 @@ public interface AccountService {
 
     JsonMessage getAccountByUserName(String userName);
 
+    JsonMessage add(Map<String,Object> params);
+
+    JsonMessage update(Map<String,Object> params);
+
+    JsonMessage delete(Long id);
+
     JsonMessage importData(MultipartFile file);
 
 }

@@ -37,14 +37,13 @@
     <div class="ui-table">
         <el-table :data="tableData" stripe border @selection-change="onTableSelect" v-loading="isLoading">
             <el-table-column prop="id" label="ID" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="title" label="内容库名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="typeDesc" label="内容库类型" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="count" label="数量" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="title" label="标题" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
+            <el-table-column prop="content" label="内容" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <!-- 自定义模块 -->
-            <el-table-column label="操作" min-width="220" align="center" fixed="right">
-                <el-button size="mini" type="primary" @click="link('/content/detail?id='
-                            +item.row.id,'内容详情')">查看详情</el-button>
+            <el-table-column label="操作" min-width="120" align="center" fixed="right">
+                <template scope="item">
+                    <el-button size="mini" type="danger" @click="remove(item)">删除</el-button>
+                </template>
             </el-table-column>
         </el-table>
     </div>
@@ -124,6 +123,8 @@
     var urls = {
         getDataUrl:'/content/search/',
         getContentRepositoriesUrl:'/enums/getContentRepositories',
+        deleteUrl:'/content/delete',
+        updateContentRepositoriesTypeUrl:'/content/updateContentRepositoriesType',
     }
 
     var app = new Vue({
@@ -215,6 +216,7 @@
                 var _this = this;
                 console.log(JSON.stringify(response));
                 _this.message('导入成功 !');
+                _this.updateContentRepositoriesType();
                 if(response.code == 200){
                     setTimeout(function() {
                         _this.refresh();
@@ -261,6 +263,39 @@
                     _this.$refs['form'].resetFields();
                 })
             },
+
+            remove: function(item) {
+                var _this = this;
+                var index = item.$index;
+                _this.confirm('确定删除 ?', function() {
+                    var params = {
+                        id:item.row.id,
+                    }
+                    var url=urls.deleteUrl;
+                    _this.post(url,params, function(data) {
+                        if(data.success){
+                            _this.message('删除成功 !');
+                            _this.tableData.splice(index, 1);
+                        }else {
+                            _this.message('删除失败 !');
+                        }
+                    })
+                })
+            },
+
+            updateContentRepositoriesType: function() {
+                var _this = this;
+                _this.form.contentRepositoriesType = this.type;
+                _this.post(urls.updateContentRepositoriesTypeUrl,_this.form, function(data) {
+                    if(data.success){
+                        _this.message('修改成功 !');
+                        _this.refresh();
+                    }else{
+                        _this.message('修改失败 !');
+                    }
+                })
+            },
+
             init: function(type) {
                 this.type = type
                 this.getData();

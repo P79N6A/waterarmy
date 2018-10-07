@@ -3,6 +3,10 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountMapper">
 
     <insert id="save">
+        <selectKey resultType="java.lang.Long" keyProperty="account.id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
         INSERT INTO account (UUID, user_name, full_name, password
         , mobile, email, level, platform, task_count
         , create_time, update_time, creator, updater)
@@ -15,7 +19,10 @@
         SELECT id, user_name AS userName, full_name AS fullName, password
         , mobile, email, level, platform, task_count as taskCount
         , create_time AS createTime, update_time AS updateTime
-        , status, creator, updater FROM account
+        , status, creator, updater FROM account WHERE status = 1
+        <if test="params.userName != null and params.userName != '' " >
+            AND user_name = #{params.userName}
+        </if>
     </select>
 
     <select id="getAccountByUserName" resultType="com.xiaopeng.waterarmy.model.dao.Account">
@@ -36,5 +43,38 @@
         , create_time AS createTime, update_time AS updateTime
         , status, creator, updater FROM account WHERE id=#{id} AND status = 1
     </select>
+
+    <update id="update">
+        UPDATE account SET update_time = now()
+        <if test="params.userName != null and params.userName != '' " >
+            , user_name = #{params.userName}
+        </if>
+        <if test="params.fullName != null and params.fullName != '' " >
+            , full_name = #{params.fullName}
+        </if>
+        <if test="params.password != null and params.password != '' " >
+            , password = #{params.password}
+        </if>
+        <if test="params.mobile != null and params.mobile != '' " >
+            , mobile = #{params.mobile}
+        </if>
+        <if test="params.email != null and params.email != '' " >
+            , email = #{params.email}
+        </if>
+        <if test="params.level != null and params.level != '' " >
+            , level = #{params.level}
+        </if>
+        <if test="params.platform != null and params.platform != '' " >
+            , platform = #{params.platform}
+        </if>
+        <if test="params.status != null and params.status != '' " >
+            , status = #{params.status}
+        </if>
+        WHERE id = #{params.id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE account SET status = 0 WHERE id = #{id}
+    </update>
 
 </mapper>

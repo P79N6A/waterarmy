@@ -16,6 +16,8 @@ public interface ContentInfoMapper extends MyMapper<ContentInfo> {
 
     void save(@Param("contentInfo") ContentInfo contentInfo);
 
-    void updateType(@Param("contentInfoRepositories") ContentInfoRepositories contentInfoRepositories);
+    void updateRepositoriesType(@Param("params") Map<String, Object> params);
+
+    void  deleteById(@Param("id") Long id);
 
 }

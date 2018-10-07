@@ -3,7 +3,7 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.ContentInfoMapper">
 
     <insert id="save">
-        <selectKey resultType="java.lang.Long" keyProperty="id"
+        <selectKey resultType="java.lang.Long" keyProperty="contentInfo.id"
                    order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -36,5 +36,14 @@
     <select id="querysByRepositoriesType" resultType="com.xiaopeng.waterarmy.model.dao.ContentInfo">
         SELECT * FROM content_info WHERE content_repositories_type = #{type}
     </select>
+
+    <delete id="deleteById">
+        DELETE FROM content_info WHERE id = #{id}
+    </delete>
+
+    <update id="updateRepositoriesType">
+        UPDATE content_info SET update_time = now(), content_repositories_type = #{params.contentRepositoriesType}
+        WHERE content_repositories_type = "-1"
+    </update>
 
 </mapper>

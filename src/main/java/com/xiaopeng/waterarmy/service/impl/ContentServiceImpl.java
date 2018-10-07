@@ -97,13 +97,10 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage updateRepositoriesType(Map<String, Object> params) {
+    public JsonMessage updateContentRepositoriesType(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
-        ContentInfoRepositories repositories = new ContentInfoRepositories();
-        repositories.setId(MapUtils.getLong(params, "id"));
-        repositories.setType(MapUtils.getString(params, "type"));
-        contentInfoRepositoriesMapper.update(repositories);
-        message.success(CodeEnum.SUCCESS).setMsg("更新内容库数据成功!");
+        contentInfoMapper.updateRepositoriesType(params);
+        message.success(CodeEnum.SUCCESS).setMsg("更新成功!");
         return message;
     }
 
@@ -125,6 +122,20 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public JsonMessage delete(Long id) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            contentInfoMapper.deleteById(id);
+        } catch (Exception e) {
+            logger.error("删除内容 id : {}失败, ", id, e);
+            message.fail(CodeEnum.FAIL).setMsg("删除内容失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("删除内容成功！");
+        return message;
+    }
+
+    @Override
     public JsonMessage importData(MultipartFile file, String type) {
         JsonMessage message = JsonMessage.init();
         List<Object> datas = ExcelUtil.importData(file, ExcelDataTypeEnum.CONTENT.getName());
@@ -133,7 +144,8 @@ public class ContentServiceImpl implements ContentService {
             ContentInfo info = (ContentInfo) data;
             info.setCreateTime(new Date());
             info.setUpdateTime(new Date());
-            info.setContentRepositoriesType(ContentRepositoriesEnum.COMMENT.getName());
+            // TODO: 2018/10/7
+            info.setContentRepositoriesType("-1");//ContentRepositoriesEnum.COMMENT.getName()
             info.setCreator("xiaoa");
             info.setUpdater("xiaoa");
             contentInfoMapper.save(info);
@@ -143,4 +155,5 @@ public class ContentServiceImpl implements ContentService {
         message.setData(infos);
         return message;
     }
+    
 }

@@ -17,6 +17,18 @@ public class PlatformConfig implements Serializable {
     private Integer id;
 
     /**
+     * 平台名称
+     */
+    @Column(name = "name")
+    private String name;
+
+    /**
+     * 【平台描述
+     */
+    @Column(name = "desc")
+    private String desc;
+
+    /**
      * 模板，详见PlatFormModuleEnum
      */
     @Column(name = "module")
@@ -39,6 +51,12 @@ public class PlatformConfig implements Serializable {
      */
     @Column(name = "remark")
     private String remark;
+
+    /**
+     * 示例链接
+     */
+    @Column(name = "example_link")
+    private String exampleLink;
 
     /**
      * 创建时间
@@ -67,6 +85,22 @@ public class PlatformConfig implements Serializable {
     public PlatformConfig() {
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
     public String getModule() {
         return module;
     }
@@ -89,6 +123,14 @@ public class PlatformConfig implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getExampleLink() {
+        return exampleLink;
+    }
+
+    public void setExampleLink(String exampleLink) {
+        this.exampleLink = exampleLink;
     }
 
     public String getRemark() {

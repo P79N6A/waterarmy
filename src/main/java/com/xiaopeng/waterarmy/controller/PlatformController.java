@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
@@ -49,6 +50,12 @@ public class PlatformController {
             pageSize = MapUtils.getInteger(params,"pageSize");
         }
         return platFormService.page(pageNo, pageSize, params);
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage update(@RequestParam Map<String,Object> params) {
+        return  platFormService.update(params);
     }
 
 }

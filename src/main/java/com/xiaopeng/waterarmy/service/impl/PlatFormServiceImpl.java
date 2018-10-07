@@ -1,10 +1,13 @@
 package com.xiaopeng.waterarmy.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.enums.PlatFormModuleEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
+import com.xiaopeng.waterarmy.common.message.CodeEnum;
+import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.model.mapper.PlatFormMapper;
 import com.xiaopeng.waterarmy.service.PlatFormService;
 import org.apache.commons.collections4.MapUtils;
@@ -56,4 +59,17 @@ public class PlatFormServiceImpl implements PlatFormService {
         return new PageInfo<>(results);
     }
 
+    @Override
+    public JsonMessage update(Map<String, Object> params) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            platFormMapper.update(params);
+        } catch (Exception e) {
+            logger.error("更新平台配置 params : {}失败, ", JSON.toJSONString(params), e);
+            message.fail(CodeEnum.FAIL).setMsg("更新平台配置失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("更新平台配置成功！");
+        return message;
+    }
 }

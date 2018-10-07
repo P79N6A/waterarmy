@@ -70,9 +70,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
-
-        handlerDispatcher.dispatch(null);
-
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         setResults(results, false);
@@ -84,6 +81,18 @@ public class TaskServiceImpl implements TaskService {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskExecuteLogMapper.getTaskExecuteLogs(params);
         for (Map<String,Object> result: results) {
+            String platform = MapUtils.getString(result,"platform");
+            if (!ObjectUtils.isEmpty(platform)) {
+                result.put("platformDesc", PlatformEnum.getDesc(platform));
+            }
+            String module = MapUtils.getString(result,"module");
+            if (!ObjectUtils.isEmpty(module)) {
+                result.put("moduleDesc", PlatFormModuleEnum.getDesc(module));
+            }
+            String taskType = MapUtils.getString(result,"taskType");
+            if (!ObjectUtils.isEmpty(module)) {
+                result.put("taskTypeDesc", TaskTypeEnum.getDesc(taskType));
+            }
             Integer executeStatus = MapUtils.getInteger(result,"executeStatus");
             if (!ObjectUtils.isEmpty(executeStatus)) {
                 result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(executeStatus));
@@ -107,6 +116,7 @@ public class TaskServiceImpl implements TaskService {
     public boolean updateFinishCount(Long id) {
         try {
             taskInfoMapper.updateExecuteCount(id);
+            taskInfoMapper.updateFinishStatus(id);
         } catch (Exception e) {
          logger.error("更新任务 id ,{}完成次数失败, ", id, e);
             return false;
@@ -159,6 +169,36 @@ public class TaskServiceImpl implements TaskService {
         }
 
         message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
+        return message;
+    }
+
+    @Override
+    public JsonMessage addPublishTask(Map<String, Object> params) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            params.put("creator", "xiaoa");
+            params.put("updater", "xiaoa");
+            taskPublishMapper.save(params);
+        } catch (Exception e) {
+            logger.error("新增发帖配置 params : {}失败, ", JSON.toJSONString(params), e);
+            message.fail(CodeEnum.FAIL).setMsg("新增发帖配置失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("新增发帖配置成功！");
+        return message;
+    }
+
+    @Override
+    public JsonMessage updatePublishTask(Map<String,Object> params) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            taskPublishMapper.update(params);
+        } catch (Exception e) {
+            logger.error("更新发帖配置 params : {}失败, ", JSON.toJSONString(params), e);
+            message.fail(CodeEnum.FAIL).setMsg("更新发帖配置失败！");
+            return message;
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("更新发帖配置成功！");
         return message;
     }
 
