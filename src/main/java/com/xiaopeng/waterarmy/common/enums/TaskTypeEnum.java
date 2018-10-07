@@ -35,7 +35,12 @@ public enum TaskTypeEnum {
     /**
      * 评论点赞
      */
-    LIKE ("LIKE", "评论点赞");
+    LIKE ("LIKE", "评论点赞"),
+
+    /**
+     * 播放
+     */
+    PLAY ("PLAY", "播放");
 
     private String name;
     private String desc;

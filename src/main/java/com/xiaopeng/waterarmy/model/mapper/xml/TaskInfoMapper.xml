@@ -5,13 +5,13 @@
     <insert id="save">
         INSERT INTO task_info (task_publish_id, rule_info_id
         , name, platform, module, task_type, link, link_title
-        , content_repositories_type, content_repositories_name, execute_count, finish_count
+        , content_repositories_type, content_repositories_name, like_content, execute_count, finish_count
         , finish_time, status, create_time, update_time, creator, updater)
         VALUES (#{taskInfo.taskPublishId}, #{taskInfo.ruleInfoId}, #{taskInfo.name}
         , #{taskInfo.platform}, #{taskInfo.module}, #{taskInfo.taskType}
         , #{taskInfo.link}, #{taskInfo.linkTitle}
         , #{taskInfo.contentRepositoriesType}, #{taskInfo.contentRepositoriesName}
-        , #{taskInfo.executeCount}, #{taskInfo.finishCount}
+        , #{taskInfo.likeContent}, #{taskInfo.executeCount}, #{taskInfo.finishCount}
         , #{taskInfo.finishTime}, #{taskInfo.status}
         , now(), now(), #{taskInfo.creator}, #{taskInfo.updater})
     </insert>
@@ -46,7 +46,7 @@
         , name, platform, module, task_type AS taskType, link, link_title AS linkTitle
         , content_repositories_type AS contentRepositoriesType
         , content_repositories_name AS contentRepositoriesName
-        , execute_count AS executeCount, finish_count AS finishCount
+        , like_content AS likeContent, execute_count AS executeCount, finish_count AS finishCount
         , finish_time AS finishTime, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info WHERE execute_count > finish_count
@@ -65,8 +65,8 @@
     </update>
 
     <update id="updateFinishStatus">
-        UPDATE task_info SET status = 2
-        WHERE id = #{id} AND  finish_count = finish_count
+        UPDATE task_info SET status = 2, finish_time = now()
+        WHERE id = #{id} AND finish_count = finish_count
     </update>
 
     <update id="updateStatus">

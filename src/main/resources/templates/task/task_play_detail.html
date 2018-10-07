@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>发布帖子任务页</title>
+    <title>发布播放任务页</title>
     <meta name="keywords" content=""/>
     <meta name="description" content=""/>
     <meta name="renderer" content="webkit">
@@ -54,23 +54,6 @@
                 <el-input type="textarea" v-model="form.content"
                           :rows="5"></el-input>
             </el-form-item>
-            <div class="ui-title">
-                内容库
-            </div>
-            <el-row type="flex" :gutter="5">
-                <el-col>
-                    <el-select v-model="form.contentRepositoriesType" placeholder="请选择内容库类型" @change="queryContentInfo">
-                        <el-option label="发帖" value="POSIED"></el-option>
-                        <el-option label="评论" value="COMMENT"></el-option>
-                    </el-select>
-                </el-col>
-                <el-col>
-                    <el-select v-model="form.contentRepositoriesName" placeholder="请选择内容名称">
-                        <el-option v-for="item in contentInfos" :value="item.title" :key="item.title" :label="item.title"></el-option>
-                    </el-select>
-                </el-col>
-            </el-row>
-
             <div class="ui-title">规则管理</div>
             <el-form-item label="请选择规则" prop="role">
                 <el-select v-model="form.ruleInfoId" placeholder="请选择">
@@ -104,7 +87,6 @@
         getPlatformStatusUrl:'/enums/getPlatformStatus',
         getPVStayTimesUrl:'/enums/getPVStayTimes',
         publishTaskUrl:'/task/publish/publishTask',
-        getContentRepositoriesUrl:'/enums/getContentRepositories',
         queryContentInfoUrl:'/content/queryContentInfo',
         getRulesUrl:'/rule/getRules',
     }
@@ -145,8 +127,6 @@
             taskTypes: [], // 任务类型枚举列表
             platformStatus: [], // 业务状态枚举列表
             PVStayTimes: [], // PV停留时间枚举列表
-            contentRepositories: [], // 内容库枚举列表
-            contentInfos: [], //内容列表
             rules: [], //规则列表
         },
         methods: {
@@ -248,15 +228,6 @@
                 });
             },
 
-            getContentRepositories: function() {
-                var _this = this;
-                this.get(urls.getContentRepositoriesUrl, function(data) {
-                    if (data["success"]) {
-                        _this.contentRepositories = data["data"];
-                    }
-                });
-            },
-
             queryContentInfo: function() {
                 var _this = this;
                 var params = {
@@ -291,7 +262,6 @@
             //this.getTaskTypes();
             this.getPlatformStatus();
             this.getPVStayTimes();
-            this.getContentRepositories();
             this.getRules();
         }
     })

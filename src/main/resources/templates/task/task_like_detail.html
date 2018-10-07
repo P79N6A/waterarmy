@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>发布帖子任务页</title>
+    <title>点赞任务发布页</title>
     <meta name="keywords" content=""/>
     <meta name="description" content=""/>
     <meta name="renderer" content="webkit">
@@ -55,21 +55,12 @@
                           :rows="5"></el-input>
             </el-form-item>
             <div class="ui-title">
-                内容库
+                点赞内容
             </div>
-            <el-row type="flex" :gutter="5">
-                <el-col>
-                    <el-select v-model="form.contentRepositoriesType" placeholder="请选择内容库类型" @change="queryContentInfo">
-                        <el-option label="发帖" value="POSIED"></el-option>
-                        <el-option label="评论" value="COMMENT"></el-option>
-                    </el-select>
-                </el-col>
-                <el-col>
-                    <el-select v-model="form.contentRepositoriesName" placeholder="请选择内容名称">
-                        <el-option v-for="item in contentInfos" :value="item.title" :key="item.title" :label="item.title"></el-option>
-                    </el-select>
-                </el-col>
-            </el-row>
+            <el-form-item>
+                <el-input type="textarea" v-model="form.likeContent"
+                          :rows="5"></el-input>
+            </el-form-item>
 
             <div class="ui-title">规则管理</div>
             <el-form-item label="请选择规则" prop="role">
@@ -123,6 +114,7 @@
                 linkTitle: '',
                 contentRepositoriesType: '',
                 contentRepositoriesName: '',
+                likeContent: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中

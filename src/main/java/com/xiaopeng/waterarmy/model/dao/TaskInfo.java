@@ -67,6 +67,12 @@ public class TaskInfo implements Serializable {
     private String linkTitle;
 
     /**
+     * 需要点赞内容
+     */
+    @Column(name = "like_content")
+    private String likeContent;
+
+    /**
      * 内容库类型，详见ContentRepositoriesEnum
      */
     @Column(name = "content_repositories_type")
@@ -199,6 +205,14 @@ public class TaskInfo implements Serializable {
 
     public void setLinkTitle(String linkTitle) {
         this.linkTitle = linkTitle;
+    }
+
+    public String getLikeContent() {
+        return likeContent;
+    }
+
+    public void setLikeContent(String likeContent) {
+        this.likeContent = likeContent;
     }
 
     public String getContentRepositoriesType() {

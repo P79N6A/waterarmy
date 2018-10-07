@@ -37,6 +37,8 @@ public class TaskController {
 
     private static final String TASK_LIKE_DETAIL_PAGE = "/task/task_like_detail.html";
 
+    private static final String TASK_PLAY_DETAIL_PAGE = "/task/task_play_detail.html";
+
     private static final String TASK_INFO_INDEX_PAGE = "/task/task_info_list.html";
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
@@ -54,15 +56,17 @@ public class TaskController {
 
     @RequestMapping(value = "/publish/detail")
     public ModelAndView taskPublishDetail(Integer taskPublishId, String taskType) {
-        ModelAndView view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
+        ModelAndView view = null;
         if (TaskTypeEnum.POSIED.getName().equals(taskType)) {
-
+            view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
         } else if (TaskTypeEnum.COMMENT.getName().equals(taskType)) {
-
+            view = new ModelAndView(TASK_COMMENT_DETAIL_PAGE);
         } else if (TaskTypeEnum.READ.getName().equals(taskType)) {
-
+            view = new ModelAndView(TASK_READ_DETAIL_PAGE);
         } else if (TaskTypeEnum.LIKE.getName().equals(taskType)) {
-
+            view = new ModelAndView(TASK_LIKE_DETAIL_PAGE);
+        } else if (TaskTypeEnum.PLAY.getName().equals(taskType)) {
+            view = new ModelAndView(TASK_PLAY_DETAIL_PAGE);
         }
         view.addObject("taskPublishId", taskPublishId);
         return view;
