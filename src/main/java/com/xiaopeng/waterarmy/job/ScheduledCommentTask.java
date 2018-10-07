@@ -36,7 +36,7 @@ import java.util.Map;
  * <p>
  * Created by iason on 2018/10/3.
  */
-//@Component
+@Component
 public class ScheduledCommentTask {
 
     private static Logger logger = LoggerFactory.getLogger(ScheduledCommentTask.class);

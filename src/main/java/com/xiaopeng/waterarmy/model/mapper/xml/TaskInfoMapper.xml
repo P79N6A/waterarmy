@@ -50,12 +50,8 @@
         , finish_time AS finishTime, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info WHERE execute_count > finish_count
-        <if test="params.taskType != null and params.taskType != '' " >
-            AND task_type = #{params.taskType}
-        </if>
-        <if test="params.status != null and params.status != '' " >
-            AND status = #{params.status}
-        </if>
+        AND task_type = #{params.taskType}
+        AND status = #{params.status}
         ORDER BY update_time DESC
     </select>
 
