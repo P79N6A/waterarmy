@@ -22,13 +22,13 @@
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="任务类型" prop="role">
+            <el-form-item label="任务类型" prop="taskType">
                 <el-select v-model="form.taskType" placeholder="请选择">
                     <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="任务名称" prop="name">
+            <el-form-item label="任务名称" prop="taskName">
                 <el-input v-model="form.taskName"></el-input>
             </el-form-item>
             <el-form-item label="发布状态" prop="role">

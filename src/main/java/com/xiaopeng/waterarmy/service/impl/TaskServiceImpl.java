@@ -81,6 +81,18 @@ public class TaskServiceImpl implements TaskService {
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskExecuteLogMapper.getTaskExecuteLogs(params);
         for (Map<String,Object> result: results) {
+            String platform = MapUtils.getString(result,"platform");
+            if (!ObjectUtils.isEmpty(platform)) {
+                result.put("platformDesc", PlatformEnum.getDesc(platform));
+            }
+            String module = MapUtils.getString(result,"module");
+            if (!ObjectUtils.isEmpty(module)) {
+                result.put("moduleDesc", PlatFormModuleEnum.getDesc(module));
+            }
+            String taskType = MapUtils.getString(result,"taskType");
+            if (!ObjectUtils.isEmpty(module)) {
+                result.put("taskTypeDesc", TaskTypeEnum.getDesc(taskType));
+            }
             Integer executeStatus = MapUtils.getInteger(result,"executeStatus");
             if (!ObjectUtils.isEmpty(executeStatus)) {
                 result.put("executeStatusDesc", ExecuteStatusEnum.getDesc(executeStatus));
