@@ -139,7 +139,8 @@ public class ScheduledCommentTask {
             requestContext.setUserId(commentAccount.getId());
             requestContext.setUserLoginId(commentAccount.getUserName());//"18482193356"
             requestContext.setHandleType(TaskTypeEnum.COMMENT);
-            requestContext.setPlatform(PlatformEnum.PCAUTO);
+            String platform = MapUtils.getString(task, "platform");
+            requestContext.setPlatform(PlatformEnum.getEnum(platform));
             String link = MapUtils.getString(task, "link");
             requestContext.setPrefixUrl(link);//"https://bbs.pcauto.com.cn/topic-17493073.html"
             return requestContext;
