@@ -2,20 +2,41 @@ package com.xiaopeng.waterarmy;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.xiaopeng.waterarmy.common.constants.HttpConstants;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
+import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
     public static void main(String []args) {
 
-        test();
+        String code = TranslateCodeUtil.getInstance().convert("http://baa.bitauto.com/others/CheckCode.aspx?guid=a0b8f607-1a82-7fba-c94a-c08949cd86e0");
+        System.out.println("code");
+        //test();
+       // math();
        /* try {
             //String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=32920945";
             String url = "https://www.d1ev.com/carnews/xinche/77669";
@@ -82,10 +103,97 @@ public class Test {
         String url = FetchParamUtil.getMatherStr(content,"\\{fid:.*\\}");
         System.out.println();*/
 
-        String title = ResolveUtil.fetchTitle("http://baa.bitauto.com/drive/thread-15745850.html");
-        System.out.println();
+       /* String title = ResolveUtil.fetchTitle("http://baa.bitauto.com/drive/thread-15745850.html");
+        System.out.println();*/
+
+       try {
+
+           String url = "https://a.xcar.com.cn/bbs/thread-32981769-0.html";
+           CookieStore cookieStore = new BasicCookieStore();
+           CloseableHttpClient closeableHttpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+           HttpGet httpGet = new HttpGet(url);
+           CloseableHttpResponse response = closeableHttpClient.execute(httpGet);
+           HttpEntity entity = response.getEntity();
+           StringBuffer tmpcookies = new StringBuffer();
+
+           cookieStore.getCookies();
+
+           List<Cookie> cookies = cookieStore.getCookies();
+            String content = EntityUtils.toString(entity, "utf-8");
+            System.out.println(content);
+
+
+          /* Document doc = Jsoup.connect(url).timeout(2000).get();
+           Element element = doc.body();
+           String str = element.val();
+           Elements elements = doc.select("[name=_token]") ;*/
+
+
+
+           final WebClient webClient = new WebClient(BrowserVersion.CHROME);//新建一个模拟谷歌Chrome浏览器的浏览器客户端对象
+
+           webClient.getOptions().setThrowExceptionOnScriptError(false);//当JS执行出错的时候是否抛出异常, 这里选择不需要
+           webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);//当HTTP的状态非200时是否抛出异常, 这里选择不需要
+           webClient.getOptions().setActiveXNative(false);
+           webClient.getOptions().setCssEnabled(false);//是否启用CSS, 因为不需要展现页面, 所以不需要启用
+           webClient.getOptions().setJavaScriptEnabled(true); //很重要，启用JS
+           //webClient.setAjaxController(new NicelyResynchronizingAjaxController());//很重要，设置支持AJAX
+
+           HtmlPage page = null;
+           try {
+               page = webClient.getPage(url);//尝试加载上面图片例子给出的网页
+           } catch (Exception e) {
+               e.printStackTrace();
+           }finally {
+               webClient.close();
+           }
+
+           webClient.waitForBackgroundJavaScript(3000);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
+
+
+
+           String pageXml = page.asXml();//直接将加载完成的页面转换成xml格式的字符串
+           //TODO 下面的代码就是对字符串的操作了,常规的爬虫操作,用到了比较好用的Jsoup库
+           Document document = Jsoup.parse(pageXml);//获取html文档
+
+           String str = document.toString();
+           String str1 = FetchParamUtil.getMatherStr(str,"\\{tid:.*ssid:.*\\}");
+
+           System.out.println();
+
+
+
+
+       }catch (Exception e) {
+           e.printStackTrace();
+       }
+
 
     }
 
+
+    private static void  math() {
+        String match = "{tid:33934569,fid:540,action:'reply',mt:Math.random(),land:'lord',message:encodeURIComponent(message),formhash:'092c41da',usesig:1,ssid:1538828909,repquote:pid,replysubmit:'yes',repquote_authorid:post_author_id}";
+
+
+        String str = match;
+        String str1 = FetchParamUtil.getMatherStr(str, "\\{tid:.*ssid:.*\\}");
+
+        String tid = FetchParamUtil.getMatherStr(str1,"tid:.*?,");
+        tid = FetchParamUtil.getMatherStr(tid,"\\d+");
+
+
+        String fid = FetchParamUtil.getMatherStr(str1,"fid:.*?,");
+        fid = FetchParamUtil.getMatherStr(fid,"\\d+");
+
+        String ssid =  FetchParamUtil.getMatherStr(str1,"ssid:.*?,");
+        ssid = FetchParamUtil.getMatherStr(ssid,"\\d+");
+
+        String formhash = FetchParamUtil.getMatherStr(str1,"formhash:.*?,");
+        formhash = FetchParamUtil.getMatherStr(formhash,"\\'.*\\'");
+        formhash = formhash.replaceAll("'","");
+
+        return;
+    }
 
 }

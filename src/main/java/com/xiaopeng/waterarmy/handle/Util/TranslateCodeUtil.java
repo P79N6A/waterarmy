@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TranslateCodeUtil {
 
@@ -26,6 +28,7 @@ public class TranslateCodeUtil {
 
     private static final String BAIDU_SECREET_KEY = "Ykh2GrcrEqZUCeg4YXNrvtoxvptdgie7";
 
+    public static final String UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
 
     private static TranslateCodeUtil instance;
 
@@ -52,7 +55,31 @@ public class TranslateCodeUtil {
             String words = (String) object.get("words");
             return words;
         }catch (Exception e) {
-            logger.error("YiCheLoginHandler.convert",e);
+            logger.error("TranslateCodeUtil.convert",e);
+        }
+        return null;
+    }
+
+    public String convertWithRegx(String url,String regx) {
+        try {
+            InputStream inputStream = fetchFileFromUrl(url);
+            BufferedImage bufferedImage = ImageIO.read(inputStream);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage,"PNG",bos);
+            //BAIDU转换
+            JSONObject res = aipOcr.basicGeneral(bos.toByteArray(),new HashMap<>());
+            JSONArray arr = res.getJSONArray("words_result");
+            JSONObject object = (JSONObject) arr.get(0);
+            String words = (String) object.get("words");
+            Pattern pattern = Pattern.compile(regx);
+            Matcher matcher = pattern.matcher(words);
+            StringBuilder stringBuilder =  new StringBuilder();
+            while (matcher.find()) {
+                stringBuilder.append(matcher.group());
+            }
+            return stringBuilder.toString();
+        }catch (Exception e) {
+            logger.error("TranslateCodeUtil.convert",e);
         }
         return null;
     }
@@ -63,6 +90,7 @@ public class TranslateCodeUtil {
         try {
             url = new URL(path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", UserAgent);
             connection.setDoInput(true);
             connection.connect();
             is = connection.getInputStream();
@@ -71,5 +99,6 @@ public class TranslateCodeUtil {
         }
         return is;
     }
+
 
 }
