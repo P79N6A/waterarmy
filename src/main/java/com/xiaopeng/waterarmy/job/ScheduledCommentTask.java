@@ -55,7 +55,7 @@ public class ScheduledCommentTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
-    @Scheduled(fixedRate = 600000)//5000
+    @Scheduled(fixedRate = 60000)//5000
     public void reportCurrentTime() {
         logger.info("定时评论啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.COMMENT.getName());
