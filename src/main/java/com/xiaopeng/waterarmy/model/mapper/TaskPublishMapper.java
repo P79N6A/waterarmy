@@ -15,4 +15,6 @@ public interface TaskPublishMapper extends MyMapper<TaskPublish> {
 
     List<Map<String, Object>> getTaskPublishs(@Param("params") Map<String, Object> params);
 
+    Map<String, Object> getTaskPublishById(@Param("id") Long id);
+
 }

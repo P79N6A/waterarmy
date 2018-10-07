@@ -35,12 +35,12 @@
                                    :key="item.name"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="任务类型" prop="role">
-                    <el-select v-model="form.taskType" placeholder="请选择">
-                        <el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"
-                                   :key="item.name"></el-option>
-                    </el-select>
-                </el-form-item>
+                <!--<el-form-item label="任务类型" prop="role">-->
+                    <!--<el-select v-model="form.taskType" placeholder="请选择">-->
+                        <!--<el-option :label="item.desc" :value="item.name" v-for="item in taskTypes"-->
+                                   <!--:key="item.name"></el-option>-->
+                    <!--</el-select>-->
+                <!--</el-form-item>-->
             </div>
         </el-form>
     </div>
@@ -288,7 +288,7 @@
             this.getData();
             this.getPlatforms();
             this.getPlatFormModules();
-            this.getTaskTypes();
+            //this.getTaskTypes();
             this.getPlatformStatus();
             this.getPVStayTimes();
             this.getContentRepositories();

@@ -72,8 +72,8 @@
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="220" align="center" fixed="right">
                 <template scope="item">
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 0">停止</el-button>
-                    <el-button size="mini" type="danger" @click="showEdit(item)" v-if="item.row.status == 1">恢复</el-button>
+                    <el-button size="mini" type="danger" @click="stopTask(item)" v-if="item.row.status == 0">停止</el-button>
+                    <el-button size="mini" type="danger" @click="recoveryTask(item)" v-if="item.row.status == 1">恢复</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
                             +item.row.id,'任务记录')">任务记录</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
@@ -113,6 +113,8 @@
         getPlatFormModulesUrl:'/enums/getPlatFormModules',
         getTaskTypesUrl:'/enums/getTaskTypes',
         getTaskStatusUrl:'/enums/getTaskStatus',
+        stopTaskUrl:'/task/stopTask',
+        recoveryTaskUrl:'/task/recoveryTask',
     }
 
     var app = new Vue({
@@ -282,6 +284,38 @@
                         _this.taskTypes = data["data"];
                     }
                 });
+            },
+
+            stopTask: function(item) {
+                var _this = this;
+                var params = {
+                    id: item.row.id,
+                };
+                _this.post(urls.stopTaskUrl, params, function(data) {
+                    if(data.success){
+                        _this.isShowEdit = false;
+                        _this.message('停止成功 !');
+                        _this.refresh();
+                    }else{
+                        _this.message('停止失败 !');
+                    }
+                })
+            },
+
+            recoveryTask: function(item) {
+                var _this = this;
+                var params = {
+                    id: item.row.id,
+                };
+                _this.post(urls.recoveryTaskUrl, params, function(data) {
+                    if(data.success){
+                        _this.isShowEdit = false;
+                        _this.message('恢复成功 !');
+                        _this.refresh();
+                    }else{
+                        _this.message('恢复失败 !');
+                    }
+                })
             },
 
         },

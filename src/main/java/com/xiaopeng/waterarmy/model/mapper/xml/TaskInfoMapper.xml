@@ -65,9 +65,12 @@
     </update>
 
     <update id="updateFinishStatus">
-        UPDATE task_info SET STATUS = 2
+        UPDATE task_info SET status = 2
         WHERE id = #{id} AND  finish_count = finish_count
     </update>
 
+    <update id="updateStatus">
+        UPDATE task_info SET status = #{status} WHERE id = #{id}
+    </update>
 
 </mapper>

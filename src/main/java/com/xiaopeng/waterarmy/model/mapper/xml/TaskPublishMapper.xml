@@ -47,4 +47,9 @@
         ORDER BY update_time DESC
     </select>
 
+    <select id="getTaskPublishById" resultType="java.util.HashMap">
+        SELECT  id, platform, module, task_type AS taskType
+        , status, create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM task_publish WHERE id = #{id}
+    </select>
 </mapper>

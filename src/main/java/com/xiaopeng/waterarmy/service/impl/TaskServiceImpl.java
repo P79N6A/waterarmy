@@ -10,6 +10,7 @@ import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.TaskPublish;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -134,18 +135,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public JsonMessage recoveryTask(Long taskId) {
-        return null;
+    public JsonMessage recoveryTask(Long id) {
+        JsonMessage message = JsonMessage.init();
+        taskInfoMapper.updateStatus(id, TaskStatusEnum.DOING.getIndex());
+        message.success(CodeEnum.SUCCESS).setMsg("恢复任务成功!");
+        return message;
     }
 
     @Override
-    public JsonMessage stopTask(Long taskId) {
-        return null;
+    public JsonMessage stopTask(Long id) {
+        JsonMessage message = JsonMessage.init();
+        taskInfoMapper.updateStatus(id, TaskStatusEnum.PAUSING.getIndex());
+        message.success(CodeEnum.SUCCESS).setMsg("停止任务成功!");
+        return message;
     }
 
     @Override
     public JsonMessage publishTask(Map<String, Object> params) {
         JsonMessage message = JsonMessage.init();
+        Map<String, Object>  taskPublish = taskPublishMapper.getTaskPublishById(
+                Long.parseLong(String.valueOf(params.get("taskPublishId"))));
+        params.put("taskType", MapUtils.getString(taskPublish, "taskType"));
         params.put("finishCount", 0);
         params.put("status", TaskStatusEnum.DOING.getIndex());
         params.put("creator", "xiaoa");
@@ -167,7 +177,6 @@ public class TaskServiceImpl implements TaskService {
             params.put("executeCount", link.get("executeCount"));
             taskInfoMapper.save(params);
         }
-
         message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
         return message;
     }

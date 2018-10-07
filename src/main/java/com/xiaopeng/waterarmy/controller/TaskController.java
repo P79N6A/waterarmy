@@ -146,14 +146,16 @@ public class TaskController {
 
     @RequestMapping(value = "/recoveryTask")
     @ResponseBody
-    public JsonMessage recoveryTask(Long taskId) {
-        return taskService.recoveryTask(taskId);
+    public JsonMessage recoveryTask(@RequestParam Map<String,Object> params) {
+        Long id = Long.parseLong(String.valueOf(params.get("id")));
+        return taskService.recoveryTask(id);
     }
 
     @RequestMapping(value = "/stopTask")
     @ResponseBody
-    public JsonMessage stopTask(Long taskId) {
-        return taskService.stopTask(taskId);
+    public JsonMessage stopTask(@RequestParam Map<String,Object> params) {
+        Long id = Long.parseLong(String.valueOf(params.get("id")));
+        return taskService.stopTask(id);
     }
 
 

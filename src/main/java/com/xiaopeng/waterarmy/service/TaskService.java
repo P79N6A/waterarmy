@@ -84,18 +84,18 @@ public interface TaskService {
     /**
      * 恢复任务
      *
-     * @param taskId
+     * @param id
      * @return
      */
-    JsonMessage recoveryTask(Long taskId);
+    JsonMessage recoveryTask(Long id);
 
     /**
      * 停止任务
      *
-     * @param taskId
+     * @param id
      * @return
      */
-    JsonMessage stopTask(Long taskId);
+    JsonMessage stopTask(Long id);
 
     /**
      * 发布任务
