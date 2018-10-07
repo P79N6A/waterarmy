@@ -35,7 +35,7 @@ public class Test {
     public static void main(String []args) {
 
         try {
-            String str =  URLEncoder.encode("我最喜欢的车", "GB2312");
+            String str =  URLEncoder.encode("最爱的车梦想", "GB2312");
             String str1 =  URLEncoder.encode("我最喜欢的车。车是什么", "GB2312");
             System.out.println(str);
             System.out.println(str1);

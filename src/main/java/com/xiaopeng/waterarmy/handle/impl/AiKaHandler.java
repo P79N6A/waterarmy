@@ -123,14 +123,11 @@ public class AiKaHandler extends PlatformHandler {
         setPublishHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         try {
-            String encodeBodyPrefix = "%5Btextcard%5D";
-            String encodeBodySuffix = "5B%2Ftextcard%5D";
-            String meesageBody = URLEncoder.encode(requestContext.getContent().getText(), "GB2312");
-            meesageBody = encodeBodyPrefix + meesageBody +encodeBodySuffix;
-            nameValuePairs.add(new BasicNameValuePair("subject",URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
-            nameValuePairs.add(new BasicNameValuePair("message", "message"));//meesageBody
+            nameValuePairs.add(new BasicNameValuePair("subject",requestContext.getContent().getTitle()));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
+            nameValuePairs.add(new BasicNameValuePair("message", URLEncoder.encode("[textcard]"+requestContext.getContent().getText()+"[/textcard]","GB2312")));//meesageBody
             nameValuePairs.add(new BasicNameValuePair("formhash", "edacfc30"));
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+
         } catch (Exception e) {
             logger.error("[AiKaHandler.createPublishHttpPost]createPublishHttpPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs,e);
             return null;
@@ -329,7 +326,8 @@ public class AiKaHandler extends PlatformHandler {
         httpPost.setHeader("Origin","http://www.xcar.com.cn");
         httpPost.setHeader("Referer","http://www.xcar.com.cn/bbs/post_card.php?a=newthread&fid=1604&extra=");
         httpPost.setHeader("Upgrade-Insecure-Requests","1");
-        httpPost.setHeader(" User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("Content-Type","application/x-www-form-urlencoded");
     }
 
 

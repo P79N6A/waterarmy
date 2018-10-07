@@ -72,7 +72,7 @@ public class HandlerDispatcher {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
         content.setText("有没有改装的，外表加内饰？");
-        content.setTitle("想改装，但是不知道怎么改，改成什么样子。一直在纠结，还要不要改。家里4口人都不同意改装，主要还是资金问题！");
+        content.setTitle("i like the car");
         requestContext.setContent(content);
         requestContext.setUserId(2L);
         requestContext.setUserLoginId("13438042646");
