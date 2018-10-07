@@ -124,6 +124,7 @@
         getDataUrl:'/content/search/',
         getContentRepositoriesUrl:'/enums/getContentRepositories',
         deleteUrl:'/content/delete',
+        updateContentRepositoriesTypeUrl:'/content/updateContentRepositoriesType',
     }
 
     var app = new Vue({
@@ -215,6 +216,7 @@
                 var _this = this;
                 console.log(JSON.stringify(response));
                 _this.message('导入成功 !');
+                _this.updateContentRepositoriesType();
                 if(response.code == 200){
                     setTimeout(function() {
                         _this.refresh();
@@ -278,6 +280,19 @@
                             _this.message('删除失败 !');
                         }
                     })
+                })
+            },
+
+            updateContentRepositoriesType: function() {
+                var _this = this;
+                _this.form.contentRepositoriesType = this.type;
+                _this.post(urls.updateContentRepositoriesTypeUrl,_this.form, function(data) {
+                    if(data.success){
+                        _this.message('修改成功 !');
+                        _this.refresh();
+                    }else{
+                        _this.message('修改失败 !');
+                    }
                 })
             },
 

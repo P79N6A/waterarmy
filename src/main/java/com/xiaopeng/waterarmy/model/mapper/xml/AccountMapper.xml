@@ -3,6 +3,10 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountMapper">
 
     <insert id="save">
+        <selectKey resultType="java.lang.Long" keyProperty="account.id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
         INSERT INTO account (UUID, user_name, full_name, password
         , mobile, email, level, platform, task_count
         , create_time, update_time, creator, updater)

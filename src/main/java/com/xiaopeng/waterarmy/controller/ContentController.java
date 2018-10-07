@@ -107,4 +107,10 @@ public class ContentController {
     }
 
 
+    @RequestMapping(value = "/updateContentRepositoriesType", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage updateContentRepositoriesType(@RequestParam Map<String,Object> params) {
+        return  contentService.updateContentRepositoriesType(params);
+    }
+
 }
