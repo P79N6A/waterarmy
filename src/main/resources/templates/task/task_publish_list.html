@@ -73,7 +73,7 @@
                 <template scope="item">
                     <el-button size="mini" type="danger" @click="showEdit(item)">编辑</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?taskPublishId='
-                            +item.row.id,'发布任务')">发布任务</el-button>
+                            + item.row.id + '&taskType=' + item.row.taskType,'发布任务')">发布任务</el-button>
                 </template>
             </el-table-column>
         </el-table>

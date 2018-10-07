@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -30,6 +31,12 @@ public class TaskController {
 
     private static final String TASK_PUBLISH_DETAIL_PAGE = "/task/task_publish_detail.html";
 
+    private static final String TASK_COMMENT_DETAIL_PAGE = "/task/task_comment_detail.html";
+
+    private static final String TASK_READ_DETAIL_PAGE = "/task/task_read_detail.html";
+
+    private static final String TASK_LIKE_DETAIL_PAGE = "/task/task_like_detail.html";
+
     private static final String TASK_INFO_INDEX_PAGE = "/task/task_info_list.html";
 
     private static final String TASK_INFO_DETAIL_PAGE = "/task/task_info_detail.html";
@@ -46,8 +53,17 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/publish/detail")
-    public ModelAndView taskPublishDetail(Integer taskPublishId) {
+    public ModelAndView taskPublishDetail(Integer taskPublishId, String taskType) {
         ModelAndView view = new ModelAndView(TASK_PUBLISH_DETAIL_PAGE);
+        if (TaskTypeEnum.POSIED.getName().equals(taskType)) {
+
+        } else if (TaskTypeEnum.COMMENT.getName().equals(taskType)) {
+
+        } else if (TaskTypeEnum.READ.getName().equals(taskType)) {
+
+        } else if (TaskTypeEnum.LIKE.getName().equals(taskType)) {
+
+        }
         view.addObject("taskPublishId", taskPublishId);
         return view;
     }
