@@ -9,6 +9,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.xiaopeng.waterarmy.common.constants.HttpConstants;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
+import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.CookieStore;
@@ -32,8 +33,10 @@ import java.util.regex.Pattern;
 public class Test {
     public static void main(String []args) {
 
+        String code = TranslateCodeUtil.getInstance().convert("http://baa.bitauto.com/others/CheckCode.aspx?guid=a0b8f607-1a82-7fba-c94a-c08949cd86e0");
+        System.out.println("code");
         //test();
-        math();
+       // math();
        /* try {
             //String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=32920945";
             String url = "https://www.d1ev.com/carnews/xinche/77669";

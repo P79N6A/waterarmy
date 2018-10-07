@@ -6,6 +6,7 @@ import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
@@ -45,10 +46,12 @@ public class YiCheHandler extends PlatformHandler {
 
     private static final String TARGET_PUBLISH_BASE_SUFFIX = "/Ajax/CreateTopic.aspx";
 
-
+    private static final String TARGET_PUBLISH_CODE = "http://baa.bitauto.com/others/CheckCode.aspx?guid=";
 
 
     private static final String TARGET_PUBLISH_SUFFIX = "posttopic-0.html";
+
+    private static final int MAX_RETRY_PUBLISH = 20;
 
     @Autowired
     private YiCheLoginHandler yiCheLoginHandler;
@@ -57,33 +60,49 @@ public class YiCheHandler extends PlatformHandler {
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
-            logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
+            logger.error("[YiCheHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
+
+        boolean needCode = false;
+        String targetUrl = null;
+        int retry = MAX_RETRY_PUBLISH;
+
         try {
-            LoginResultDTO loginResultDTO = resultDTOResult.getData();
-            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO);
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String content = null;
-            if (entity != null) {
-                content = EntityUtils.toString(entity, "utf-8");
-                JSONObject jsonObject = JSONObject.parseObject(content);
-                Integer status = (Integer) jsonObject.get("tid");
-                Integer tid = (Integer) jsonObject.get("pid");
-                String returnUrl = (String) jsonObject.get("returnUrl");
-                PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, returnUrl);
-                save(new SaveContext(publishInfo));
-                HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, returnUrl);
-                return new Result(handlerResultDTO);
+            while (retry>0) {
+                LoginResultDTO loginResultDTO = resultDTOResult.getData();
+                CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+                HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO,targetUrl,needCode);
+                CloseableHttpResponse response = httpClient.execute(httpPost);
+                HttpEntity entity = response.getEntity();
+                String content = null;
+                if (entity != null) {
+                    content = EntityUtils.toString(entity, "utf-8");
+                    if(content.contains("returnUrl")) {
+                        JSONObject jsonObject = JSONObject.parseObject(content);
+                        String returnUrl = (String) jsonObject.get("returnUrl");
+                        PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, returnUrl);
+                        save(new SaveContext(publishInfo));
+                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, returnUrl);
+                        return new Result(handlerResultDTO);
+                    }
+                    //在这里处理验证码,需要验证码或者验证码处理失败
+                    if (content.contains("验证码")) {
+                        needCode = true;
+                        retry--;
+                        Thread.sleep(500);
+                        continue;
+                    }
+                }
+                return new Result<>(ResultCodeEnum.HANDLE_FAILED);
             }
-            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
+            logger.error("[YiCheHandler.comment] error!", e);
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
 
 
@@ -124,6 +143,7 @@ public class YiCheHandler extends PlatformHandler {
             int parentId = (int) jsonObject.get("parentId");
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
+
             nameValuePairs.add(new BasicNameValuePair("fid", String.valueOf(fid)));
             nameValuePairs.add(new BasicNameValuePair("fgid", String.valueOf(fgid)));
             nameValuePairs.add(new BasicNameValuePair("tid", "0"));
@@ -140,7 +160,7 @@ public class YiCheHandler extends PlatformHandler {
         return null;
     }
 
-    private HttpPost createPublishHttpPost(RequestContext requestContext, LoginResultDTO loginResultDTO) {
+    private HttpPost createPublishHttpPost(RequestContext requestContext, LoginResultDTO loginResultDTO,String targetUrl,boolean needCode) {
         /**
          * target 需要发帖的栏目 http://baa.bitauto.com/cs55
          *  拼接后访问http://baa.bitauto.com/cs55/posttopic-0.html，获取fid:0,fgid:8775,tid:0,pid:0,parentId:0
@@ -165,7 +185,9 @@ public class YiCheHandler extends PlatformHandler {
          */
 
 
-        String targetUrl = createPublishUrl(requestContext, loginResultDTO);
+        if (targetUrl==null) {
+            targetUrl = createPublishUrl(requestContext, loginResultDTO);
+        }
         if (targetUrl == null) {
             return null;
         }
@@ -180,6 +202,12 @@ public class YiCheHandler extends PlatformHandler {
         nameValuePairs.add(new BasicNameValuePair("message", requestContext.getContent().getText()));
         nameValuePairs.add(new BasicNameValuePair("guid", guid));
         nameValuePairs.add(new BasicNameValuePair("hasContent", "true"));
+
+        if (needCode) {
+            String code = translatePublishCode(guid);
+            nameValuePairs.add(new BasicNameValuePair("hdnCheckCode", code));
+        }
+
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
         } catch (Exception e) {
@@ -187,6 +215,13 @@ public class YiCheHandler extends PlatformHandler {
             return null;
         }
         return httpPost;
+    }
+
+
+    private String  translatePublishCode(String guid) {
+        String url = TARGET_PUBLISH_CODE+guid+"&d=0.6218608967502508";
+        String code = TranslateCodeUtil.getInstance().convertWithRegx(url,"[a-zA-Z]+");
+        return code;
     }
 
 
