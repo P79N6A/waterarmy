@@ -51,6 +51,11 @@ public class AiKaLoginHandler implements LoginHandler {
     private AccountMapper accountMapper;
 
     @Override
+    public Result<LoginResultDTO> login(Long userid, Boolean forceToLogin) {
+        return null;
+    }
+
+    @Override
     public Result<LoginResultDTO> login(Long userid) {
 
         if (userid == null || userid < 1L) {

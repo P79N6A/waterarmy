@@ -14,6 +14,7 @@ import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -41,14 +42,140 @@ public class AiKaHandler extends PlatformHandler {
     private static Logger logger = LoggerFactory.getLogger(AiKaHandler.class);
 
     private static final String TARGET_COMMENT_URL = "http://www.xcar.com.cn/bbs/post.php";
+    private static final String TARGET_PUBLISH_URL = "http://www.xcar.com.cn/bbs/post.php";
 
     @Autowired
     private AiKaLoginHandler aiKaLoginHandler;
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
-        return null;
+
+        /**
+         * action: newthread
+         * topicsubmit: yes
+         * fromcard: 1
+         * htmlon: 10
+         * sign: travle
+         * fid: 1046
+         * extra:
+         * cklid: 126007
+         */
+
+        /**
+         * action: newthread
+         * topicsubmit: yes
+         * fromcard: 1
+         * htmlon: 10
+         * sign: travle
+         * fid: 1604
+         * extra:
+         * cklid: 126007
+         *
+         */
+
+        /**
+         * subject: (unable to decode value)
+         * message: (unable to decode value)
+         * formhash: edacfc30
+         */
+
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createPublishHttpPost(requestContext);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(content);
+
+
+            }
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
     }
+
+    private HttpPost createPublishHttpPost(RequestContext requestContext) {
+
+        /**
+         * subject: (unable to decode value)
+         * message: (unable to decode value)
+         * formhash: edacfc30
+         */
+
+        String pulishUrl = createPublisUrl(requestContext);
+
+        if (pulishUrl == null) {
+            return null;
+        }
+
+        HttpPost httpPost = new HttpPost(pulishUrl);
+        setPublishHeader(httpPost);
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        try {
+            String encodeBodyPrefix = "%5Btextcard%5D";
+            String encodeBodySuffix = "5B%2Ftextcard%5D";
+            String meesageBody = URLEncoder.encode(requestContext.getContent().getText(), "GB2312");
+            meesageBody = encodeBodyPrefix + meesageBody +encodeBodySuffix;
+            nameValuePairs.add(new BasicNameValuePair("subject",URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
+            nameValuePairs.add(new BasicNameValuePair("message", "message"));//meesageBody
+            nameValuePairs.add(new BasicNameValuePair("formhash", "edacfc30"));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+        } catch (Exception e) {
+            logger.error("[AiKaHandler.createPublishHttpPost]createPublishHttpPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs,e);
+            return null;
+        }
+        return httpPost;
+    }
+
+    private String createPublisUrl(RequestContext requestContext) {
+        /**
+         *
+         * http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1604
+         * action: newthread
+         * topicsubmit: yes
+         * fromcard: 1
+         * htmlon: 10
+         * sign: travle
+         * fid: 1604
+         * extra:
+         * cklid: 126007
+         */
+
+        String tidStr = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"fid=\\d+");
+        tidStr = FetchParamUtil.getMatherStr(tidStr,"\\d+");
+        if (tidStr == null) {
+            return null;
+        }
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<>();
+            nameValuePairs.add(new BasicNameValuePair("action", "newthread"));
+            nameValuePairs.add(new BasicNameValuePair("topicsubmit", "yes"));
+            nameValuePairs.add(new BasicNameValuePair("fromcard", "1"));
+            nameValuePairs.add(new BasicNameValuePair("htmlon", "10"));
+            nameValuePairs.add(new BasicNameValuePair("sign", "travle"));
+            nameValuePairs.add(new BasicNameValuePair("fid", tidStr));
+            nameValuePairs.add(new BasicNameValuePair("extra", null));
+            nameValuePairs.add(new BasicNameValuePair("cklid", "126007"));
+            String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            return TARGET_PUBLISH_URL + "?" + str;
+        }catch (Exception e) {
+            logger.error("createPublisUrl",e);
+            return null;
+        }
+    }
+
+
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
@@ -188,6 +315,21 @@ public class AiKaHandler extends PlatformHandler {
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
         httpPost.setHeader(" X-Requested-With", "XMLHttpRequest");
 
+    }
+
+    private void setPublishHeader(HttpPost httpPost) {
+        /**
+         * Host: www.xcar.com.cn
+         * Origin: http://www.xcar.com.cn
+         * Referer: http://www.xcar.com.cn/bbs/post_card.php?a=newthread&fid=1604&extra=
+         * Upgrade-Insecure-Requests: 1
+         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         */
+        httpPost.setHeader("Host","www.xcar.com.cn");
+        httpPost.setHeader("Origin","http://www.xcar.com.cn");
+        httpPost.setHeader("Referer","http://www.xcar.com.cn/bbs/post_card.php?a=newthread&fid=1604&extra=");
+        httpPost.setHeader("Upgrade-Insecure-Requests","1");
+        httpPost.setHeader(" User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
     }
 
 

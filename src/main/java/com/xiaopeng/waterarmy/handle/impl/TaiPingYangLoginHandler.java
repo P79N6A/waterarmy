@@ -47,6 +47,10 @@ public class TaiPingYangLoginHandler implements LoginHandler {
     @Autowired
     private AccountMapper accountMapper;
 
+    @Override
+    public Result<LoginResultDTO> login(Long userid, Boolean forceToLogin) {
+        return null;
+    }
 
     @Override
     public Result<LoginResultDTO> login(Long userid) {

@@ -9,4 +9,6 @@ public interface LoginHandler {
     public Result<LoginResultDTO> login(Long userid);
 
     public Result<LoginResultDTO> login(Account account);
+
+    public Result<LoginResultDTO> login(Long userid,Boolean forceToLogin);
 }

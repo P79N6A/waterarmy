@@ -25,6 +25,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,8 +34,18 @@ import java.util.regex.Pattern;
 public class Test {
     public static void main(String []args) {
 
-        String code = TranslateCodeUtil.getInstance().convert("http://baa.bitauto.com/others/CheckCode.aspx?guid=a0b8f607-1a82-7fba-c94a-c08949cd86e0");
-        System.out.println("code");
+        try {
+            String str =  URLEncoder.encode("我最喜欢的车", "GB2312");
+            String str1 =  URLEncoder.encode("我最喜欢的车。车是什么", "GB2312");
+            System.out.println(str);
+            System.out.println(str1);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+       // String code = TranslateCodeUtil.getInstance().convert("http://baa.bitauto.com/others/CheckCode.aspx?guid=a0b8f607-1a82-7fba-c94a-c08949cd86e0");
+       // System.out.println("code");
         //test();
        // math();
        /* try {

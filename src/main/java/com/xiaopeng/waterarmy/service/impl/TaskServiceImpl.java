@@ -71,6 +71,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public PageInfo<Map<String, Object>> taskInfoPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
+        handlerDispatcher.dispatch(null);
+
         PageHelper.startPage(pageNo, pageSize);
         List<Map<String,Object>> results = taskInfoMapper.getTaskInfos(params);
         setResults(results, false);

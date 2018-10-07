@@ -51,6 +51,10 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
 
     private static final String tokenUrl = "https://www.qctt.cn/login";
 
+    @Override
+    public Result<LoginResultDTO> login(Long userid, Boolean forceToLogin) {
+        return null;
+    }
 
     @Override
     public Result<LoginResultDTO> login(Long userid) {

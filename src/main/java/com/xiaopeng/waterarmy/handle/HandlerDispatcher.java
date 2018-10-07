@@ -36,7 +36,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        //requestContext = this.createTestPublisContext();
+        requestContext = this.createTestPublisContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -71,14 +71,14 @@ public class HandlerDispatcher {
     private RequestContext createTestPublisContext() {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
-        content.setText("国庆过去了，我的车要买了");
-        content.setTitle("这车什么时候量产上市");
+        content.setText("有没有改装的，外表加内饰？");
+        content.setTitle("想改装，但是不知道怎么改，改成什么样子。一直在纠结，还要不要改。家里4口人都不同意改装，主要还是资金问题！");
         requestContext.setContent(content);
-        requestContext.setUserId(5L);
-        requestContext.setUserLoginId("15164577148");
+        requestContext.setUserId(2L);
+        requestContext.setUserLoginId("13438042646");
         requestContext.setHandleType(TaskTypeEnum.POSIED);
-        requestContext.setPlatform(PlatformEnum.YICHE);
-        requestContext.setPrefixUrl("http://baa.bitauto.com/kamiq/");
+        requestContext.setPlatform(PlatformEnum.XCAR);
+        requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
         return requestContext;
     }
 
