@@ -13,16 +13,16 @@
 </head>
 <body>
 <div id="app" v-cloak>
+    <div class="ui-title">
+        评论点赞任务
+    </div>
     <!-- 表单组件 -->
     <div class="ui-form">
         <el-form :model="form" :inline="true" label-width="110px" ref="form">
-
-            <el-form-item label="任务名称" >
-                <el-input v-model="form.name" placeholder="请输入"></el-input>
-            </el-form-item>
-
             <div class="ui-form__bd">
-
+                <el-form-item label="任务名称" >
+                    <el-input v-model="form.name" placeholder="请输入"></el-input>
+                </el-form-item>
                 <el-form-item label="平台" prop="role">
                     <el-select v-model="form.platform" placeholder="请选择">
                         <el-option :label="item.desc" :value="item.name" v-for="item in platforms"
