@@ -111,9 +111,9 @@ public class AiKaHandler extends PlatformHandler {
             nameValuePairs.add(new BasicNameValuePair("mt", " 0.022039394939090906"));
             nameValuePairs.add(new BasicNameValuePair("land", "lord"));
             nameValuePairs.add(new BasicNameValuePair("message", URLEncoder.encode(requestContext.getContent().getText(), "UTF-8")));//"%E5%A5%BD%E6%83%B3%E4%B9%9F%E5%8E%BB%E5%81%9A%E4%B8%80%E4%B8%8B"
-            nameValuePairs.add(new BasicNameValuePair("formhash", (String) map.get("formhash")));//edacfc30
+            nameValuePairs.add(new BasicNameValuePair("formhash","edacfc30"));//edacfc30//(String) map.get("formhash")
             nameValuePairs.add(new BasicNameValuePair("usesig", "1"));
-            nameValuePairs.add(new BasicNameValuePair("ssid", (String) map.get("ssid")));//1538824543
+            nameValuePairs.add(new BasicNameValuePair("ssid", "1538824543"));//1538824543 //(String) map.get("ssid")
             nameValuePairs.add(new BasicNameValuePair("replysubmit", "yes"));
 
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
