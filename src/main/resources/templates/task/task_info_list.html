@@ -74,8 +74,8 @@
                 <template scope="item">
                     <el-button size="mini" type="danger" @click="stopTask(item)" v-if="item.row.status == 0">停止</el-button>
                     <el-button size="mini" type="danger" @click="recoveryTask(item)" v-if="item.row.status == 1">恢复</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
-                            +item.row.id,'任务记录')">任务记录</el-button>
+                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?taskPublishId='
+                            +item.row.id + '&taskType=' + item.row.taskType,'任务记录')">任务记录</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?id='
                             +item.row.id,'查看规则')">查看规则</el-button>
                 </template>
