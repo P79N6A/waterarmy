@@ -68,9 +68,10 @@ public class ContentController {
     }
 
     @RequestMapping(value = "/index")
-    public ModelAndView index(String type) {
+    public ModelAndView index(String type, Long contentInfoRepositoriesId) {
         ModelAndView view = new ModelAndView(CONTENT_INDEX_PAGE);
         view.addObject("type", type);
+        view.addObject("contentInfoRepositoriesId", contentInfoRepositoriesId);
         return view;
     }
 
@@ -88,10 +89,10 @@ public class ContentController {
         return contentService.page(pageNo, pageSize, params);
     }
 
-    @RequestMapping(value = "/queryContentInfo", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryRepositoriesByType", method = RequestMethod.POST)
     @ResponseBody
-    public JsonMessage queryContentInfo(String contentRepositoriesType) {
-        return  contentService.queryContentInfo(contentRepositoriesType);
+    public JsonMessage queryRepositoriesByType(String type) {
+        return  contentService.queryRepositoriesByType(type);
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)

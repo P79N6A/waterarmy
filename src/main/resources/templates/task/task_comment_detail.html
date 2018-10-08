@@ -59,14 +59,14 @@
             </div>
             <el-row type="flex" :gutter="5">
                 <el-col>
-                    <el-select v-model="form.contentRepositoriesType" placeholder="请选择内容库类型" @change="queryContentInfo">
+                    <el-select v-model="form.contentRepositoriesType" placeholder="请选择内容库类型" @change="queryRepositoriesByType">
                         <!--<el-option label="发帖" value="POSIED"></el-option>-->
                         <el-option label="评论" value="COMMENT"></el-option>
                     </el-select>
                 </el-col>
                 <el-col>
-                    <el-select v-model="form.contentRepositoriesName" placeholder="请选择内容名称">
-                        <el-option v-for="item in contentInfos" :value="item.title" :key="item.title" :label="item.title"></el-option>
+                    <el-select v-model="form.contentRepositoriesName" placeholder="请选择内容库名称">
+                        <el-option v-for="item in contentRepositories" :value="item.name" :key="item.name" :label="item.name"></el-option>
                     </el-select>
                 </el-col>
             </el-row>
@@ -105,7 +105,7 @@
         getPVStayTimesUrl:'/enums/getPVStayTimes',
         publishTaskUrl:'/task/publish/publishTask',
         getContentRepositoriesUrl:'/enums/getContentRepositories',
-        queryContentInfoUrl:'/content/queryContentInfo',
+        queryRepositoriesByTypeUrl:'/content/queryRepositoriesByType',
         getRulesUrl:'/rule/getRules',
     }
 
@@ -146,7 +146,6 @@
             platformStatus: [], // 业务状态枚举列表
             PVStayTimes: [], // PV停留时间枚举列表
             contentRepositories: [], // 内容库枚举列表
-            contentInfos: [], //内容列表
             rules: [], //规则列表
         },
         methods: {
@@ -257,14 +256,14 @@
                 });
             },
 
-            queryContentInfo: function() {
+            queryRepositoriesByType: function() {
                 var _this = this;
                 var params = {
-                    contentRepositoriesType:_this.form.contentRepositoriesType,
+                    type:_this.form.contentRepositoriesType,
                 }
-                _this.post(urls.queryContentInfoUrl, params, function(data) {
+                _this.post(urls.queryRepositoriesByTypeUrl, params, function(data) {
                     if(data.success){
-                        _this.contentInfos = data["data"];
+                        _this.contentRepositories = data["data"];
                         _this.form.contentRepositoriesName = '';
                     }
                 })

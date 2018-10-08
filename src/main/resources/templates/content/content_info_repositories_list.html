@@ -50,12 +50,12 @@
             <el-table-column prop="name" label="内容库名称" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="typeDesc" label="内容库类型" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="count" label="数量" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable :formatter="formatDateTime"></el-table-column>
             <!-- 自定义模块 -->
             <el-table-column label="操作" min-width="220" align="center" fixed="right">
                 <template scope="item">
                     <el-button size="mini" type="primary" @click="link('/content/index?type='
-                            +item.row.type,'内容详情')">查看详情</el-button>
+                            +item.row.type + '&contentInfoRepositoriesId=' + item.row.id,'内容详情')">查看详情</el-button>
                     <el-button size="mini" type="danger" @click="showEdit(item)">编辑</el-button>
                 </template>
             </el-table-column>

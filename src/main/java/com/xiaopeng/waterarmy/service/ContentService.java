@@ -47,7 +47,7 @@ public interface ContentService {
 
     JsonMessage updateContentRepositoriesType(Map<String,Object> params);
 
-    JsonMessage queryContentInfo(String contentRepositoriesType);
+    JsonMessage queryRepositoriesByType(String type);
 
     List<ContentInfo> querysByRepositoriesType(String contentRepositoriesType);
 

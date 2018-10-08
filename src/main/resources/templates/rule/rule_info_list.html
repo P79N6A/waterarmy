@@ -33,7 +33,7 @@
             <el-table-column prop="startTimeInterval" label="开始时间间隔" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="endTimeInterval" label="结束时间间隔" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="pvStayTimeDesc" label="PV停留时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable :formatter="formatDateTime"></el-table-column>
             <!-- 自定义模块 -->
             <!--<el-table-column label="操作" min-width="220" align="center" fixed="right">-->
                 <!--<template scope="item">-->

@@ -69,11 +69,20 @@
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="executor" label="账号名" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="executeStatusDesc" label="发布状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="link" label="链接" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="link" label="链接" show-overflow-tooltip min-width="300px" sortable>
+                <!--<template scope="item">-->
+                    <!--<a :href="'item.row.link" target="_blank">链接</a>-->
+                <!--</template>-->
+                <!--<template slot-scope="scope">-->
+                    <!--<a :href="'scope.row.link" target="_blank" class="buttonText">-->
+                        <!--{{scope.row.link}}-->
+                    <!--</a>-->
+                <!--</template>-->
+            </el-table-column>
             <el-table-column prop="linkTitle" label="链接名称" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="contentTitle" label="标题" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="content" label="内容" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="createTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="createTime" label="完成时间" show-overflow-tooltip min-width="300px" sortable :formatter="formatDateTime"></el-table-column>
         </el-table>
     </div>
 

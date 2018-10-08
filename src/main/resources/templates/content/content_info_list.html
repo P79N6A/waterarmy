@@ -159,6 +159,7 @@
             fileList: [], // 上传文件
             isShowNew: false,// 是否显示新增弹窗
             type: '',
+            contentInfoRepositoriesId: '',
         },
         methods: {
 
@@ -169,6 +170,7 @@
                 params = params || {};
                 params["pageSize"] = _this.pageSize;
                 params["type"] = this.type;
+                params["contentInfoRepositoriesId"] = this.contentInfoRepositoriesId;
                 _this.post(url,params, function(data, res) {
                     _this.tableData = data.list;
                     _this.pageTotal = data.total;
@@ -296,8 +298,9 @@
                 })
             },
 
-            init: function(type) {
+            init: function(type, contentInfoRepositoriesId) {
                 this.type = type
+                this.contentInfoRepositoriesId = contentInfoRepositoriesId
                 this.getData();
             },
 
@@ -309,5 +312,6 @@
 </script>
 <script>
     var type = '${type}';
-    app.init(type);
+    var contentInfoRepositoriesId = '${contentInfoRepositoriesId}';
+    app.init(type, contentInfoRepositoriesId);
 </script>

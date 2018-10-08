@@ -42,4 +42,10 @@
 
     </select>
 
+    <select id="queryRepositoriesByType" resultType="java.util.HashMap">
+        SELECT id, name, type, count
+        , create_time AS createTime, update_time AS updateTime
+        , creator, updater FROM content_info_repositories WHERE type = #{type}
+    </select>
+
 </mapper>

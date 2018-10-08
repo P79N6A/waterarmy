@@ -23,6 +23,9 @@
         <if test="params.type != null and params.type != '' " >
             AND content_repositories_type = #{params.type}
         </if>
+        <if test="params.contentInfoRepositoriesId != null and params.contentInfoRepositoriesId != '' " >
+            AND content_info_repositories_id = #{params.contentInfoRepositoriesId}
+        </if>
         <if test="params.title != null and params.title != '' " >
             AND name = #{params.title}
         </if>

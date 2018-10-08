@@ -105,13 +105,11 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public JsonMessage queryContentInfo(String contentRepositoriesType) {
+    public JsonMessage queryRepositoriesByType(String type) {
         JsonMessage message = JsonMessage.init();
-        Map<String, Object> params = new HashMap<>();
-        params.put("type", contentRepositoriesType);
-        List<Map<String, Object>> infos = contentInfoMapper.getContentInfos(params);
+        List<Map<String, Object>> infos = contentInfoRepositoriesMapper.queryRepositoriesByType(type);
         message.setData(infos);
-        message.success(CodeEnum.SUCCESS).setMsg("获取内容列表成功！");
+        message.success(CodeEnum.SUCCESS).setMsg("获取内容库列表成功！");
         return message;
     }
 

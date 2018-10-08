@@ -62,7 +62,7 @@
 
     <update id="updateFinishStatus">
         UPDATE task_info SET status = 2, finish_time = now()
-        WHERE id = #{id} AND finish_count = finish_count
+        WHERE id = #{id} AND execute_count = finish_count
     </update>
 
     <update id="updateStatus">
