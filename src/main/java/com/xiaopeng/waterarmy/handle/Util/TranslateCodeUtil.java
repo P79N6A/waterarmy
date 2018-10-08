@@ -49,7 +49,7 @@ public class TranslateCodeUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage,"PNG",bos);
             //BAIDU转换
-            JSONObject res = aipOcr.basicGeneral(bos.toByteArray(),new HashMap<>());
+            JSONObject res = aipOcr.basicGeneral(bos.toByteArray(),new HashMap<String, String>());
             JSONArray arr = res.getJSONArray("words_result");
             JSONObject object = (JSONObject) arr.get(0);
             String words = (String) object.get("words");
@@ -67,7 +67,7 @@ public class TranslateCodeUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage,"PNG",bos);
             //BAIDU转换
-            JSONObject res = aipOcr.basicGeneral(bos.toByteArray(),new HashMap<>());
+            JSONObject res = aipOcr.basicGeneral(bos.toByteArray(),new HashMap<String, String>());
             JSONArray arr = res.getJSONArray("words_result");
             JSONObject object = (JSONObject) arr.get(0);
             String words = (String) object.get("words");

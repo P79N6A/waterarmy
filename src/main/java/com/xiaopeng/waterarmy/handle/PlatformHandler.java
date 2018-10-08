@@ -45,7 +45,7 @@ public abstract class PlatformHandler implements  RequestHandler{
 
 
     @Override
-    public Result save(SaveContext saveContext) {
+    public Result save(final SaveContext saveContext) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(
                 new Runnable() {
