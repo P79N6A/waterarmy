@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
@@ -123,7 +124,7 @@ public class AiKaHandler extends PlatformHandler {
         setPublishHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         try {
-            nameValuePairs.add(new BasicNameValuePair("subject",requestContext.getContent().getTitle()));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
+            nameValuePairs.add(new BasicNameValuePair("subject",URLEncoder.encode(requestContext.getContent().getTitle(),"UTF-8")));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
             nameValuePairs.add(new BasicNameValuePair("message", URLEncoder.encode("[textcard]"+requestContext.getContent().getText()+"[/textcard]","GB2312")));//meesageBody
             nameValuePairs.add(new BasicNameValuePair("formhash", "edacfc30"));
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
@@ -333,7 +334,9 @@ public class AiKaHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
-        return null;
+        HtmlReadUtil.read(requestContext.getTargetUrl());
+        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:"+requestContext.getTargetUrl());
+        return new Result(handlerResultDTO);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.handle.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
@@ -98,7 +99,9 @@ public class DiYiDianDongHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
-        return null;
+        HtmlReadUtil.read(requestContext.getTargetUrl());
+        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:"+requestContext.getTargetUrl());
+        return new Result(handlerResultDTO);
     }
 
     @Override
