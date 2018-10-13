@@ -17,6 +17,7 @@ import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -95,9 +96,15 @@ public class AiKaHandler extends PlatformHandler {
             String content = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
-                JSONObject jsonObject = JSONObject.parseObject(content);
-
-
+                String temp = FetchParamUtil.getMatherStr(content,"url=viewthread.php\\?tid=\\d+");
+                temp = FetchParamUtil.getMatherStr(temp,"\\d+");
+                if (StringUtils.isNotBlank(temp)) {
+                    String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid="+temp;
+                    PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, url);
+                    save(new SaveContext(publishInfo));
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, url);
+                    return new Result(handlerResultDTO);
+                }
             }
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         } catch (Exception e) {

@@ -8,7 +8,7 @@ public class FetchParamUtil {
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(url);
         if (m.find()) {
-            return m.group(0);
+            return m.group();
         }
         return null;
     }

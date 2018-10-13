@@ -79,6 +79,7 @@ public class HandlerDispatcher {
         requestContext.setHandleType(TaskTypeEnum.POSIED);
         requestContext.setPlatform(PlatformEnum.XCAR);
         requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
+        //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=34241863");
         return requestContext;
     }
 
