@@ -102,6 +102,13 @@ public abstract class PlatformHandler implements  RequestHandler{
     public abstract Result<HandlerResultDTO> read(RequestContext requestContext);
 
     /**
+     * 播放
+     * @param requestContext
+     * @return
+     */
+    public abstract Result<HandlerResultDTO> play(RequestContext requestContext);
+
+    /**
      * 点赞
      * @param requestContext
      * @return
