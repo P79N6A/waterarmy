@@ -1,9 +1,11 @@
 package com.xiaopeng.waterarmy.handle.Util;
 
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 
 public class ResultParamUtil {
@@ -16,6 +18,22 @@ public class ResultParamUtil {
         commentInfo.setUserId(requestContext.getUserId());
         commentInfo.setTargetUrl(requestContext.getPrefixUrl());
         return commentInfo;
+    }
+
+    public static PraiseInfo createPraiseInfo(RequestContext requestContext, String content) {
+        PraiseInfo praiseInfo = new PraiseInfo();
+        praiseInfo.setOutUserName(requestContext.getUserLoginId());
+        praiseInfo.setDetailResult(content);
+        praiseInfo.setPlatform(requestContext.getPlatform().getName());
+        praiseInfo.setStatus(ResultConstants.STATUS_ENABLE);
+        praiseInfo.setUserId(requestContext.getUserId());
+        praiseInfo.setTargetUrl(requestContext.getPrefixUrl());
+        praiseInfo.setTargetUrl(requestContext.getPrefixUrl());
+        praiseInfo.setCommentId((String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID));
+        if (requestContext.getRequestParam().get(RequestConsts.COMMENT_CONTENT)!=null) {
+            praiseInfo.setCommentContent((String)requestContext.getRequestParam().get(RequestConsts.COMMENT_CONTENT));
+        }
+        return praiseInfo;
     }
 
     public static PublishInfo createPublishInfo(RequestContext requestContext, String content, String targetUrl) {

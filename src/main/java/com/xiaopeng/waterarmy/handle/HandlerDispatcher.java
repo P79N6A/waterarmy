@@ -1,8 +1,10 @@
 package com.xiaopeng.waterarmy.handle;
 
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.handle.impl.*;
 import com.xiaopeng.waterarmy.handle.param.Content;
@@ -10,6 +12,8 @@ import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
 
 
 /**
@@ -74,12 +78,18 @@ public class HandlerDispatcher {
         content.setText("有没有改装的，外表加内饰？");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(3L);
-        requestContext.setUserLoginId("15143586942");
-        requestContext.setHandleType(TaskTypeEnum.POSIED);
-        requestContext.setPlatform(PlatformEnum.XCAR);
-        requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
+        requestContext.setUserId(4L);
+        requestContext.setUserLoginId("18383849422");
+        requestContext.setHandleType(TaskTypeEnum.LIKE);
+        requestContext.setPlatform(PlatformEnum.YICHE);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
+        //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
+        requestContext.setPrefixUrl("http://news.bitauto.com/qichewenhua/20181008/1008346394.html");
         //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=34241863");
+        HashMap map = new HashMap();
+        map.put(RequestConsts.COMMENT_ID,"257971069489512448");
+        map.put(RequestConsts.COMMENT_CONTENT,"666");
+        requestContext.setRequestParam(map);
         return requestContext;
     }
 

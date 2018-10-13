@@ -2,11 +2,14 @@ package com.xiaopeng.waterarmy.handle.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
@@ -14,8 +17,10 @@ import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -54,6 +60,12 @@ public class YiCheHandler extends PlatformHandler {
     private static final String TARGET_PUBLISH_SUFFIX = "posttopic-0.html";
 
     private static final int MAX_RETRY_PUBLISH = 20;
+
+    private static final String TARGET_CHEJIA_COMMENT = "http://newsapi.bitauto.com/comment/comment/sava";
+
+    private static String getUserIdUrl1 = "http://news.bitauto.com/hao/wenzhang/963762";
+
+    private static String TARGET_COMMENT_NEWS_PRAISE = "http://newsapi.bitauto.com/comment/like/update";
 
     @Autowired
     private YiCheLoginHandler yiCheLoginHandler;
@@ -229,6 +241,21 @@ public class YiCheHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
+
+        //易车车家号评论
+        if (TaskEntryTypeEnum.YICHENEWSCOMMENT.equals(requestContext.getHandleEntryType())) {
+            return commentNews(requestContext);
+        }
+        return commentForum(requestContext);
+    }
+
+    /**
+     * 论坛评论
+     * @param requestContext
+     * @return
+     */
+    private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
+        //论坛评论
         Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
@@ -257,6 +284,253 @@ public class YiCheHandler extends PlatformHandler {
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
 
+
+    /**
+     * 车家号评论
+     * @param requestContext
+     * @return
+     */
+    private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createCommentNewsPost(requestContext,httpClient);
+            setCommentNewsHeader(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                if (content.contains("OK")) {//评论成功
+                    //评论成功
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                    save(new SaveContext(commentInfo));
+                    return new Result(handlerResultDTO);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+        }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+
+
+
+    }
+
+
+    private HttpPost createCommentNewsPost(RequestContext requestContext,CloseableHttpClient client) {
+        try {
+            String url = requestContext.getPrefixUrl();
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpResponse response = client.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content;
+            if (entity!=null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                String productId = FetchParamUtil.getMatherStr(content,"productId: \\d+,");
+                productId = FetchParamUtil.getMatherStr(productId,"\\d+");
+
+                String objectId = FetchParamUtil.getMatherStr(content,"objectId: \\'\\d+");
+                objectId = FetchParamUtil.getMatherStr(objectId,"\\d+");
+
+                String title = FetchParamUtil.getMatherStr(content,"title: \\'.*\\',");
+                title = FetchParamUtil.getMatherStr(title,"\\'.*\\'");
+                title = title.replaceAll("'","");
+
+                String createtime = FetchParamUtil.getMatherStr(content,"createtime: \\'.*\\',");
+                createtime = FetchParamUtil.getMatherStr(createtime,"\\'.*\\'");
+                createtime = createtime.replaceAll("'","");
+
+
+                String userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
+                if (userid==null) {
+                    //其他页面拿不到userid，通过特定的url获取
+                    HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
+                    CloseableHttpResponse response1 = client.execute(httpGet1);
+                    HttpEntity entity1 = response1.getEntity();
+                    String content1 = EntityUtils.toString(entity1, "utf-8");
+                    content = content1;
+                }
+                userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
+                userid = FetchParamUtil.getMatherStr(userid,"\\d+");
+
+                String source = FetchParamUtil.getMatherStr(content,"source: \\d+,");
+                source = FetchParamUtil.getMatherStr(source,"\\d+");
+
+              /*  String type = FetchParamUtil.getMatherStr(content,"type: \\d+,");
+                type = FetchParamUtil.getMatherStr(type,"\\d+");*/
+
+                String username = FetchParamUtil.getMatherStr(content,"username: \\'.*\\',");
+                username = FetchParamUtil.getMatherStr(username,"\\'.*\\'");
+                username = username.replaceAll("'","");
+
+                HttpPost httpPost = new HttpPost(TARGET_CHEJIA_COMMENT);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("productId", productId));
+                nameValuePairs.add(new BasicNameValuePair("objectId", objectId));
+                nameValuePairs.add(new BasicNameValuePair("title", title));
+                nameValuePairs.add(new BasicNameValuePair("url", requestContext.getPrefixUrl()));
+                nameValuePairs.add(new BasicNameValuePair("createtime", createtime));
+                nameValuePairs.add(new BasicNameValuePair("parentId", "0"));
+                nameValuePairs.add(new BasicNameValuePair("userId", userid));
+                nameValuePairs.add(new BasicNameValuePair("userName", username));
+                nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+                nameValuePairs.add(new BasicNameValuePair("client", "1"));
+                nameValuePairs.add(new BasicNameValuePair("source", source));
+
+                try {
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                } catch (Exception e) {
+                    logger.error("[YiCheHandler.createCommentNewsPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+                    return null;
+                }
+                return httpPost;
+            }
+
+            /**
+             * productId: 8
+             * objectId: 963762
+             * objectuuId:
+             * title: 除了穷，我还有7个不买后驱奥迪R8 RWS的理由
+             * url: http://news.bitauto.com/hao/wenzhang/963762
+             * url_m:
+             * createtime: 2018-10-08 10:30:36
+             * parentId: 0
+             * userId: 34331790
+             * userName: zdkipp577148
+             * content: 这个车真心不错
+             * client: 1
+             * source: 0
+             */
+
+        }catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+
+
+    private Result<HandlerResultDTO> commentNewsPraise(RequestContext requestContext) {
+        /**
+         * callback: jQuery18006913486550558714_1539437102307
+         * userid: 34331669
+         * commentId: 257980449698086912
+         * objectId: 8346394
+         * productId: 1
+         * _: 1539437118080
+         */
+
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[YiCheHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpGet httpGet = createCommentNewsPraiseHttpGet(requestContext, httpClient);
+            setCommentNewsHeader(httpGet);
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                if (content.contains("OK")) {
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    PraiseInfo praiseInfo = ResultParamUtil.createPraiseInfo(requestContext, content);
+                    save(new SaveContext(praiseInfo));
+                    return new Result(handlerResultDTO);
+                }
+            }
+        }catch (Exception e) {
+            logger.error("[YiCheHandler.commentNewsPraise]",e);
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
+
+
+    private HttpGet createCommentNewsPraiseHttpGet(RequestContext requestContext,CloseableHttpClient client) {
+
+        //参数校验
+        if (requestContext.getRequestParam().get(RequestConsts.COMMENT_ID)==null) {
+            return null;
+        }
+
+        try {
+            String url = requestContext.getPrefixUrl();
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpResponse response = client.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content;
+            if (entity!=null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                String productId = FetchParamUtil.getMatherStr(content,"productId: \\d+,");
+                productId = FetchParamUtil.getMatherStr(productId,"\\d+");
+
+                String objectId = FetchParamUtil.getMatherStr(content,"objectId: \\'\\d+");
+                objectId = FetchParamUtil.getMatherStr(objectId,"\\d+");
+
+
+                HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
+                CloseableHttpResponse response1 = client.execute(httpGet1);
+                HttpEntity entity1 = response1.getEntity();
+                String content1 = EntityUtils.toString(entity1, "utf-8");
+                content = content1;
+
+                String userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
+                userid = FetchParamUtil.getMatherStr(userid,"\\d+");
+
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("callback", "jQuery18006913486550558714_"+new Date().getTime()));
+                nameValuePairs.add(new BasicNameValuePair("userid", userid));
+                nameValuePairs.add(new BasicNameValuePair("commentId", (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID)));
+                nameValuePairs.add(new BasicNameValuePair("objectId", objectId));
+                nameValuePairs.add(new BasicNameValuePair("productId", productId));
+                nameValuePairs.add(new BasicNameValuePair("_", String.valueOf(new Date().getTime())));
+                String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                String target = TARGET_COMMENT_NEWS_PRAISE + "?" + str;
+                HttpGet httpGet2 = new HttpGet(target);
+                return httpGet2;
+            }
+        }catch (Exception e) {
+            logger.error("[YiCheHandler.createCommentNewsPraisePost] error!",e);
+            return null;
+        }
+        return null;
+    }
+
+    private void setCommentNewsHeader(HttpGet httpGet) {
+        /**
+         * Host: newsapi.bitauto.com
+         * Origin: http://news.bitauto.com
+         * Referer: http://news.bitauto.com/hao/wenzhang/963762
+         */
+        httpGet.setHeader("Host","newsapi.bitauto.com");
+        httpGet.setHeader("Origin","http://news.bitauto.com");
+        httpGet.setHeader("Referer","http://news.bitauto.com");
+        httpGet.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+    }
+
+    private void setCommentNewsHeader(HttpPost httpPost) {
+        /**
+         * Host: newsapi.bitauto.com
+         * Origin: http://news.bitauto.com
+         * Referer: http://news.bitauto.com/hao/wenzhang/963762
+         */
+        httpPost.setHeader("Host","newsapi.bitauto.com");
+        httpPost.setHeader("Origin","http://news.bitauto.com");
+        httpPost.setHeader("Referer","http://news.bitauto.com");
+        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+    }
+
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
         HtmlReadUtil.read(requestContext.getTargetUrl());
@@ -273,7 +547,7 @@ public class YiCheHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
-        return null;
+        return commentNewsPraise(requestContext);
     }
 
     private HttpPost createCommentPost(RequestContext requestContext) {

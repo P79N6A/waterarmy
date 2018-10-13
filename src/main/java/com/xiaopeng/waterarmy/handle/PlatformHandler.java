@@ -6,8 +6,10 @@ import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import com.xiaopeng.waterarmy.model.mapper.CommentInfoMapper;
+import com.xiaopeng.waterarmy.model.mapper.PraiseInfoMapper;
 import com.xiaopeng.waterarmy.model.mapper.PublishInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,6 +23,9 @@ public abstract class PlatformHandler implements  RequestHandler{
 
     @Autowired
     private PublishInfoMapper publishInfoMapper;
+
+    @Autowired
+    private PraiseInfoMapper praiseInfoMapper;
 
     @Override
     public Result<HandlerResultDTO> handle(RequestContext requestContext) {
@@ -72,6 +77,14 @@ public abstract class PlatformHandler implements  RequestHandler{
                                     e.printStackTrace();
                                 }
 
+                            }
+                            if (object instanceof PraiseInfo) {
+                                try {
+                                    PraiseInfo praiseInfo = (PraiseInfo)object;
+                                    praiseInfoMapper.save(praiseInfo);
+                                }catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     }

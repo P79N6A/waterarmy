@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.handle.param;
 
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 
 import java.util.Map;
@@ -25,6 +26,11 @@ public class RequestContext {
      * 处理类型，发帖，评论，点赞,浏览等
      */
     private TaskTypeEnum handleType;
+
+    /**
+     * 每个平台不同模块的分类
+     */
+    private TaskEntryTypeEnum handleEntryType;
 
     /**
      * 需要发表的内容
@@ -124,13 +130,22 @@ public class RequestContext {
         this.headerParam = headerParam;
     }
 
+    public TaskEntryTypeEnum getHandleEntryType() {
+        return handleEntryType;
+    }
+
+    public void setHandleEntryType(TaskEntryTypeEnum handleEntryType) {
+        this.handleEntryType = handleEntryType;
+    }
+
     @Override
     public String toString() {
         return "RequestContext{" +
                 "userId=" + userId +
                 ", userLoginId='" + userLoginId + '\'' +
-                ", platformId=" + platform +
+                ", platform=" + platform +
                 ", handleType=" + handleType +
+                ", handleEntryType=" + handleEntryType +
                 ", content=" + content +
                 ", targetUrl='" + targetUrl + '\'' +
                 ", prefixUrl='" + prefixUrl + '\'' +

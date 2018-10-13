@@ -2,7 +2,8 @@
 SQLyog Ultimate v11.42 (64 bit)
 MySQL - 5.7.17-log : Database - shuijun
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -267,3 +268,68 @@ insert  into `task_publish`(`id`,`platform`,`module`,`task_type`,`status`,`creat
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+
+
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4541
+#
+# http://www.sequelpro.com/
+# https://github.com/sequelpro/sequelpro
+#
+# Host: 127.0.0.1 (MySQL 5.6.15)
+# Database: shuijun
+# Generation Time: 2018-10-13 14:24:12 +0000
+# ************************************************************
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table praise_info
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `praise_info`;
+
+CREATE TABLE `praise_info` (
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+  `platform` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `userId` int(11) DEFAULT NULL,
+  `outUserName` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `createTime` datetime NOT NULL,
+  `modifyTime` datetime NOT NULL,
+  `status` int(11) NOT NULL,
+  `targetUrl` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `detailResult` text COLLATE utf8mb4_unicode_ci,
+  `commentId` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `commentContent` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+LOCK TABLES `praise_info` WRITE;
+/*!40000 ALTER TABLE `praise_info` DISABLE KEYS */;
+
+INSERT INTO `praise_info` (`id`, `platform`, `userId`, `outUserName`, `createTime`, `modifyTime`, `status`, `targetUrl`, `detailResult`, `commentId`, `commentContent`)
+VALUES
+	(1,'YICHE',4,'18383849422','2018-10-13 22:22:21','2018-10-13 22:22:21',1,'http://news.bitauto.com/qichewenhua/20181008/1008346394.html','/**/jQuery18006913486550558714_1539440355589({\"code\":0,\"msg\":\"OK\",\"result\":null,\"extend\":null});','257971069489512448','666');
+
+/*!40000 ALTER TABLE `praise_info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
