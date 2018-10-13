@@ -74,8 +74,8 @@ public class HandlerDispatcher {
         content.setText("有没有改装的，外表加内饰？");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(2L);
-        requestContext.setUserLoginId("13438042646");
+        requestContext.setUserId(3L);
+        requestContext.setUserLoginId("15143586942");
         requestContext.setHandleType(TaskTypeEnum.POSIED);
         requestContext.setPlatform(PlatformEnum.XCAR);
         requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
