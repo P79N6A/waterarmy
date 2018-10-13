@@ -124,10 +124,24 @@ public class AiKaHandler extends PlatformHandler {
         setPublishHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         try {
-            nameValuePairs.add(new BasicNameValuePair("subject",URLEncoder.encode(requestContext.getContent().getTitle(),"UTF-8")));// URLEncoder.encode(requestContext.getContent().getTitle(), "GB2312")
+            /**
+             * banner:
+             * content[0][type]: text
+             * content[0][text]: 有没有人改装车，急需改装
+             * content[0][pic]:
+             * content[0][video]:
+             * content[0][id]: 1539410468801
+             * tid:
+             * uid: 15962687
+             * subject: 有没有人装车
+             */
+            String temp = requestContext.getContent().getTitle();
+            nameValuePairs.add(new BasicNameValuePair("subject",temp));
             nameValuePairs.add(new BasicNameValuePair("message", URLEncoder.encode("[textcard]"+requestContext.getContent().getText()+"[/textcard]","GB2312")));//meesageBody
             nameValuePairs.add(new BasicNameValuePair("formhash", "edacfc30"));
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+
+
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
 
         } catch (Exception e) {
             logger.error("[AiKaHandler.createPublishHttpPost]createPublishHttpPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs,e);

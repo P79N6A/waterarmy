@@ -36,7 +36,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        //requestContext = this.createTestPublisContext();
+        requestContext = this.createTestPublisContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -72,7 +72,7 @@ public class HandlerDispatcher {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
         content.setText("有没有改装的，外表加内饰？");
-        content.setTitle("i like the car");
+        content.setTitle("改装");
         requestContext.setContent(content);
         requestContext.setUserId(2L);
         requestContext.setUserLoginId("13438042646");
