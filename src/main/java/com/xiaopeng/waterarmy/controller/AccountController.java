@@ -65,8 +65,14 @@ public class AccountController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
-    public JsonMessage delete(Long id) {
-        return  accountService.delete(id);
+    public JsonMessage delete(String ids) {
+        return  accountService.delete(ids);
+    }
+
+    @RequestMapping(value = "/updateTaskCount")
+    @ResponseBody
+    public JsonMessage updateTaskCount(String userName) {
+        return accountService.updateTaskCount(userName);
     }
 
     @RequestMapping(value = "/importData", method = RequestMethod.POST)

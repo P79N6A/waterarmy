@@ -107,6 +107,7 @@ public class ScheduledPublishTask {
         if (handlerResult.getSuccess()) {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
+            accountService.updateTaskCount(publishAccount.getUserName());
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("发帖失败，handlerResult: {}", JSON.toJSONString(handlerResult));

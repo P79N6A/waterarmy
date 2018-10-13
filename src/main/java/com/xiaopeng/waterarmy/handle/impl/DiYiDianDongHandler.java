@@ -169,7 +169,7 @@ public class DiYiDianDongHandler extends PlatformHandler {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             return httpPost;
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! requestContext" + requestContext);
+            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! requestContext: {}, ", requestContext, e);
             return null;
         }
     }
@@ -193,4 +193,3 @@ public class DiYiDianDongHandler extends PlatformHandler {
 
 
 }
-

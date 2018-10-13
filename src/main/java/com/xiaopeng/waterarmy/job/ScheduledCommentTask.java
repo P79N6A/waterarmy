@@ -108,6 +108,7 @@ public class ScheduledCommentTask {
         if (handlerResult.getSuccess()) {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
+            accountService.updateTaskCount(commentAccount.getUserName());
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论失败，handlerResult: {}", JSON.toJSONString(handlerResult));

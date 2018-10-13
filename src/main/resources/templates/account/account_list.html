@@ -15,9 +15,9 @@
 <div id="app" v-cloak>
     <!-- 表单组件 -->
     <div class="ui-form">
-        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm">
-            <el-form-item label="用户名" prop="userName">
-                <el-input v-model="form.userName" placeholder="请输入"></el-input>
+        <el-form :model="form" :inline="true" label-width="110px" ref="searchForm" >
+            <el-form-item label="账号名" prop="userName">
+                <el-input v-model="form.userName" placeholder="请输入,多个以,号分隔"></el-input>
             </el-form-item>
 
             <div class="ui-form__bd">
@@ -27,6 +27,7 @@
                             <el-button type="primary" @click="search" size="small">查询</el-button>
                             <el-button @click="reset" size="small">重置</el-button>
                             <el-button size="small" type="primary" @click="showNew">新增</el-button>
+                            <el-button size="small" type="danger" @click="batchDelete" :disabled="!tableSelect.length">批量删除</el-button>
                         </div>
                     </el-col>
                 </el-row>
@@ -171,8 +172,8 @@
             </el-col>
 
             <!--<el-col :span="10">-->
-                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
-                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+            <!--<el-button size="small" @click="exportData">导出</el-button>-->
             <!--</el-col>-->
             <el-col :span="14">
                 <div class="ui-page">
@@ -323,6 +324,30 @@
                             _this.tableData.splice(index, 1);
                         }else {
                             _this.message('删除失败 !');
+                        }
+                    })
+                })
+            },
+
+
+            batchDelete: function () {
+                var _this = this;
+                var ids = [];
+                _this.tableSelect.forEach(function(items) {
+                    ids.push(items.id)
+                })
+                _this.selectIds = ids.join(',');
+                _this.confirm('确定删除 ?', function() {
+                    var params = {
+                        ids:_this.selectIds
+                    };
+                    var url=urls.deleteUrl;
+                    _this.post(url,params, function(data) {
+                        if(data.success){
+                            _this.message('删除成功 !');
+                            _this.refresh();
+                        }else {
+                            _this.message('删除失败 !','error');
                         }
                     })
                 })

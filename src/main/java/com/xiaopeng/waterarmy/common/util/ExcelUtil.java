@@ -115,10 +115,19 @@ public class ExcelUtil {
             } else if (ExcelDataTypeEnum.ACCOUNT.getName().equals(type)) {
                 Account info = new Account();
                 String userName = getStringFromNumericCell(row.getCell(0));
-                String fullName = getStringFromNumericCell(row.getCell(1));
-                String password = row.getCell(2).getStringCellValue();
-                String mobile = getStringFromNumericCell(row.getCell(3));//.getStringCellValue();
-                String email = row.getCell(4).getStringCellValue();
+                String fullName = "";
+                if (!ObjectUtils.isEmpty(row.getCell(1))) {
+                    fullName = getStringFromNumericCell(row.getCell(1));
+                }
+                String password = row.getCell(2).getStringCellValue();;
+                String mobile = "";
+                if (!ObjectUtils.isEmpty(row.getCell(3))) {
+                    mobile = getStringFromNumericCell(row.getCell(3));//.getStringCellValue();
+                }
+                String email = "";
+                if (!ObjectUtils.isEmpty(row.getCell(4))) {
+                    email = row.getCell(4).getStringCellValue();
+                }
 //                Integer level = !ObjectUtils.isEmpty(row.getCell(5).getStringCellValue())
 //                        ? Integer.parseInt(row.getCell(5).getStringCellValue()) : AccountLevelEnum.PRIMARY.getIndex();
                 String platform = row.getCell(6).getStringCellValue();

@@ -28,6 +28,9 @@
                                :key="item.name"></el-option>
                 </el-select>
             </el-form-item>
+            <el-form-item label="任务ID" prop="taskName">
+                <el-input v-model="form.taskInfoId"></el-input>
+            </el-form-item>
             <el-form-item label="任务名称" prop="taskName">
                 <el-input v-model="form.taskName"></el-input>
             </el-form-item>
@@ -70,14 +73,9 @@
             <el-table-column prop="executor" label="账号名" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="executeStatusDesc" label="发布状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="link" label="链接" show-overflow-tooltip min-width="300px" sortable>
-                <!--<template scope="item">-->
-                    <!--<a :href="'item.row.link" target="_blank">链接</a>-->
-                <!--</template>-->
-                <!--<template slot-scope="scope">-->
-                    <!--<a :href="'scope.row.link" target="_blank" class="buttonText">-->
-                        <!--{{scope.row.link}}-->
-                    <!--</a>-->
-                <!--</template>-->
+                <template scope="item">
+                    <a :href="item.row.link" target="_blank">{{item.row.link}}</a>
+                </template>
             </el-table-column>
             <el-table-column prop="linkTitle" label="链接名称" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="contentTitle" label="标题" show-overflow-tooltip min-width="300px" sortable></el-table-column>
@@ -90,8 +88,8 @@
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
             <!--<el-col :span="10">-->
-                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
-                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+            <!--<el-button size="small" @click="exportData">导出</el-button>-->
             <!--</el-col>-->
             <el-col :span="24">
                 <div class="ui-page">
@@ -130,6 +128,7 @@
                 createEndDate: '',
                 taskName: '',
                 executor: '',
+                taskInfoId: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中

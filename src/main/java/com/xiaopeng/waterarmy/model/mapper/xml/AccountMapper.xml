@@ -21,7 +21,10 @@
         , create_time AS createTime, update_time AS updateTime
         , status, creator, updater FROM account WHERE status = 1
         <if test="params.userName != null and params.userName != '' " >
-            AND user_name = #{params.userName}
+            AND user_name IN
+            <foreach item="userName" index="index" collection="userNames" open="(" separator="," close=")">
+                #{userName}
+            </foreach>
         </if>
     </select>
 
@@ -38,7 +41,7 @@
 
 
     <select id="getAccountById" resultType="com.xiaopeng.waterarmy.model.dao.Account">
-       SELECT id,UUID, user_name AS userName, full_name AS fullName, password
+        SELECT id,UUID, user_name AS userName, full_name AS fullName, password
         , mobile, email, level, platform, task_count as taskCount
         , create_time AS createTime, update_time AS updateTime
         , status, creator, updater FROM account WHERE id=#{id} AND status = 1
@@ -75,6 +78,10 @@
 
     <update id="deleteById">
         UPDATE account SET status = 0 WHERE id = #{id}
+    </update>
+
+    <update id="updateTaskCount">
+        UPDATE account SET task_count = task_count + 1 WHERE user_name = #{userName}
     </update>
 
 </mapper>

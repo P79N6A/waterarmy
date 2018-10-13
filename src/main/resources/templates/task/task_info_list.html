@@ -74,21 +74,39 @@
                 <template scope="item">
                     <el-button size="mini" type="danger" @click="stopTask(item)" v-if="item.row.status == 0">停止</el-button>
                     <el-button size="mini" type="danger" @click="recoveryTask(item)" v-if="item.row.status == 1">恢复</el-button>
-                    <el-button size="mini" type="primary" @click="link('/task/publish/detail?taskPublishId='
-                            +item.row.id + '&taskType=' + item.row.taskType,'任务记录')">查看规则</el-button>
+                    <el-button size="mini" type="primary"  @click="showRule(item)">查看规则</el-button>
                     <!--<el-button size="mini" type="primary" @click="link('/task/publish/detail?id='-->
-                            <!--+item.row.id,'查看规则')">查看规则</el-button>-->
+                    <!--+item.row.id,'查看规则')">查看规则</el-button>-->
+                    <!--@click="link('/task/publish/detail?taskPublishId='-->
+                    <!--+item.row.id + '&taskType=' + item.row.taskType,'任务记录')"-->
                 </template>
             </el-table-column>
         </el-table>
     </div>
 
+    <!-- 查看规则弹窗 -->
+    <el-dialog title="查看规则" :visible.sync="isShowRule" :close-on-click-modal="false" top="0%" size="small"
+               :show-close="false" :close-on-press-escape="false" @close="onModalClose" @open="onModalOpen">
+        <el-form :model="form" label-width="100px" :inline="false" :rules="rules" ref="form">
+            <el-form-item label="任务名称" prop="name">
+                {{form.name}}
+            </el-form-item>
+            <el-form-item label="平台" prop="name">
+                {{form.platform}}
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="isShowRule = false">取 消</el-button>
+        </div>
+    </el-dialog>
+    <!-- 编辑弹窗 -->
+
     <!-- 分页组件 -->
     <div class="ui-table__ft-fix">
         <el-row type="flex" class="ui-table__ft">
             <!--<el-col :span="10">-->
-                <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
-                <!--<el-button size="small" @click="exportData">导出</el-button>-->
+            <!--<el-button size="small" type="primary" @click="inputData">导入</el-button>-->
+            <!--<el-button size="small" @click="exportData">导出</el-button>-->
             <!--</el-col>-->
             <el-col :span="24">
                 <div class="ui-page">
@@ -133,6 +151,8 @@
             isLoading: false, // 是否加载中
             // 是否显示编辑弹窗
             isShowEdit: false,
+            // 是否显示规则弹窗
+            isShowRule: false,
             // 编辑的内容
             formEdit: {},
             // 编辑的条目
@@ -149,6 +169,7 @@
             platFormModules: [], // 板块枚举列表
             taskTypes: [], // 任务类型枚举列表
             taskStatus: [], // 任务状态枚举列表
+            formRule: {},
         },
         methods: {
 
@@ -316,6 +337,20 @@
                         _this.message('恢复失败 !');
                     }
                 })
+            },
+
+            showRule: function(item) {
+                var _this = this;
+                if (item.row) {
+                    var content = item.row;
+                    for (var key in content) {
+                        if (content.hasOwnProperty(key)) {
+                            _this.$set(_this.formRule, key, content[key])
+                        }
+                    }
+                    _this.isShowRule = true;
+                    //_this.formEditItem = content;
+                }
             },
 
         },

@@ -145,7 +145,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/executelog/index")
-    public ModelAndView taskexecutelogIndex() {
+    public ModelAndView taskExecuteLogIndex() {
         ModelAndView view = new ModelAndView(TASK_EXECUTE_LOG_INDEX_PAGE);
         return view;
     }
@@ -177,6 +177,5 @@ public class TaskController {
         Long id = Long.parseLong(String.valueOf(params.get("id")));
         return taskService.stopTask(id);
     }
-
 
 }

@@ -38,8 +38,10 @@ public interface AccountService {
 
     JsonMessage update(Map<String,Object> params);
 
-    JsonMessage delete(Long id);
+    JsonMessage delete(String id);
 
     JsonMessage importData(MultipartFile file);
+
+    JsonMessage updateTaskCount(String userName);
 
 }

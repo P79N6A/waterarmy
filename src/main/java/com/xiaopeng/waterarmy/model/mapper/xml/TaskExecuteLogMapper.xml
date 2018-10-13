@@ -34,6 +34,9 @@
         <if test="params.executor != null and params.executor != '' " >
             AND tel.executor = #{params.executor}
         </if>
+        <if test="params.taskInfoId != null and params.taskInfoId != '' " >
+            AND tel.task_info_id = #{params.taskInfoId}
+        </if>
         <if test="params.createStartDate != null and params.createStartDate != ''
         and params.createEndDate != '' and params.createEndDate != '' " >
             AND tel.create_time  &gt;= #{params.createStartDate} and tel.create_time &lt;= #{params.createEndDate}

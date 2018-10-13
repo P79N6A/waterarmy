@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * * 功能描述：
@@ -47,7 +44,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
         PageHelper.startPage(pageNo, pageSize);
-        List<Map<String,Object>> results = accountMapper.getAccounts(params);
+        List<String> userNames = new ArrayList<>();
+        String userName = MapUtils.getString(params,"userName");
+        if (!ObjectUtils.isEmpty(userName)) {
+            String[] names = userName.split(",");
+            for (String n: names) {
+                userNames.add(n);
+            }
+        }
+        List<Map<String,Object>> results = accountMapper.getAccounts(params, userNames);
         for (Map<String,Object> result: results) {
             Integer level = MapUtils.getInteger(result,"level");
             if (!ObjectUtils.isEmpty(level)) {
@@ -120,12 +125,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public JsonMessage delete(Long id) {
+    public JsonMessage delete(String ids) {
         JsonMessage message = JsonMessage.init();
         try {
-            accountMapper.deleteById(id);
+            String[] acccountIds = ids.split(",");
+            for (String id: acccountIds) {
+                accountMapper.deleteById(id);
+            }
         } catch (Exception e) {
-            logger.error("删除账号 id : {}失败, ", id, e);
+            logger.error("删除账号 ids : {}失败, ", ids, e);
             message.fail(CodeEnum.FAIL).setMsg("删除账号失败！");
             return message;
         }
@@ -152,5 +160,16 @@ public class AccountServiceImpl implements AccountService {
         return message;
     }
 
+    @Override
+    public JsonMessage updateTaskCount(String userName) {
+        JsonMessage message = JsonMessage.init();
+        try {
+            accountMapper.updateTaskCount(userName);
+        } catch (Exception e) {
+            logger.error("更新用户: %s 累计有效任务次数失败, ", userName, e);
+        }
+        message.success(CodeEnum.SUCCESS).setMsg("累计有效任务次数成功!");
+        return message;
+    }
 
 }

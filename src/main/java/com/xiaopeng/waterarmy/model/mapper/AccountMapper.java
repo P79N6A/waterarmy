@@ -9,7 +9,8 @@ import java.util.Map;
 
 public interface AccountMapper extends MyMapper<Account> {
 
-    List<Map<String, Object>> getAccounts(@Param("params") Map<String, Object> params);
+    List<Map<String, Object>> getAccounts(@Param("params") Map<String, Object> params
+            , @Param("userNames")List<String> userNames);
 
     Account getAccountByUserName(@Param("userName") String userName);
 
@@ -27,6 +28,8 @@ public interface AccountMapper extends MyMapper<Account> {
 
     void update(@Param("params") Map<String, Object> params);
 
-    void deleteById(@Param("id") Long id);
+    void deleteById(@Param("id") String id);
+
+    void updateTaskCount(@Param("userName") String userName);
 
 }
