@@ -18,7 +18,8 @@
 
     <select id="getTaskInfos" resultType="java.util.HashMap">
         SELECT id, name, platform, module, task_type AS taskType
-        , execute_count AS executeCount, finish_count AS finishCount, status
+        , execute_count AS executeCount, finish_count AS finishCount
+        , finish_time AS finishTime, status
         , create_time AS createTime, update_time AS updateTime
         , creator, updater FROM task_info WHERE 1=1
         <if test="params.platform != null and params.platform != '' " >
