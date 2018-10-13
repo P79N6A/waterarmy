@@ -80,12 +80,14 @@ public class HandlerDispatcher {
         requestContext.setContent(content);
         requestContext.setUserId(4L);
         requestContext.setUserLoginId("18383849422");
-        requestContext.setHandleType(TaskTypeEnum.LIKE);
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
         requestContext.setPlatform(PlatformEnum.YICHE);
-        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
+        //requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHEKOUBEICOMMENT);
         //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
-        requestContext.setPrefixUrl("http://news.bitauto.com/qichewenhua/20181008/1008346394.html");
+       // requestContext.setPrefixUrl("http://news.bitauto.com/qichewenhua/20181008/1008346394.html");
         //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=34241863");
+        requestContext.setPrefixUrl("http://car.bitauto.com/dibadaiyage/koubei/968281/");
         HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"257971069489512448");
         map.put(RequestConsts.COMMENT_CONTENT,"666");

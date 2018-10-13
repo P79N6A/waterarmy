@@ -21,7 +21,8 @@ public enum TaskEntryTypeEnum {
      * 发帖
      */
     YICHENEWSCOMMENT ("YICHENEWSCOMMENT", "易车车家号评论"),
-    YICHECOMMENTPRAISE ("YICHECOMMENTPRAISE", "易车车家号评论");
+    YICHECOMMENTPRAISE ("YICHECOMMENTPRAISE", "易车车家号点赞"),
+    YICHEKOUBEICOMMENT ("YICHEKOUBEICOMMENT", "易车口碑评论");
 
     private String name;
     private String desc;
