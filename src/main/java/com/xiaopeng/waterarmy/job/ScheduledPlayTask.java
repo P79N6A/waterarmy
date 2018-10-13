@@ -43,7 +43,7 @@ public class ScheduledPlayTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
-    @Scheduled(fixedRate = 60000)//5000
+    @Scheduled(fixedRate = 5)//5000
     public void reportCurrentTime() {
         logger.info("定时播放啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.PLAY.getName());
@@ -52,7 +52,7 @@ public class ScheduledPlayTask {
             RequestContext context = createPlayContext(task);
             //执行播放任务
             if (!ObjectUtils.isEmpty(context)) {
-                readTask(context, task);
+                playTask(context, task);
             } else {
                 logger.error("获取播放上下文为空! task：{}", JSON.toJSONString(task));
             }
@@ -66,7 +66,7 @@ public class ScheduledPlayTask {
      * @param context
      * @param task
      */
-    private void readTask(RequestContext context, Map<String, Object> task) {
+    private void playTask(RequestContext context, Map<String, Object> task) {
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");

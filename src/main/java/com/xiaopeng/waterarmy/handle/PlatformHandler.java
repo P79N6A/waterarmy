@@ -35,6 +35,8 @@ public abstract class PlatformHandler implements  RequestHandler{
                 return praise(requestContext);
             case READ:
                 return read(requestContext);
+            case PLAY:
+                return play(requestContext);
                 default:
                     return new Result<HandlerResultDTO>(null,false,ResultCodeEnum.HANDLER_NOT_FOUND.getIndex(),ResultCodeEnum.HANDLER_NOT_FOUND.getDesc());
         }
