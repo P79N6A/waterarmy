@@ -18,7 +18,7 @@ public class HttpFactory {
 
     public CloseableHttpClient getHttpClientWithCookies(CookieStore cookieStore) {
         // 全局请求设置
-        RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
+        RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD_STRICT).build();
         // 创建HttpClient上下文
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(cookieStore);
