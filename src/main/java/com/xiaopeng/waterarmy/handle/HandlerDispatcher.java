@@ -40,7 +40,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createTestYiCheJiaHaoContext();
+        //requestContext = this.createTestYiCheJiaHaoContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:

@@ -35,7 +35,17 @@ public enum PlatFormModuleEnum {
     /**
      * 口碑
      */
-    KOUBEI ("KOUBEI", "口碑"),;
+    KOUBEI ("KOUBEI", "口碑"),
+
+    /**
+     * 车主点评
+     */
+    CAROWNER_COMMENT ("CAROWNER_COMMENT", "车主点评"),
+
+    /**
+     * 视频评论
+     */
+    VIDEO_COMMENT ("VIDEO_COMMENT", "视频评论");
 
     private String name;
     private String desc;
