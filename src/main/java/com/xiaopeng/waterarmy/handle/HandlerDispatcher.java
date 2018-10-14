@@ -40,7 +40,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createTestDiyiDiandongContext();
+        requestContext = this.createTestYiCheJiaHaoContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -75,23 +75,23 @@ public class HandlerDispatcher {
     private RequestContext createTestPublisContext() {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
-        content.setText("有没有改装的，外表加内饰？");
+        content.setText("这个车真的很帅");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(4L);
-        requestContext.setUserLoginId("18383849422");
+        requestContext.setUserId(5L);
+        requestContext.setUserLoginId("15164577148");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
         requestContext.setPlatform(PlatformEnum.YICHE);
         //requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
-        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHEKOUBEICOMMENT);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHENEWSCOMMENT);
         //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
-       // requestContext.setPrefixUrl("http://news.bitauto.com/qichewenhua/20181008/1008346394.html");
+        requestContext.setPrefixUrl("http://news.bitauto.com/qichewenhua/20181008/1008346394.html");
         //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=34241863");
-        requestContext.setPrefixUrl("http://car.bitauto.com/dibadaiyage/koubei/968281/");
-        HashMap map = new HashMap();
+        //requestContext.setPrefixUrl("http://news.bitauto.com/hao/wenzhang/963762");
+       /* HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"257971069489512448");
         map.put(RequestConsts.COMMENT_CONTENT,"666");
-        requestContext.setRequestParam(map);https://cmt.pcauto.com.cn/action/comment/create.jsp?urlHandle=1
+        requestContext.setRequestParam(map);https://cmt.pcauto.com.cn/action/comment/create.jsp?urlHandle=1*/
         return requestContext;
     }
 
@@ -103,13 +103,13 @@ public class HandlerDispatcher {
         content.setText("明年再买吧，有点贵");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(3L);
-        requestContext.setUserLoginId("15143586942");
+        requestContext.setUserId(6L);
+        requestContext.setUserLoginId("18473837405");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
-        requestContext.setPlatform(PlatformEnum.XCAR);
+        requestContext.setPlatform(PlatformEnum.PCAUTO);
         requestContext.setHandleEntryType(TaskEntryTypeEnum.AIKANEWSCOMMENT);
         //requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1323/13233103.html");
-        requestContext.setPrefixUrl("http://info.xcar.com.cn/201809/news_2021888_1.html");
+        requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1314/13145443.html");
         HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"32202092");
         map.put(RequestConsts.COMMENT_CONTENT,"666");
@@ -169,6 +169,24 @@ public class HandlerDispatcher {
         requestContext.setPlatform(PlatformEnum.D1EV);
         //requestContext.setHandleEntryType(TaskEntryTypeEnum.QICHEVIDEOCOMMENT);
         requestContext.setPrefixUrl("https://www.d1ev.com/news/qiye/77783");
+        return requestContext;
+    }
+
+    /**
+     * 易车 车家号评论
+     */
+    private RequestContext createTestYiCheJiaHaoContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("明年再买吧，有点贵");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(4L);
+        requestContext.setUserLoginId("18383849422");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.YICHE);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHENEWSCOMMENT);
+        requestContext.setPrefixUrl("http://news.bitauto.com/hao/wenzhang/972163");
         return requestContext;
     }
 

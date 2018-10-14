@@ -10,6 +10,11 @@ public class LoginResultDTO {
     private Long outId;
 
     /**
+     * 第三方平台对应的username
+     */
+    private String outUserName;
+
+    /**
      * 本系统该账户的id
      */
     private Long id;
@@ -17,7 +22,7 @@ public class LoginResultDTO {
     /**
      * 第三方平台的userId
      */
-    private String userId;
+    private String outUserId;
 
     /**
      * 某些需要token
@@ -46,12 +51,20 @@ public class LoginResultDTO {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getOutUserName() {
+        return outUserName;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setOutUserName(String outUserName) {
+        this.outUserName = outUserName;
+    }
+
+    public String getOutUserId() {
+        return outUserId;
+    }
+
+    public void setOutUserId(String outUserId) {
+        this.outUserId = outUserId;
     }
 
     public CloseableHttpClient getHttpClient() {
@@ -74,8 +87,9 @@ public class LoginResultDTO {
     public String toString() {
         return "LoginResultDTO{" +
                 "outId=" + outId +
+                ", outUserName='" + outUserName + '\'' +
                 ", id=" + id +
-                ", userId='" + userId + '\'' +
+                ", outUserId='" + outUserId + '\'' +
                 ", token='" + token + '\'' +
                 ", httpClient=" + httpClient +
                 '}';

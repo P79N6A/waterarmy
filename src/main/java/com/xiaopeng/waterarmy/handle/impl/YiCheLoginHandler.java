@@ -17,10 +17,13 @@ import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -103,7 +106,10 @@ public class YiCheLoginHandler implements LoginHandler {
         //易车登陆验证码识别比较费劲，一次登陆设置上限十次验证码校验
         int retry = MAX_RETRY_COUNT;
         while (retry > 0) {
-            CloseableHttpClient httpClient = httpFactory.getHttpClient();
+
+            // 创建cookie store的本地实例
+            CookieStore cookieStore = new BasicCookieStore();
+            CloseableHttpClient httpClient = httpFactory.getHttpClientWithCookies(cookieStore);
             String guid = generateGuid();
             String fetchCodeUrl = generateCodeUrl(guid);
             String code = TranslateCodeUtil.getInstance().convert(fetchCodeUrl);
@@ -147,6 +153,14 @@ public class YiCheLoginHandler implements LoginHandler {
                     }
                     LoginResultDTO loginResultDTO = new LoginResultDTO();
                     loginResultDTO.setHttpClient(httpClient);
+                    for (Cookie c : cookieStore.getCookies()) {
+                        if ("userid".equals(c.getName())) {
+                            loginResultDTO.setOutUserId(c.getValue());
+                        }
+                        if ("username".equals(c.getName())) {
+                            loginResultDTO.setOutUserName(c.getValue());
+                        }
+                    }
                     loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
                     return new Result<>(loginResultDTO);
                 }

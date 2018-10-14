@@ -106,7 +106,7 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
                 LoginResultDTO loginResultDTO = new LoginResultDTO();
                 loginResultDTO.setHttpClient(httpClient);
                 loginResultDTO.setId(account.getId());
-                loginResultDTO.setUserId(account.getUserName());
+                loginResultDTO.setOutUserId(account.getUserName());
                 loginResultDTO.setToken(token);
                 loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
                 return new Result<>(loginResultDTO);

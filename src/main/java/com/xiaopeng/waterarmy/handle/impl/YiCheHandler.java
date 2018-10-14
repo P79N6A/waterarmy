@@ -304,8 +304,9 @@ public class YiCheHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentNewsPost(requestContext,httpClient);
+            HttpPost httpPost = createCommentNewsPost(requestContext,loginResultDTO);
             setCommentNewsHeader(httpPost);
+            httpPost.setHeader("Referer",requestContext.getPrefixUrl());
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -368,11 +369,11 @@ public class YiCheHandler extends PlatformHandler {
 
 
 
-    private HttpPost createCommentNewsPost(RequestContext requestContext,CloseableHttpClient client) {
+    private HttpPost createCommentNewsPost(RequestContext requestContext, LoginResultDTO loginResultDTO) {
         try {
             String url = requestContext.getPrefixUrl();
             HttpGet httpGet = new HttpGet(url);
-            CloseableHttpResponse response = client.execute(httpGet);
+            CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
             HttpEntity entity = response.getEntity();
             String content;
             if (entity!=null) {
@@ -395,28 +396,34 @@ public class YiCheHandler extends PlatformHandler {
                 createtime = createtime.replaceAll("'","");
 
 
-                String userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
-                if (userid==null) {
+              /*  String userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
+                if (userid!=null) {
+                    userid = FetchParamUtil.getMatherStr(userid,"\\d+");
+                }
+                if (userid==null||userid.equals("0")) {
                     //其他页面拿不到userid，通过特定的url获取
                     HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
-                    CloseableHttpResponse response1 = client.execute(httpGet1);
+                    CloseableHttpResponse response1 = loginResultDTO.getHttpClient().execute(httpGet1);
                     HttpEntity entity1 = response1.getEntity();
                     String content1 = EntityUtils.toString(entity1, "utf-8");
                     content = content1;
+                    userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
                 }
-                userid = FetchParamUtil.getMatherStr(content,"userid: \\d+,");
                 userid = FetchParamUtil.getMatherStr(userid,"\\d+");
 
                 String source = FetchParamUtil.getMatherStr(content,"source: \\d+,");
                 source = FetchParamUtil.getMatherStr(source,"\\d+");
 
-              /*  String type = FetchParamUtil.getMatherStr(content,"type: \\d+,");
-                type = FetchParamUtil.getMatherStr(type,"\\d+");*/
+              *//*  String type = FetchParamUtil.getMatherStr(content,"type: \\d+,");
+                type = FetchParamUtil.getMatherStr(type,"\\d+");*//*
 
-                String username = FetchParamUtil.getMatherStr(content,"username: \\'.*\\',");
+             *//*   String username = FetchParamUtil.getMatherStr(content,"nickname:'.*\\',");
                 username = FetchParamUtil.getMatherStr(username,"\\'.*\\'");
-                username = username.replaceAll("'","");
+                username = username.replaceAll("'","");*/
 
+
+                String username= loginResultDTO.getOutUserName();
+                String userid = loginResultDTO.getOutUserId();
                 HttpPost httpPost = new HttpPost(TARGET_CHEJIA_COMMENT);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("productId", productId));
@@ -429,7 +436,7 @@ public class YiCheHandler extends PlatformHandler {
                 nameValuePairs.add(new BasicNameValuePair("userName", username));
                 nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
                 nameValuePairs.add(new BasicNameValuePair("client", "1"));
-                nameValuePairs.add(new BasicNameValuePair("source", source));
+                nameValuePairs.add(new BasicNameValuePair("source", "0"));//source));
 
                 try {
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
@@ -705,7 +712,6 @@ public class YiCheHandler extends PlatformHandler {
         httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
 
     }
-
     private void setCommentNewsHeader(HttpPost httpPost) {
         /**
          * Host: newsapi.bitauto.com
@@ -714,7 +720,6 @@ public class YiCheHandler extends PlatformHandler {
          */
         httpPost.setHeader("Host","newsapi.bitauto.com");
         httpPost.setHeader("Origin","http://news.bitauto.com");
-        httpPost.setHeader("Referer","http://news.bitauto.com");
         httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
     }
 
