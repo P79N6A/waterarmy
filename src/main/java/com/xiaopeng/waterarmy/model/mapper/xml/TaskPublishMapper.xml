@@ -22,7 +22,7 @@
         <if test="taskPublish.taskType != null and taskPublish.taskType != '' " >
             , task_type = #{taskPublish.taskType}
         </if>
-        <if test="taskPublish.status != null and taskPublish.status != '' " >
+        <if test="taskPublish.status != null " >
             , status = #{taskPublish.status}
         </if>
         WHERE id = #{taskPublish.id}
