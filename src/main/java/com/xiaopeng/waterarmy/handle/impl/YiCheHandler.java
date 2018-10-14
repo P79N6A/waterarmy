@@ -470,11 +470,11 @@ public class YiCheHandler extends PlatformHandler {
     }
 
 
-    private HttpPost createCommentKoubeiPost(RequestContext requestContext,CloseableHttpClient client) {
+    private HttpPost createCommentKoubeiPost(RequestContext requestContext,LoginResultDTO loginResultDTO) {
         try {
             String url = requestContext.getPrefixUrl();
             HttpGet httpGet = new HttpGet(url);
-            CloseableHttpResponse response = client.execute(httpGet);
+            CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
             HttpEntity entity = response.getEntity();
             String content;
             if (entity!=null) {
@@ -509,11 +509,12 @@ public class YiCheHandler extends PlatformHandler {
                 createtime = createtime.replaceAll("\"","");
 
 
+                String username= loginResultDTO.getOutUserName();
+                String userid = loginResultDTO.getOutUserId();
 
-
-                //其他页面拿不到userid，通过特定的url获取
+              /*  //其他页面拿不到userid，通过特定的url获取
                 HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
-                CloseableHttpResponse response1 = client.execute(httpGet1);
+                CloseableHttpResponse response1 = loginResultDTO.getHttpClient().execute(httpGet1);
                 HttpEntity entity1 = response1.getEntity();
                 String content1 = EntityUtils.toString(entity1, "utf-8");
                 content = content1;
@@ -527,7 +528,7 @@ public class YiCheHandler extends PlatformHandler {
 
                 String username = FetchParamUtil.getMatherStr(content,"username: \\'.*\\',");
                 username = FetchParamUtil.getMatherStr(username,"\\'.*\\'");
-                username = username.replaceAll("'","");
+                username = username.replaceAll("'","");*/
 
 
                 /**
@@ -560,7 +561,7 @@ public class YiCheHandler extends PlatformHandler {
                 nameValuePairs.add(new BasicNameValuePair("userName", username));
                 nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
                 nameValuePairs.add(new BasicNameValuePair("client", "1"));
-                nameValuePairs.add(new BasicNameValuePair("source", source));
+                nameValuePairs.add(new BasicNameValuePair("source", "0"));
 
                 try {
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
