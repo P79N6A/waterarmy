@@ -91,38 +91,41 @@
             <div class="ui-title">
                 基础信息
             </div>
-            <el-form-item label="任务名称" prop="name">
+            <el-form-item label="任务名称: " prop="name">
                 {{formEditItem.name}}
             </el-form-item>
-            <el-form-item label="平台" prop="platformDesc">
+            <el-form-item label="平台: " prop="platformDesc">
                 {{formEditItem.platformDesc}}
             </el-form-item>
-            <el-form-item label="板块" prop="moduleDesc">
+            <el-form-item label="板块: " prop="moduleDesc">
                 {{formEditItem.moduleDesc}}
             </el-form-item>
-            <el-form-item label="任务类型" prop="taskTypeDesc">
+            <el-form-item label="任务类型: " prop="taskTypeDesc">
                 {{formEditItem.taskTypeDesc}}
             </el-form-item>
             <div class="ui-title">
                 链接信息
             </div>
-            <el-form-item label="链接" prop="taskTypeDesc">
-                {{formEditItem.taskTypeDesc}}
+            <el-form-item label="链接名称: " prop="linkTitle">
+                {{formEditItem.linkTitle}}
+            </el-form-item>
+            <el-form-item label="链接: " prop="link">
+                {{formEditItem.link}}
             </el-form-item>
             <div class="ui-title">
                 内容库
             </div>
-            <el-form-item label="内容库类型" prop="taskTypeDesc">
-                {{formEditItem.taskTypeDesc}}
+            <el-form-item label="内容库类型: " prop="contentRepositoriesType">
+                {{formEditItem.contentRepositoriesType}}
             </el-form-item>
-            <el-form-item label="内容库名称" prop="taskTypeDesc">
-                {{formEditItem.taskTypeDesc}}
+            <el-form-item label="内容库名称: " prop="contentRepositoriesName">
+                {{formEditItem.contentRepositoriesName}}
             </el-form-item>
             <div class="ui-title">
                 规则
             </div>
-            <el-form-item label="规则名称" prop="taskTypeDesc">
-                {{formEditItem.taskTypeDesc}}
+            <el-form-item label="规则名称: " prop="ruleName">
+                {{formEditItem.ruleName}}
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
