@@ -8,18 +8,113 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.util.List;
 import java.util.concurrent.*;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by xuyh at 2017/11/6 14:03.
  */
 public class HtmlUtilTest {
+
+    @Test
+    public void test1() {
+        System.out.println(getV4IP());//getLocalAddress()  getWebIp()
+    }
+
+    public static String getWebIp() {
+        try {
+
+            URL url = new URL("http://iframe.ip138.com/ic.asp");
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            String s = "";
+
+            StringBuffer sb = new StringBuffer("");
+
+            String webContent = "";
+
+            while ((s = br.readLine()) != null) {
+                sb.append(s + "\r\n");
+
+            }
+
+            br.close();
+            webContent = sb.toString();
+            int start = webContent.indexOf("[")+1;
+            int end = webContent.indexOf("]");
+            webContent = webContent.substring(start,end);
+
+            return webContent;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+
+        }
+    }
+
+
+    public static String getV4IP() {
+        String ip = "";
+        String chinaz = "http://ip.chinaz.com/";
+
+        String inputLine = "";
+        String read = "";
+        try {
+            URL url = new URL(chinaz);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            while ((read = in.readLine()) != null) {
+                inputLine += read;
+            }
+            System.out.println(inputLine);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Pattern p = Pattern.compile("\\<strong class\\=\"red\">(.*?)\\<\\/strong>");
+        Matcher m = p.matcher(inputLine);
+        if(m.find()){
+            String ipstr = m.group(1);
+            System.out.println(ipstr);
+        }
+        return ip;
+    }
+
+    public static String getLocalAddress() {
+        String ip = "";
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return ip;
+    }
+
+
+    public String getRemortIP(HttpServletRequest request) {
+        if (request.getHeader("x-forwarded-for") == null) {
+            return request.getRemoteAddr();
+        }
+        return request.getHeader("x-forwarded-for");
+    }
+
     @Test
     public void test() {
         String url = "http://vc.yiche.com/vplay/424665.html";
