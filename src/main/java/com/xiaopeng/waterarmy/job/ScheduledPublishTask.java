@@ -59,7 +59,7 @@ public class ScheduledPublishTask {
 
     @Scheduled(fixedRate = 60000)//5000
     public void reportCurrentTime() {
-        logger.info("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
+        //logger.info("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.POSIED.getName());
         for (Map<String, Object> task : tasks) {
             //获取需要发帖的平台对应的用户列表

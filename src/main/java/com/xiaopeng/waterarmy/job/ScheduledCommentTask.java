@@ -56,7 +56,7 @@ public class ScheduledCommentTask {
 
     @Scheduled(fixedRate = 6000)//5000
     public void reportCurrentTime() {
-        logger.info("定时评论啦，现在时间：" + dateFormat.format(new Date()));
+        //logger.info("定时评论啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.COMMENT.getName());
         for (Map<String, Object> task : tasks) {
             //获取需要评论的平台对应的用户列表
