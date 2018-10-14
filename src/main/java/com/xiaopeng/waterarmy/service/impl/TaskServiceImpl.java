@@ -237,21 +237,19 @@ public class TaskServiceImpl implements TaskService {
                 if (!ObjectUtils.isEmpty(status)) {
                     result.put("statusDesc", PlatformStatusEnum.getDesc(status));
                 }
-                Integer executableCount = 0;
-                if (!ObjectUtils.isEmpty(taskType) && !ObjectUtils.isEmpty(platform)) {
-                    executableCount = getExecutableCountByTaskType(taskType, platform);
-                }
-                result.put("executableCount", executableCount);
             } else {
                 if (!ObjectUtils.isEmpty(status)) {
                     result.put("statusDesc", TaskStatusEnum.getDesc(status));
                 }
-                Integer executeCount =  MapUtils.getInteger(result,"execute_count");
-                Integer finishCount =  MapUtils.getInteger(result,"finish_count");
-                if (!ObjectUtils.isEmpty(executeCount) && !ObjectUtils.isEmpty(finishCount)
-                        && executeCount > 0 && (executeCount - finishCount == 0)) {
-
-                }
+            }
+            Integer executableCount = 0;
+            if (!ObjectUtils.isEmpty(taskType) && !ObjectUtils.isEmpty(platform)) {
+                executableCount = getExecutableCountByTaskType(taskType, platform);
+            }
+            if (executableCount == -1) {
+                result.put("executableCount", "无限次");
+            } else {
+                result.put("executableCount", executableCount);
             }
         }
     }

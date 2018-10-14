@@ -64,7 +64,7 @@
             <el-table-column prop="platformDesc" label="平台" show-overflow-tooltip  min-width="100px" sortable></el-table-column>
             <el-table-column prop="moduleDesc" label="版块" show-overflow-tooltip min-width="150px" sortable></el-table-column>
             <el-table-column prop="taskTypeDesc" label="任务类型" show-overflow-tooltip min-width="300px" sortable></el-table-column>
-            <el-table-column prop="executableCount" label="可执行次数" show-overflow-tooltip min-width="300px" sortable></el-table-column>
+            <el-table-column prop="executableCount" label="可执行次数"   show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="statusDesc" label="状态" show-overflow-tooltip min-width="300px" sortable></el-table-column>
             <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip min-width="300px" sortable :formatter="formatDateTime"></el-table-column>
             <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip min-width="300px" sortable :formatter="formatDateTime"></el-table-column>
@@ -73,7 +73,7 @@
                 <template scope="item">
                     <el-button size="mini" type="danger" @click="showEdit(item)">编辑</el-button>
                     <el-button size="mini" type="primary" @click="link('/task/publish/detail?taskPublishId='
-                            + item.row.id + '&taskType=' + item.row.taskType,'发布任务')">发布任务</el-button>
+                            + item.row.id + '&taskType=' + item.row.taskType,'发布任务')" v-if="item.row.status == 0">发布任务</el-button>
                 </template>
             </el-table-column>
         </el-table>
