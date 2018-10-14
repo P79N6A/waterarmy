@@ -25,7 +25,7 @@ public class HtmlReadUtil {
             webClient.close();
         }
 
-        webClient.waitForBackgroundJavaScript(30000);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
+        webClient.waitForBackgroundJavaScript(10000);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
 
         String pageXml = page.asXml();//直接将加载完成的页面转换成xml格式的字符串
 

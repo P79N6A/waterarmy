@@ -263,7 +263,7 @@ public class YiCheHandler extends PlatformHandler {
         //论坛评论
         Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
-            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            logger.error("[YiCheHandler.commentForum] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
         try {
@@ -284,7 +284,7 @@ public class YiCheHandler extends PlatformHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
+            logger.error("[YiCheHandler.commentForum] error!", e);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
@@ -298,7 +298,7 @@ public class YiCheHandler extends PlatformHandler {
     private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
-            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            logger.error("[YiCheHandler.commentNews] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
         try {
@@ -320,7 +320,7 @@ public class YiCheHandler extends PlatformHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
+            logger.error("[YiCheHandler.commentNews] error!", e);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
 
@@ -358,7 +358,7 @@ public class YiCheHandler extends PlatformHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
+            logger.error("[YiCheHandler.commentKoubei] error!", e);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
 
@@ -808,7 +808,8 @@ public class YiCheHandler extends PlatformHandler {
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+            logger.error("[YiCheHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs"
+                    + nameValuePairs, e);
             return null;
         }
         return httpPost;
