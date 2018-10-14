@@ -40,7 +40,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createTestTaiPingYangContext();
+        requestContext = this.createTestDiyiDiandongContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -117,5 +117,59 @@ public class HandlerDispatcher {
         return requestContext;
     }
 
+    private RequestContext createTestTouTiaoContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("明年再买吧，有点贵");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(12L);
+        requestContext.setUserLoginId("18927512986");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.QCTT);
+        requestContext.setPrefixUrl("https://www.qctt.cn/news/367746");
+       /* HashMap map = new HashMap();
+        map.put(RequestConsts.COMMENT_ID,"32202092");
+        map.put(RequestConsts.COMMENT_CONTENT,"666");
+        requestContext.setRequestParam(map);*/
+        return requestContext;
+    }
+
+    /**
+     * 汽车头条视频评论
+     * @return
+     */
+    private RequestContext createTestTouTiaoVideoContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("明年再买吧，有点贵");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(12L);
+        requestContext.setUserLoginId("18927512986");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.QCTT);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.QICHEVIDEOCOMMENT);
+        requestContext.setPrefixUrl("https://www.qctt.cn/video/105230");
+        return requestContext;
+    }
+
+    /**
+     * 第一电动文章评论
+     */
+    private RequestContext createTestDiyiDiandongContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("明年再买吧，有点贵");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(9L);
+        requestContext.setUserLoginId("18927512986");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.D1EV);
+        //requestContext.setHandleEntryType(TaskEntryTypeEnum.QICHEVIDEOCOMMENT);
+        requestContext.setPrefixUrl("https://www.d1ev.com/news/qiye/77783");
+        return requestContext;
+    }
 
 }

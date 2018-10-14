@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.handle.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
@@ -13,6 +14,7 @@ import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import org.apache.bcel.generic.IF_ACMPEQ;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -36,6 +38,8 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
 
     private static final String COMMENT_TARGET_URL = "https://www.qctt.cn/commentn";
 
+    private static final String COMMENT_TARGET_VIDEO_URL = "https://www.qctt.cn/commentv";
+
     @Autowired
     private QiCheTouTiaoLoginHandler qiCheTouTiaoLoginHandler;
 
@@ -55,6 +59,7 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createCommentPost(requestContext, loginResultDTO);
+            setCommentHeader(httpPost);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -75,6 +80,9 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
+
+
+
 
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
@@ -112,11 +120,22 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
          * new_id:367435
          * _token:oGQAewctAFVzqvAFILnCOF6QxZJv0K02qlpP5aR7
          */
-        HttpPost httpPost = new HttpPost(COMMENT_TARGET_URL);
+        HttpPost httpPost = null;
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("comment", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("new_id", getNewId(requestContext.getPrefixUrl())));
-        nameValuePairs.add(new BasicNameValuePair("_token", loginResultDTO.getToken()));
+
+        if (TaskEntryTypeEnum.QICHEVIDEOCOMMENT.equals(requestContext.getHandleEntryType())) {
+            httpPost = new HttpPost(COMMENT_TARGET_VIDEO_URL);
+            nameValuePairs.add(new BasicNameValuePair("comment", requestContext.getContent().getText()));
+            nameValuePairs.add(new BasicNameValuePair("video_id", getNewId(requestContext.getPrefixUrl())));
+            nameValuePairs.add(new BasicNameValuePair("_token", loginResultDTO.getToken()));
+        }else {
+            httpPost = new HttpPost(COMMENT_TARGET_URL);
+            nameValuePairs.add(new BasicNameValuePair("comment", requestContext.getContent().getText()));
+            nameValuePairs.add(new BasicNameValuePair("new_id", getNewId(requestContext.getPrefixUrl())));
+            nameValuePairs.add(new BasicNameValuePair("_token", loginResultDTO.getToken()));
+        }
+
+
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
         } catch (Exception e) {
@@ -129,5 +148,17 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
     private String getNewId(String url) {
         String pattern = "(\\d+)";
         return FetchParamUtil.getMatherStr(url, pattern);
+    }
+
+    private void setCommentHeader(HttpPost httpPost){
+        /**
+         * origin: https://www.qctt.cn
+         * referer: https://www.qctt.cn/news/367746
+         * user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         * x-requested-with: XMLHttpRequest
+         */
+        httpPost.setHeader("origin","https://www.qctt.cn");
+        httpPost.setHeader("x-requested-with","XMLHttpRequest");
+        httpPost.setHeader("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
     }
 }
