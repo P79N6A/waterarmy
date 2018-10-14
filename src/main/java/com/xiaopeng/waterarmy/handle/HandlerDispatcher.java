@@ -40,7 +40,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createTestPublisContext();
+        requestContext = this.createTestTaiPingYangContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -90,6 +90,28 @@ public class HandlerDispatcher {
         requestContext.setPrefixUrl("http://car.bitauto.com/dibadaiyage/koubei/968281/");
         HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"257971069489512448");
+        map.put(RequestConsts.COMMENT_CONTENT,"666");
+        requestContext.setRequestParam(map);https://cmt.pcauto.com.cn/action/comment/create.jsp?urlHandle=1
+        return requestContext;
+    }
+
+
+
+    private RequestContext createTestTaiPingYangContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("明年再买吧，有点贵");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(7L);
+        requestContext.setUserLoginId("18482193356");
+        requestContext.setHandleType(TaskTypeEnum.COMMENT);
+        requestContext.setPlatform(PlatformEnum.PCAUTO);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+        //requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1323/13233103.html");
+        requestContext.setPrefixUrl("https://price.pcauto.com.cn/comment/sg12072/m37198/view_878074.html");
+        HashMap map = new HashMap();
+        map.put(RequestConsts.COMMENT_ID,"32202092");
         map.put(RequestConsts.COMMENT_CONTENT,"666");
         requestContext.setRequestParam(map);
         return requestContext;

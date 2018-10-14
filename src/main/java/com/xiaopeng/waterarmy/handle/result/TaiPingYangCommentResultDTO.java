@@ -24,6 +24,20 @@ public class TaiPingYangCommentResultDTO {
 
     private String userName;
 
+    private Long commentId;
+
+    private Integer resultCode;
+
+    private Integer code;
+
+    private String showName;
+
+    private String brief;
+
+    private Long topicId;
+
+    private Integer floor;
+
     public String getMessage() {
         return message;
     }
@@ -86,5 +100,61 @@ public class TaiPingYangCommentResultDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
+
+    public Integer getResultCode() {
+        return resultCode;
+    }
+
+    public void setResultCode(Integer resultCode) {
+        this.resultCode = resultCode;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getShowName() {
+        return showName;
+    }
+
+    public void setShowName(String showName) {
+        this.showName = showName;
+    }
+
+    public String getBrief() {
+        return brief;
+    }
+
+    public void setBrief(String brief) {
+        this.brief = brief;
+    }
+
+    public Long getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(Long topicId) {
+        this.topicId = topicId;
+    }
+
+    public Integer getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Integer floor) {
+        this.floor = floor;
     }
 }

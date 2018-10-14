@@ -18,11 +18,14 @@ import java.util.Map;
 public enum TaskEntryTypeEnum {
 
     /**
-     * 发帖
+     * 子任务
      */
     YICHENEWSCOMMENT ("YICHENEWSCOMMENT", "易车车家号评论"),
     YICHECOMMENTPRAISE ("YICHECOMMENTPRAISE", "易车车家号点赞"),
-    YICHEKOUBEICOMMENT ("YICHEKOUBEICOMMENT", "易车口碑评论");
+    YICHEKOUBEICOMMENT ("YICHEKOUBEICOMMENT", "易车口碑评论"),
+    TAIPINGYANGNEWSCOMMENT ("TAIPINGYANGNEWSCOMMENT", "太平洋新闻评论"),
+    TAIPINGYANGCHEZHUCOMMENT ("TAIPINGYANGCHEZHUCOMMENT", "太平洋车主点评评论"),
+    TAIPINGYANGNEWSCOMMENTPRAISE ("TAIPINGYANGNEWSCOMMENTPRAISE", "太平洋新闻评论点赞");
 
     private String name;
     private String desc;

@@ -31,6 +31,18 @@ public class Result<T> {
         this.success = false;
     }
 
+    public Result(ResultCodeEnum resultCodeEnum,T data) {
+        this.errorMessage = resultCodeEnum.getDesc();
+        this.errorCode = resultCodeEnum.getIndex();
+        if (ResultCodeEnum.SUCCESS.equals(resultCodeEnum)) {
+            this.success = true;
+        }else {
+            this.success = false;
+        }
+
+        this.data = data;
+    }
+
     public Result(T data) {
         this.data = data;
         this.success = true;

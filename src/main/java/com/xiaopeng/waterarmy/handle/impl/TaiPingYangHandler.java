@@ -4,12 +4,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.regexp.internal.RE;
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
@@ -17,6 +20,7 @@ import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.handle.result.TaiPingYangCommentResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
+import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -60,6 +64,13 @@ public class TaiPingYangHandler extends PlatformHandler {
 
     private static final String TOPIC_PREFIX = "https://bbs.pcauto.com.cn/topic-";
 
+    private static final String TARGET_COMMENT_NEWS = "https://cmt.pcauto.com.cn/action/comment/create.jsp";
+
+    private static final String TARGET_COMMENT_NEWS_PRAISE = "https://cmt.pcauto.com.cn/action/comment/support.jsp";
+
+    private static final String TARGET_COMMENT_CHEZHU_MESSAGE = "https://price.pcauto.com.cn/comment/interface/send_message_to_bip.jsp";
+
+    private static final String TARGET_COMMENT_CHE_ZHU = "https://cmt.pcauto.com.cn/action/comment/create.jsp?urlHandle=1";
 
     @Autowired
     TaiPingYangLoginHandler taiPingYangLoginHandler;
@@ -85,7 +96,7 @@ public class TaiPingYangHandler extends PlatformHandler {
                 JSONObject jsonObject = JSONObject.parseObject(content);
                 Integer status = (Integer) jsonObject.get("status");
                 Integer tid = (Integer) jsonObject.get("tid");
-                if (status.intValue()==0 && tid >0) {
+                if (status.intValue() == 0 && tid > 0) {
                     String url = generatePublishUrlByTopicId(tid);
                     PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, url);
                     save(new SaveContext(publishInfo));
@@ -107,6 +118,17 @@ public class TaiPingYangHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
+
+        if (TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENT.equals(requestContext.getHandleEntryType())) {
+            return commentNews(requestContext);
+        }
+        if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
+            return commentChezhu(requestContext);
+        }
+        return commentForum(requestContext);
+    }
+
+    private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
@@ -121,6 +143,7 @@ public class TaiPingYangHandler extends PlatformHandler {
             String content = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
+                content = content.trim();
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //评论成功
@@ -139,26 +162,28 @@ public class TaiPingYangHandler extends PlatformHandler {
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
-
     }
 
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
         HtmlReadUtil.read(requestContext.getTargetUrl());
-        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:"+requestContext.getTargetUrl());
+        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:" + requestContext.getTargetUrl());
         return new Result(handlerResultDTO);
     }
 
     @Override
     public Result<HandlerResultDTO> play(RequestContext requestContext) {
         HtmlPlayUtil.play(requestContext.getTargetUrl());
-        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:"+requestContext.getTargetUrl());
+        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:" + requestContext.getTargetUrl());
         return new Result(handlerResultDTO);
     }
 
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
-        return null;
+        if (TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENTPRAISE.equals(requestContext.getHandleEntryType())) {
+            return commentNewsPraise(requestContext);
+        }
+        return new Result<>(ResultCodeEnum.HANDLER_NOT_FOUND);
     }
 
     private HttpPost createCommentPost(RequestContext requestContext) {
@@ -229,9 +254,6 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
 
-
-
-
     private HttpPost createPublishHttpPost(RequestContext requestContext) {
         /**
          * target https://bbs.pcauto.com.cn/forum-20095.html 需要发帖的论坛
@@ -263,8 +285,8 @@ public class TaiPingYangHandler extends PlatformHandler {
         if (fid == null) { //https://bbs.pcauto.com.cn/topic-16868614.html
             //太平洋的可以直接从url中截取
             String pattern = "-(\\d+).html";
-            String temp = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),pattern);
-            fid = FetchParamUtil.getMatherStr(temp,"(\\d+)");
+            String temp = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), pattern);
+            fid = FetchParamUtil.getMatherStr(temp, "(\\d+)");
         }
 
         String targetUrl = requestContext.getTargetUrl();
@@ -366,6 +388,324 @@ public class TaiPingYangHandler extends PlatformHandler {
             return null;
         }
     }
+
+
+
+    private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
+
+
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createCommentNewsHttpPost(requestContext);
+            setCommentNewsHeader(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                content = content.trim();
+                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
+                if (resultDTO.getStatus().equals("0")) {
+                    //新闻评论成功
+                    if ((resultDTO.getResultCode())==0) {
+                        //评论成功
+                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                        CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                        save(new SaveContext(commentInfo));
+                        return new Result(handlerResultDTO);
+                    } else {
+                        //评论失败
+                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                    }
+                }
+            }
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+    }
+
+    private Result<HandlerResultDTO> commentChezhu(RequestContext requestContext) {
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createCommentNewsHttpPost(requestContext);
+            setCommentNewsHeader(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                content = content.trim();
+                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
+                if (resultDTO.getStatus().equals("0")) {
+                    //新闻评论成功
+                    if ((resultDTO.getResultCode())==0) {
+                        //评论成功
+                        //发起通知请求
+                        /*HttpGet httpGet = createCheZhuCommentNoticeHttpGet(requestContext,httpClient,resultDTO);
+                        CloseableHttpResponse response1 = httpClient.execute(httpGet);
+                        String content1 = EntityUtils.toString(response1.getEntity(), "utf-8");*/
+
+                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                        CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                        save(new SaveContext(commentInfo));
+                        return new Result(handlerResultDTO);
+                    } else {
+                        //评论失败
+                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                    }
+                }
+            }
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+    }
+
+
+    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext,CloseableHttpClient httpClient,TaiPingYangCommentResultDTO resultDTO) {
+        /**
+         * req-enc: utf-8
+         * commentId: 881901
+         * content: 今年的梦想
+         * accountId: 47446648
+         * sgId: 10349
+         * modelId: 38952
+         * account: eiaxal8142
+         * replyId: 32202248
+         * floor: 1
+         */
+
+        try {
+            HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            String mobileId = null;
+            String sgId = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                mobileId = FetchParamUtil.getMatherStr(content,"var modelId = \"\\d+");
+                mobileId = FetchParamUtil.getMatherStr(mobileId,"\\d+");
+
+                sgId = FetchParamUtil.getMatherStr(content,"var SGID='\\d+");
+                sgId = FetchParamUtil.getMatherStr(sgId,"\\d+");
+            }
+
+            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"view_\\d+.html");
+            commentId = FetchParamUtil.getMatherStr(commentId,"\\d+");
+
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("req-enc", "utf-8"));
+            nameValuePairs.add(new BasicNameValuePair("commentId", commentId));
+            nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+            nameValuePairs.add(new BasicNameValuePair("accountId", String.valueOf(resultDTO.getUserId())));
+            nameValuePairs.add(new BasicNameValuePair("sgId",sgId ));
+            nameValuePairs.add(new BasicNameValuePair("modelId",mobileId));
+            nameValuePairs.add(new BasicNameValuePair("account",resultDTO.getShowName()));
+            nameValuePairs.add(new BasicNameValuePair("replyId",String.valueOf(resultDTO.getCommentId())));
+            nameValuePairs.add(new BasicNameValuePair("floor",String.valueOf(resultDTO.getFloor())));
+
+            String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            String url = TARGET_COMMENT_CHEZHU_MESSAGE + "?" + str;
+            HttpGet httpGet1 = new HttpGet(url);
+            return httpGet1;
+        }catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]",e);
+            return null;
+        }
+    }
+
+    private Result<HandlerResultDTO> commentNewsPraise(RequestContext requestContext) {
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createCommentNewsPraiseHttpPost(requestContext);
+            setCommentNewsPraiseHeader(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                content = content.trim();
+                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
+                if (resultDTO.getCode()==1) {
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    PraiseInfo praiseInfo = ResultParamUtil.createPraiseInfo(requestContext, content);
+                    save(new SaveContext(praiseInfo));
+                    return new Result(handlerResultDTO);
+                }
+                return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+            }
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.comment] error!", e);
+            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+    }
+
+    private HttpPost createCommentNewsPraiseHttpPost(RequestContext requestContext) {
+
+        /**
+         * version: 2
+         * cid: 32202121
+         * sp: 1
+         * r: 0.24152560137723267
+         */
+        try {
+            String cid = (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID);
+            if (cid==null) {
+                return null;
+            }
+            HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS_PRAISE);
+
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("version", "2"));
+            nameValuePairs.add(new BasicNameValuePair("cid", cid));
+            nameValuePairs.add(new BasicNameValuePair("sp", "1"));
+            nameValuePairs.add(new BasicNameValuePair("r", "0.24152560137723277"));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            return httpPost;
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCommentPost]createCommentNewsPraiseHttpPost  UrlEncodedFormEntity error! ");
+            return null;
+        }
+    }
+
+
+    private void setCommentNewsPraiseHeader(HttpPost httpPost) {
+        /**
+         * Host: cmt.pcauto.com.cn
+         * Origin: https://www.pcauto.com.cn
+         * Referer: https://www.pcauto.com.cn/nation/1323/13233103.html
+         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         */
+        httpPost.setHeader("Host", "cmt.pcauto.com.cn");
+        httpPost.setHeader("Origin", "https://www.pcauto.com.cn");
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+
+
+    }
+
+    private HttpPost createCommentNewsHttpPost(RequestContext requestContext) {
+        /**
+         * isEncode: 1
+         * content: %E7%A1%AE%E5%AE%9E%E5%BE%88%E9%9C%B8%E6%B0%94
+         * captcha:
+         * needCaptcha: 0
+         * url: https://www.pcauto.com.cn/nation/1314/13145443.html
+         * title: %E6%96%B0%E6%AC%BE%E6%96%AF%E6%9F%AF%E8%BE%BE%E6%9F%AF%E7%8F%9E%E5%85%8BScout/Sportline%E5%AE%98%E5%9B%BE_%E5%A4%AA%E5%B9%B3%E6%B4%8B%E6%B1%BD%E8%BD%A6%E7%BD%91
+         * columnId:
+         * area:
+         * replyFloor2: 0
+         * partId:
+         * syncsites:
+         */
+        HttpPost httpPost = null;
+        String url = requestContext.getPrefixUrl();
+        if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
+            url = url.replaceAll("https:","");
+            url = url.replaceAll("http:","");
+            httpPost = new HttpPost(TARGET_COMMENT_CHE_ZHU);
+        }else {
+            httpPost = new HttpPost(TARGET_COMMENT_NEWS);
+        }
+        String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair("isEncode", "1"));
+        nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+        nameValuePairs.add(new BasicNameValuePair("needCaptcha", "0"));
+
+
+        nameValuePairs.add(new BasicNameValuePair("url", url));
+        nameValuePairs.add(new BasicNameValuePair("title", title));
+        nameValuePairs.add(new BasicNameValuePair("replyFloor2", "0"));
+
+        try {
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
+            return httpPost;
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+            return null;
+        }
+    }
+
+    private HttpPost createCommentCheZhuHttpPost(RequestContext requestContext) {
+        /**
+         * isEncode: 1
+         * content: %E5%AE%87%E5%AE%99%E7%A5%9E%E8%BD%A6%E7%9A%84%E6%84%9F%E8%A7%89
+         * captcha:
+         * needCaptcha: 0
+         * url: //price.pcauto.com.cn/comment/sg21775/m79917/view_884063.html
+         * title: %E9%A3%8E%E5%85%89S560%E6%80%8E%E4%B9%88%E6%A0%B7
+         * columnId:
+         * area:
+         * replyFloor2: 0
+         * partId:
+         * syncsites:
+         */
+        HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS);
+
+        String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair("isEncode", "1"));
+        nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+        nameValuePairs.add(new BasicNameValuePair("needCaptcha", "0"));
+        nameValuePairs.add(new BasicNameValuePair("url", requestContext.getPrefixUrl()));
+        nameValuePairs.add(new BasicNameValuePair("title", title));
+        nameValuePairs.add(new BasicNameValuePair("replyFloor2", "0"));
+
+        try {
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
+            return httpPost;
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+            return null;
+        }
+    }
+
+
+
+
+    private void setCommentNewsHeader(HttpPost httpPost) {
+        /**
+         * Host: cmt.pcauto.com.cn
+         * Origin: https://www.pcauto.com.cn
+         * Referer: https://www.pcauto.com.cn/nation/1314/13145443.html
+         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         */
+        httpPost.setHeader("Host", "cmt.pcauto.com.cn");
+        httpPost.setHeader("Origin", "https://www.pcauto.com.cn");
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+
+    }
+
+
 }
 
 
