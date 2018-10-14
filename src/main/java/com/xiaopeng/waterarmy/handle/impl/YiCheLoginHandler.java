@@ -3,12 +3,15 @@ package com.xiaopeng.waterarmy.handle.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
+import com.xiaopeng.waterarmy.common.enums.FeiFeiTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.HttpResultCode;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.LoginHandler;
 import com.xiaopeng.waterarmy.handle.LoginResultPool;
 import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
 import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
+import com.xiaopeng.waterarmy.handle.Util.Util;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
@@ -112,8 +115,9 @@ public class YiCheLoginHandler implements LoginHandler {
             CloseableHttpClient httpClient = httpFactory.getHttpClientWithCookies(cookieStore);
             String guid = generateGuid();
             String fetchCodeUrl = generateCodeUrl(guid);
-            String code = TranslateCodeUtil.getInstance().convert(fetchCodeUrl);
-
+            //String code = TranslateCodeUtil.getInstance().convert(fetchCodeUrl);
+            Util.HttpResp resp = TranslateCodeUtil.getInstance().convertByFeiFei(fetchCodeUrl, FeiFeiTypeEnum.FOUR_NUMBERS.getName());
+            String code = resp.pred_resl;
             HttpPost httpPost = new HttpPost(loginUrl);
             setHeader(httpPost);
 
@@ -139,9 +143,12 @@ public class YiCheLoginHandler implements LoginHandler {
                 JSONObject jsonObject = JSONObject.parseObject(content);
                 JSONObject itemsObject = (JSONObject) jsonObject.get("items");
                 if (itemsObject != null && !content.contains("false")) {
-                    //论坛
-                    JSONObject jsonObject1 = JSONObject.parseObject(content);
+                    //不包含false 说明已经成功了
+
+                    //有时候不会返回，这样就没有种cookie，强制请求
+                    JSONObject jsonObject1 = JSONObject.parseObject(RequestConsts.YICHELOGINPARAM);
                     JSONArray jsonArray1 = jsonObject1.getJSONArray("hideImg");
+
                     if (jsonArray1 != null) {
                         for (int i = 0; i < jsonArray1.size(); i++) {
                             String url = (String) jsonArray1.get(i);
