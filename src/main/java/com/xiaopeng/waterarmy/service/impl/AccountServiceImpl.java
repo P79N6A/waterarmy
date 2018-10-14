@@ -10,10 +10,13 @@ import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import com.xiaopeng.waterarmy.model.dao.LinkInfo;
+import com.xiaopeng.waterarmy.model.mapper.AccountIPInfoMapper;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountMapper accountMapper;
+
+    @Autowired
+    private AccountIPInfoMapper accountIPInfoMapper;
 
     @Override
     public PageInfo<Map<String,Object>> page(Integer pageNo, Integer pageSize, Map<String,Object> params){
@@ -73,12 +79,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public JsonMessage getAccountByUserName(String userName) {
-        JsonMessage message = JsonMessage.init();
+    public Account getAccountByUserName(String userName) {
         Account account = accountMapper.getAccountByUserName(userName);
-        message.setData(account);
-        message.success(CodeEnum.SUCCESS);
-        return message;
+        return account;
     }
 
     @Override
@@ -170,6 +173,28 @@ public class AccountServiceImpl implements AccountService {
         }
         message.success(CodeEnum.SUCCESS).setMsg("累计有效任务次数成功!");
         return message;
+    }
+
+    public Map<String, Object> getAccountIPInfo(String ip, String platform, String userName) {
+        Map<String, Object>  accountIPInfo = null;
+        try {
+            accountIPInfo = accountIPInfoMapper.getAccountIPInfo(ip, platform, userName);
+        } catch (Exception e) {
+            logger.error("getAccountIPInfo error userName: {}, ip: {}, platform: {} , "
+                    , ip, platform, e);
+        }
+        return accountIPInfo;
+    }
+
+    public boolean saveAccountIPInfo(AccountIPInfo accountIPInfo) {
+        try {
+            accountIPInfoMapper.save(accountIPInfo);
+        } catch (Exception e) {
+            logger.error("save error accountIPInfo: {} , "
+                    , JSON.toJSONString(accountIPInfo), e);
+            return false;
+        }
+        return true;
     }
 
 }

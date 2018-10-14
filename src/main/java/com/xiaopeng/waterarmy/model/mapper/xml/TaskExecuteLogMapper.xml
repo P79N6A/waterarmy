@@ -41,7 +41,7 @@
         and params.createEndDate != '' and params.createEndDate != '' " >
             AND tel.create_time  &gt;= #{params.createStartDate} and tel.create_time &lt;= #{params.createEndDate}
         </if>
-
+        ORDER BY ID DESC
     </select>
 
 </mapper>

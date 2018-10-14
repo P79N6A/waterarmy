@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountIPInfoMapper">
+
+    <insert id="save">
+        <selectKey resultType="java.lang.Long" keyProperty="accountIPInfo.id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO account_ip_info (user_name, ip, platform)
+        VALUES (#{accountIPInfo.userName}, #{accountIPInfo.ip}, #{accountIPInfo.platform})
+    </insert>
+
+    <select id="getAccountIPInfo" resultType="java.util.HashMap">
+        SELECT id, user_name AS userName, ip, platform FROM account_ip_info WHERE
+        ip = #{ip} AND platform = #{platform}
+        <if test="userName != null and userName != '' " >
+            AND user_name = #{userName}
+        </if>
+
+    </select>
+
+</mapper>

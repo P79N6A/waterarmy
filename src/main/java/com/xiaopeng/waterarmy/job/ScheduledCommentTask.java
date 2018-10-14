@@ -6,12 +6,14 @@ import com.xiaopeng.waterarmy.common.enums.ContentRepositoriesEnum;
 import com.xiaopeng.waterarmy.common.enums.ExecuteStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
+import com.xiaopeng.waterarmy.common.util.IPUtil;
 import com.xiaopeng.waterarmy.common.util.NumUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import com.xiaopeng.waterarmy.model.dao.ContentInfo;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.ContentService;
@@ -55,7 +57,7 @@ public class ScheduledCommentTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
-    @Scheduled(fixedRate = 60000)//5000
+    @Scheduled(fixedRate = 6000)//5000
     public void reportCurrentTime() {
         logger.info("定时评论啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.COMMENT.getName());
@@ -67,9 +69,12 @@ public class ScheduledCommentTask {
             List<ContentInfo> contentInfos
                     = contentService.querysByRepositoriesType(ContentRepositoriesEnum.COMMENT.getName());
             if (!ObjectUtils.isEmpty(accounts) && !ObjectUtils.isEmpty(contentInfos)) {
+                String publicIP = IPUtil.getPublicIP();
                 //随机获取待执行评论任务用户id
-                Integer commentAccountNum = NumUtil.getRandomNum(accounts.size());
-                Account commentAccount = accounts.get(commentAccountNum);
+                //Integer commentAccountNum = NumUtil.getRandomNum(accounts.size());
+                //优先用执行任务最少的账号执行任务
+                //Account commentAccount = accounts.get(0);//commentAccountNum
+                Account commentAccount = getAccountByIP(accounts, platform, publicIP);
                 //随机获取内容库评论内容id
                 Integer commentContentNum = NumUtil.getRandomNum(contentInfos.size());
                 ContentInfo commentContent = contentInfos.get(commentContentNum);
@@ -77,7 +82,7 @@ public class ScheduledCommentTask {
                 RequestContext context = createCommentContext(task, commentAccount, commentContent);
                 //执行评论任务
                 if (!ObjectUtils.isEmpty(context)) {
-                    commentTask(context, task, commentAccount, commentContent);
+                    commentTask(context, task, commentAccount, commentContent, publicIP, platform);
                 } else {
                     logger.error("获取评论上下文为空! task：{}", JSON.toJSONString(task));
                 }
@@ -97,7 +102,7 @@ public class ScheduledCommentTask {
      * @param commentContent
      */
     private void commentTask(RequestContext context, Map<String, Object> task
-            , Account commentAccount, ContentInfo commentContent) {
+            , Account commentAccount, ContentInfo commentContent, String pulicIP, String platform) {
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
@@ -109,6 +114,14 @@ public class ScheduledCommentTask {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
             accountService.updateTaskCount(commentAccount.getUserName());
+            Map<String, Object> info = accountService.getAccountIPInfo(pulicIP, platform, commentAccount.getUserName());
+            if (ObjectUtils.isEmpty(info)) {
+                AccountIPInfo accountIPInfo = new AccountIPInfo();
+                accountIPInfo.setUserName(commentAccount.getUserName());
+                accountIPInfo.setPlatform(platform);
+                accountIPInfo.setIp(pulicIP);
+                accountService.saveAccountIPInfo(accountIPInfo);
+            }
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -150,6 +163,26 @@ public class ScheduledCommentTask {
             logger.error("获取评论上下文失败, ", e);
         }
         return requestContext;
+    }
+
+    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP) {
+        for (Account acc: accounts) {
+            if (!ObjectUtils.isEmpty(pulicIP)) {
+                Map<String, Object> accountIPInfo
+                        = accountService.getAccountIPInfo(pulicIP, platform, null);
+                if (!ObjectUtils.isEmpty(accountIPInfo)) {
+                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
+                    if (acc.getUserName().equals(publicIPUserName)) {
+                        return acc;
+                    } else {
+                        return accountService.getAccountByUserName(publicIPUserName);
+                    }
+                } else {
+                    return acc;
+                }
+            }
+        }
+        return accounts.get(0);
     }
 
 }
