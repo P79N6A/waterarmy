@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.service;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public interface AccountService {
 
     List<Account> getAccountsByPlatform(String platform);
 
-    JsonMessage getAccountByUserName(String userName);
+    Account getAccountByUserName(String userName);
 
     JsonMessage add(Map<String,Object> params);
 
@@ -43,5 +44,9 @@ public interface AccountService {
     JsonMessage importData(MultipartFile file);
 
     JsonMessage updateTaskCount(String userName);
+
+    Map<String, Object> getAccountIPInfo(String ip, String platform, String userName);
+
+    boolean saveAccountIPInfo(AccountIPInfo accountIPInfo);
 
 }
