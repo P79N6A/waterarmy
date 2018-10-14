@@ -343,7 +343,7 @@ public class YiCheHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentKoubeiPost(requestContext,httpClient);
+            HttpPost httpPost = createCommentKoubeiPost(requestContext,loginResultDTO);
             setCommentKouBeiHeader(httpPost);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
