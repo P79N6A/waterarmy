@@ -315,7 +315,7 @@
                 var index = item.$index;
                 _this.confirm('确定删除 ?', function() {
                     var params = {
-                        id:item.row.id,
+                        ids:item.row.id,
                     }
                     var url=urls.deleteUrl;
                     _this.post(url,params, function(data) {
