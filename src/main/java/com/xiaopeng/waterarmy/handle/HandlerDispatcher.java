@@ -103,13 +103,13 @@ public class HandlerDispatcher {
         content.setText("明年再买吧，有点贵");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(7L);
-        requestContext.setUserLoginId("18482193356");
+        requestContext.setUserId(3L);
+        requestContext.setUserLoginId("15143586942");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
-        requestContext.setPlatform(PlatformEnum.PCAUTO);
-        requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+        requestContext.setPlatform(PlatformEnum.XCAR);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.AIKANEWSCOMMENT);
         //requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1323/13233103.html");
-        requestContext.setPrefixUrl("https://price.pcauto.com.cn/comment/sg12072/m37198/view_878074.html");
+        requestContext.setPrefixUrl("http://info.xcar.com.cn/201809/news_2021888_1.html");
         HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"32202092");
         map.put(RequestConsts.COMMENT_CONTENT,"666");

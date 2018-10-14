@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
@@ -13,6 +14,7 @@ import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.WebClientFatory;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
+import com.xiaopeng.waterarmy.handle.result.AiKaCommentResultDTO;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
@@ -36,10 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class AiKaHandler extends PlatformHandler {
@@ -48,6 +47,8 @@ public class AiKaHandler extends PlatformHandler {
 
     private static final String TARGET_COMMENT_URL = "http://www.xcar.com.cn/bbs/post.php";
     private static final String TARGET_PUBLISH_URL = "http://www.xcar.com.cn/bbs/post.php";
+
+    private static final String TARGET_COMMENT_NEWS = "http://comment.xcar.com.cn/icomment_news2.php?from=cms";
 
     @Autowired
     private AiKaLoginHandler aiKaLoginHandler;
@@ -217,6 +218,14 @@ public class AiKaHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
+
+        if (TaskEntryTypeEnum.AIKANEWSCOMMENT.equals(requestContext.getHandleEntryType())) {
+            return createCommentNews(requestContext);
+        }
+        return commentForum(requestContext);
+    }
+
+    private  Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
             logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
@@ -270,7 +279,6 @@ public class AiKaHandler extends PlatformHandler {
             logger.error("[AiKaHandler.comment] error!", e);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
-
     }
 
 
@@ -427,5 +435,88 @@ public class AiKaHandler extends PlatformHandler {
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
         return null;
+    }
+
+
+    private Result<HandlerResultDTO> createCommentNews(RequestContext requestContext) {
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        try {
+                LoginResultDTO loginResultDTO = resultDTOResult.getData();
+                CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+                HttpPost httpPost = createCommentNewsHttpPost(requestContext);
+                setCommentNewsHeader(httpPost);
+                CloseableHttpResponse response = httpClient.execute(httpPost);
+                HttpEntity entity = response.getEntity();
+                String content = null;
+                if (entity != null) {
+                    content = EntityUtils.toString(entity, "utf-8");
+                    AiKaCommentResultDTO aiKaCommentResultDTO = JSONObject.parseObject(content, AiKaCommentResultDTO.class);
+                    if ("0".equals(aiKaCommentResultDTO.getMsg())) {
+                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                        CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                        save(new SaveContext(commentInfo));
+                        return new Result(handlerResultDTO);
+                    }
+                }
+                return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }catch (Exception e) {
+            logger.error("[AiKaHandler.createCommentNews]",e);
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+    }
+
+
+    private HttpPost createCommentNewsHttpPost(RequestContext requestContext) {
+
+        /**
+         * action: Dresponse
+         * cid: 2020939
+         * content: 车是人生新的起点
+         * ctype: 0
+         * curl: http://info.xcar.com.cn/201808/news_2020939_1.html
+         * istoeditor: 0
+         * date: 1539495313382
+         */
+        HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS);
+        setCommentNewsHeader(httpPost);
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+        String cid = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"_\\d+_");
+        cid = cid.replaceAll("_","");
+
+        try {
+            nameValuePairs.add(new BasicNameValuePair("action", "Dresponse"));
+            nameValuePairs.add(new BasicNameValuePair("cid", cid));
+            nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+            nameValuePairs.add(new BasicNameValuePair("ctype","0"));
+            nameValuePairs.add(new BasicNameValuePair("curl",requestContext.getPrefixUrl()));
+            nameValuePairs.add(new BasicNameValuePair("istoeditor","0"));
+            nameValuePairs.add(new BasicNameValuePair("date",String.valueOf(new Date().getTime())));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            return httpPost;
+        }catch (Exception e) {
+            logger.error("[AiKaHandler.createCommentNewsHttpPost]",e);
+            return null;
+        }
+
+    }
+
+
+    private void setCommentNewsHeader(HttpPost httpPost) {
+        /**
+         * Host: comment.xcar.com.cn
+         * Origin: http://comment.xcar.com.cn
+         * Referer: http://comment.xcar.com.cn/comments_news.php?cid=2020939&ctype=0&curl=http://info.xcar.com.cn/201808/news_2020939_1.html
+         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         * X-Requested-With: XMLHttpRequest
+         */
+        httpPost.setHeader("Host","comment.xcar.com.cn");
+        httpPost.setHeader("Origin","http://comment.xcar.com.cn");
+        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("Origin","http://comment.xcar.com.cn");
     }
 }
