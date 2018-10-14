@@ -45,7 +45,9 @@
     </delete>
 
     <update id="updateRepositoriesType">
-        UPDATE content_info SET update_time = now(), content_repositories_type = #{params.contentRepositoriesType}
+        UPDATE content_info SET update_time = now()
+        , content_repositories_type = #{params.contentRepositoriesType}
+        , content_info_repositories_id = #{params.contentInfoRepositoriesId}
         WHERE content_repositories_type = "-1"
     </update>
 

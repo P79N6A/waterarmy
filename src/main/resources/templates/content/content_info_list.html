@@ -138,6 +138,7 @@
                 createStartDate: '',
                 createEndDate: '',
                 name: '',
+                contentInfoRepositoriesId: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -288,6 +289,7 @@
             updateContentRepositoriesType: function() {
                 var _this = this;
                 _this.form.contentRepositoriesType = this.type;
+                _this.form.contentInfoRepositoriesId = this.contentInfoRepositoriesId;
                 _this.post(urls.updateContentRepositoriesTypeUrl,_this.form, function(data) {
                     if(data.success){
                         _this.message('修改成功 !');
