@@ -31,14 +31,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 定时评论帖子任务
+ * 定时评论点赞帖子任务
  * <p>
  * Created by iason on 2018/10/3.
  */
-@Component
-public class ScheduledCommentTask {
+//@Component
+public class ScheduledCommentLikeTask {
 
-    private static Logger logger = LoggerFactory.getLogger(ScheduledCommentTask.class);
+    private static Logger logger = LoggerFactory.getLogger(ScheduledCommentLikeTask.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -56,56 +56,46 @@ public class ScheduledCommentTask {
 
     @Scheduled(fixedRate = 6000)//5000
     public void reportCurrentTime() {
-        //logger.info("定时评论啦，现在时间：" + dateFormat.format(new Date()));
+        //logger.info("定时评论点赞啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.COMMENT.getName());
         for (Map<String, Object> task : tasks) {
-            //获取需要评论的平台对应的用户列表
+            //获取需要评论点赞的平台对应的用户列表
             String platform = MapUtils.getString(task, "platform");
             List<Account> accounts = accountService.getAccountsByPlatform(platform);
-            //获取发帖内容库内容信息
-            List<ContentInfo> contentInfos
-                    = contentService.querysByRepositoriesType(ContentRepositoriesEnum.COMMENT.getName());
-            if (!ObjectUtils.isEmpty(accounts) && !ObjectUtils.isEmpty(contentInfos)) {
+            if (!ObjectUtils.isEmpty(accounts)) {
                 String publicIP = IPUtil.getPublicIP();
-                //随机获取待执行评论任务用户id
-                //Integer commentAccountNum = NumUtil.getRandomNum(accounts.size());
-                //优先用执行任务最少的账号执行任务
-                //Account commentAccount = accounts.get(0);//commentAccountNum
+                //随机获取待执行评论点赞任务用户id
                 Account commentAccount = getAccountByIP(accounts, platform, publicIP);
-                //随机获取内容库评论内容id
-                Integer commentContentNum = NumUtil.getRandomNum(contentInfos.size());
-                ContentInfo commentContent = contentInfos.get(commentContentNum);
-                //获取评论上下文
-                RequestContext context = createCommentContext(task, commentAccount, commentContent);
-                //执行评论任务
+                //获取评论点赞上下文
+                RequestContext context = createCommentLikeContext(task, commentAccount);
+                //执行评论点赞任务
                 if (!ObjectUtils.isEmpty(context)) {
-                    commentTask(context, task, commentAccount, commentContent, publicIP, platform);
+                    commentLikeTask(context, task, commentAccount, publicIP, platform);
                 } else {
-                    logger.error("获取评论上下文为空! task：{}", JSON.toJSONString(task));
+                    logger.error("获取评论点赞上下文为空! task：{}", JSON.toJSONString(task));
                 }
             } else {
-                logger.error("评论失败，平台 {} 用户列表为空，评论内容库为空! task：{} "
+                logger.error("评论点赞失败，平台 {} 用户列表为空! task：{} "
                         , platform, JSON.toJSONString(task));
             }
         }
     }
 
     /**
-     * 评论
+     * 评论点赞
      *
      * @param context
      * @param task
      * @param commentAccount
-     * @param commentContent
      */
-    private void commentTask(RequestContext context, Map<String, Object> task
-            , Account commentAccount, ContentInfo commentContent, String pulicIP, String platform) {
+    private void commentLikeTask(RequestContext context, Map<String, Object> task
+            , Account commentAccount, String pulicIP, String platform) {
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
         Long taskInfoId = id.longValue();
         taskExecuteLog.put("taskInfoId", taskInfoId);
-        taskExecuteLog.put("contentInfoId", commentContent.getId());
+        //taskExecuteLog.put("contentInfoId", commentContent.getId());
         taskExecuteLog.put("executor", commentAccount.getUserName());
         if (handlerResult.getSuccess()) {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
@@ -121,35 +111,34 @@ public class ScheduledCommentTask {
             }
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
-            logger.error("评论失败，handlerResult: {}", JSON.toJSONString(handlerResult));
+            logger.error("评论点赞失败，handlerResult: {}", JSON.toJSONString(handlerResult));
         }
         try {
             taskExecuteLog.put("handlerResult", JSON.toJSONString(handlerResult));
             taskService.saveTaskExecuteLog(taskExecuteLog);
         } catch (Exception e) {
-            logger.error("保存执行评论log失败, ", e);
+            logger.error("保存执行评论点赞log失败, ", e);
         }
     }
 
     /**
-     * 获取评论上下文
+     * 获取评论点赞上下文
      *
      * @param task
      * @param commentAccount
-     * @param commentContent
      * @return
      */
-    private RequestContext createCommentContext(Map<String, Object> task
-            , Account commentAccount, ContentInfo commentContent) {
+    private RequestContext createCommentLikeContext(Map<String, Object> task
+            , Account commentAccount) {
         RequestContext requestContext = null;
         try {
             requestContext = new RequestContext();
             Content content = new Content();
-            content.setText(commentContent.getContent()); //"这个车很洋气~" //真心不错，我昨天试了一下，好想买
+            //content.setText(commentContent.getContent());
             requestContext.setContent(content);
             requestContext.setUserId(commentAccount.getId());
             requestContext.setUserLoginId(commentAccount.getUserName());//"18482193356"
-            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setHandleType(TaskTypeEnum.LIKE);
             String platform = MapUtils.getString(task, "platform");
             requestContext.setPlatform(PlatformEnum.getEnum(platform));
             String link = MapUtils.getString(task, "link");
@@ -159,30 +148,20 @@ public class ScheduledCommentTask {
             String module = String.valueOf(task.get("module"));
             if (PlatformEnum.YICHE.getName().equals(platform)) {
                 if (PlatFormModuleEnum.CHEJIAHAO.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHENEWSCOMMENT);
-                } else if (PlatFormModuleEnum.NEWS.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHENEWSCOMMENT);
-                } else if (PlatFormModuleEnum.KOUBEI.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHEKOUBEICOMMENT);
+                    requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
                 }
             } else if (PlatformEnum.PCAUTO.getName().equals(platform)) {
                 if (PlatFormModuleEnum.NEWS.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENT);
-                } else if (PlatFormModuleEnum.CAROWNER_COMMENT.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+                    requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENTPRAISE);
                 }
             } else if (PlatformEnum.XCAR.getName().equals(platform)) {
                 if (PlatFormModuleEnum.NEWS.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.AIKANEWSCOMMENT);
-                }
-            } else if (PlatformEnum.QCTT.getName().equals(platform)) {
-                if (PlatFormModuleEnum.VIDEO_COMMENT.getName().equals(module)) {
-                    requestContext.setHandleEntryType(TaskEntryTypeEnum.QICHEVIDEOCOMMENT);
+                    requestContext.setHandleEntryType(TaskEntryTypeEnum.AIKANEWSCOMMENTPRAISE);
                 }
             }
-                return requestContext;
+            return requestContext;
         } catch (Exception e) {
-            logger.error("获取评论上下文失败, ", e);
+            logger.error("获取评论点赞上下文失败, ", e);
         }
         return requestContext;
     }

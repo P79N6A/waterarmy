@@ -47,7 +47,7 @@ public class ScheduledReadTask {
 
     @Scheduled(fixedRate = 60000)//5000
     public void reportCurrentTime() {
-        logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
+        //logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
         for (Map<String, Object> task : tasks) {
             //获取阅读上下文

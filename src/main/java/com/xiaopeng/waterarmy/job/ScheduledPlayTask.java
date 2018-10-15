@@ -45,7 +45,7 @@ public class ScheduledPlayTask {
 
     @Scheduled(fixedRate = 5)//5000
     public void reportCurrentTime() {
-        logger.info("定时播放啦，现在时间：" + dateFormat.format(new Date()));
+        //logger.info("定时播放啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.PLAY.getName());
         for (Map<String, Object> task : tasks) {
             //获取播放上下文
