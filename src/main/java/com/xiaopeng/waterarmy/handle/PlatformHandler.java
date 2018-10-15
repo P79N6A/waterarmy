@@ -27,17 +27,32 @@ public abstract class PlatformHandler implements  RequestHandler{
     @Autowired
     private PraiseInfoMapper praiseInfoMapper;
 
+    @Autowired
+    private LoginResultPool loginResultPool;
+
     @Override
     public Result<HandlerResultDTO> handle(RequestContext requestContext) {
 
         //这里做一次请求处理路由
         switch (requestContext.getHandleType()) {
             case POSIED:
-                return publish(requestContext);
+                Result<HandlerResultDTO> result = publish(requestContext);
+                if (!result.getSuccess()) {
+                    loginResultPool.removeLoginResult(String.valueOf(requestContext.getUserId()));
+                }
+                return result;
             case COMMENT:
-                return comment(requestContext);
+                Result<HandlerResultDTO> result1 = comment(requestContext);
+                if (!result1.getSuccess()) {
+                    loginResultPool.removeLoginResult(String.valueOf(requestContext.getUserId()));
+                }
+                return result1;
             case LIKE:
-                return praise(requestContext);
+                Result<HandlerResultDTO> result2 =  praise(requestContext);
+                if (!result2.getSuccess()) {
+                    loginResultPool.removeLoginResult(String.valueOf(requestContext.getUserId()));
+                }
+                return result2;
             case READ:
                 return read(requestContext);
             case PLAY:

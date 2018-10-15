@@ -30,6 +30,10 @@ public class LoginResultPool {
     }
 
 
+    public void removeLoginResult(String userid) {
+        loginResultMap.remove(userid);
+    }
+
     public void putToLoginResultMap(String key,LoginResultDTO loginResultDTO) {
         if (loginResultMap.size() > MAX_SIZE) {
             //移除一个再添加

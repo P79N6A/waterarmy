@@ -117,4 +117,9 @@ public class DiYiDianDongLoginHandler implements LoginHandler {
         httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
         httpPost.setHeader("Host", "www.d1ev.com");
     }
+
+    @Override
+    public void loginOut(Long userid) {
+        loginResultPool.removeLoginResult(String.valueOf(userid));
+    }
 }

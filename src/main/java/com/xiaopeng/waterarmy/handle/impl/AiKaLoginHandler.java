@@ -225,4 +225,9 @@ public class AiKaLoginHandler implements LoginHandler {
         String url = "http://my.xcar.com.cn/login_check_code.php?u=" + code + "&t=" + time;
         return url;
     }
+
+    @Override
+    public void loginOut(Long userid) {
+        loginResultPool.removeLoginResult(String.valueOf(userid));
+    }
 }

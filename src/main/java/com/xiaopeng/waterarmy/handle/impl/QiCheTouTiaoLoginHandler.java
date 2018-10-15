@@ -67,6 +67,11 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
     }
 
     @Override
+    public void loginOut(Long userid) {
+        loginResultPool.removeLoginResult(String.valueOf(userid));
+    }
+
+    @Override
     public Result<LoginResultDTO> login(Account account) {
         if (account == null) {
             logger.error("[QiCheTouTiaoLoginHandler]login error; account is null");

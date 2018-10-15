@@ -53,6 +53,11 @@ public class TaiPingYangLoginHandler implements LoginHandler {
     }
 
     @Override
+    public void loginOut(Long userid) {
+        loginResultPool.removeLoginResult(String.valueOf(userid));
+    }
+
+    @Override
     public Result<LoginResultDTO> login(Long userid) {
 
         if (userid == null || userid < 1L) {

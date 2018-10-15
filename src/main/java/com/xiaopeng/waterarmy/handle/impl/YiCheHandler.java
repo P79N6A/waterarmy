@@ -3,15 +3,13 @@ package com.xiaopeng.waterarmy.handle.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
+import com.xiaopeng.waterarmy.common.enums.FeiFeiTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
-import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
-import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
-import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
-import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
+import com.xiaopeng.waterarmy.handle.Util.*;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
@@ -110,13 +108,10 @@ public class YiCheHandler extends PlatformHandler {
                         continue;
                     }
                 }
-                return new Result<>(ResultCodeEnum.HANDLE_FAILED);
             }
-
         } catch (Exception e) {
             logger.error("[YiCheHandler.comment] error!", e);
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
-            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
@@ -236,22 +231,25 @@ public class YiCheHandler extends PlatformHandler {
 
     private String  translatePublishCode(String guid) {
         String url = TARGET_PUBLISH_CODE+guid+"&d=0.6218608967502508";
-        String code = TranslateCodeUtil.getInstance().convertWithRegx(url,"[a-zA-Z]+");
-        return code;
+        Util.HttpResp resp = TranslateCodeUtil.getInstance().convertByFeiFei(url, FeiFeiTypeEnum.FOUR_WORDS.getName());//TranslateCodeUtil.getInstance().convertWithRegx(url,"[a-zA-Z]+");
+        return resp.pred_resl;
     }
 
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
-
+        Result<HandlerResultDTO> result = null;
         //易车车家号评论
         if (TaskEntryTypeEnum.YICHENEWSCOMMENT.equals(requestContext.getHandleEntryType())) {
-            return commentNews(requestContext);
+            result = commentNews(requestContext);
+            return result;
         }
         if (TaskEntryTypeEnum.YICHEKOUBEICOMMENT.equals(requestContext.getHandleEntryType())) {
-            return commentKoubei(requestContext);
+            result = commentKoubei(requestContext);
+            return result;
         }
-        return commentForum(requestContext);
+        result = commentForum(requestContext);
+        return result;
     }
 
     /**
@@ -740,7 +738,8 @@ public class YiCheHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
-        return commentNewsPraise(requestContext);
+        Result result = commentNewsPraise(requestContext);
+        return result;
     }
 
     private HttpPost createCommentPost(RequestContext requestContext) {

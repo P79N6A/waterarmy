@@ -32,7 +32,8 @@ public enum FeiFeiTypeEnum {
     /**
      * 四位数字
      */
-    FOUR_NUMBERS ("10400", "四位数字");
+    FOUR_NUMBERS ("10400", "四位数字"),
+    FOUR_WORDS ("20400", "四位纯英文");
 
 
 

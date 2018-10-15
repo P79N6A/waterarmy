@@ -96,7 +96,7 @@ public class TranslateCodeUtil {
             BufferedImage bufferedImage = ImageIO.read(inputStream);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage,"PNG",bos);
-            ImageIO.write(bufferedImage,"PNG",new FileOutputStream("my.png"));
+            //ImageIO.write(bufferedImage,"PNG",new FileOutputStream("my.png"));
             FeiFeiApi feiFeiApi = FeiFeiApi.getInstance();
             Util.HttpResp resp = feiFeiApi.Predict(pre_type,bos.toByteArray());
             return resp;

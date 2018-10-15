@@ -87,6 +87,12 @@ public class YiCheLoginHandler implements LoginHandler {
         return this.login(account);
     }
 
+
+    @Override
+    public void loginOut(Long userid) {
+        loginResultPool.removeLoginResult(String.valueOf(userid));
+    }
+
     @Override
     public Result<LoginResultDTO> login(Account account) {
         if (account == null) {
