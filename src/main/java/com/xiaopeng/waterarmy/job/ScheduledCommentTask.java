@@ -79,7 +79,10 @@ public class ScheduledCommentTask {
                 RequestContext context = createCommentContext(task, commentAccount, commentContent);
                 //执行评论任务
                 if (!ObjectUtils.isEmpty(context)) {
-                    commentTask(context, task, commentAccount, commentContent, publicIP, platform);
+                    boolean isSucceed = commentTask(context, task, commentAccount, commentContent, publicIP, platform);
+                    if (!isSucceed) {
+                        commentTask(context, task, commentAccount, commentContent, publicIP, platform);
+                    }
                 } else {
                     logger.error("获取评论上下文为空! task：{}", JSON.toJSONString(task));
                 }
@@ -98,8 +101,9 @@ public class ScheduledCommentTask {
      * @param commentAccount
      * @param commentContent
      */
-    private void commentTask(RequestContext context, Map<String, Object> task
+    private boolean commentTask(RequestContext context, Map<String, Object> task
             , Account commentAccount, ContentInfo commentContent, String pulicIP, String platform) {
+        boolean isSucceed = false;
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
@@ -119,6 +123,7 @@ public class ScheduledCommentTask {
                 accountIPInfo.setIp(pulicIP);
                 accountService.saveAccountIPInfo(accountIPInfo);
             }
+            isSucceed = true;
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -129,6 +134,7 @@ public class ScheduledCommentTask {
         } catch (Exception e) {
             logger.error("保存执行评论log失败, ", e);
         }
+        return isSucceed;
     }
 
     /**

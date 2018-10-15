@@ -1,6 +1,7 @@
 package com.xiaopeng.waterarmy.job;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ExecuteStatusEnum;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
@@ -26,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * 定时阅读帖子任务
@@ -45,7 +47,15 @@ public class ScheduledReadTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
-    @Scheduled(fixedRate = 60000)//5000
+    private static ThreadFactory threadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("ScheduledReadTask").build();
+
+    private static ExecutorService threadPoolExecutor = new ThreadPoolExecutor(50, 200,
+            50L, TimeUnit.MINUTES,
+            new LinkedBlockingQueue<Runnable>(200)
+            , threadFactory, new ThreadPoolExecutor.AbortPolicy());
+
+    @Scheduled(fixedRate = 50)//5000
     public void reportCurrentTime() {
         //logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
@@ -58,7 +68,12 @@ public class ScheduledReadTask {
             } else {
                 logger.error("获取阅读上下文为空! task：{}", JSON.toJSONString(task));
             }
-
+//            threadPoolExecutor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                }
+//            });
         }
     }
 
@@ -108,7 +123,6 @@ public class ScheduledReadTask {
             String link = MapUtils.getString(task, "link");
             requestContext.setTargetUrl(link);
             return requestContext;
-
         } catch (Exception e) {
             logger.error("获取阅读上下文失败, ", e);
         }

@@ -82,7 +82,10 @@ public class ScheduledPublishTask {
                 RequestContext context = createPublishTaskContext(task, publishAccount, publishContent);
                 //执行发帖任务
                 if (!ObjectUtils.isEmpty(context)) {
-                    publishTask(context, task, publishAccount, publishContent, publicIP, platform);
+                    boolean isSucceed = publishTask(context, task, publishAccount, publishContent, publicIP, platform);
+                    if (!isSucceed) {
+                        publishTask(context, task, publishAccount, publishContent, publicIP, platform);
+                    }
                 } else {
                     logger.error("获取发帖上下文为空! task：{}", JSON.toJSONString(task));
                 }
@@ -100,8 +103,9 @@ public class ScheduledPublishTask {
      * @param task
      * @param publishAccount
      */
-    private void publishTask(RequestContext context, Map<String, Object> task
+    private boolean publishTask(RequestContext context, Map<String, Object> task
             , Account publishAccount, ContentInfo publishContent, String pulicIP, String platform) {
+        boolean isSucceed = false;
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
@@ -121,6 +125,7 @@ public class ScheduledPublishTask {
                 accountIPInfo.setPlatform(platform);
                 accountService.saveAccountIPInfo(accountIPInfo);
             }
+            isSucceed = true;
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("发帖失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -131,6 +136,7 @@ public class ScheduledPublishTask {
         } catch (Exception e) {
             logger.error("保存执行log失败, ", e);
         }
+        return isSucceed;
     }
 
     /**
