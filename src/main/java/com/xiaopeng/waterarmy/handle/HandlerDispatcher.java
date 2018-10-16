@@ -40,7 +40,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-       // requestContext = this.createTestYichePublisContext();
+        //requestContext = this.createTestTaiPingYangContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -119,13 +119,13 @@ public class HandlerDispatcher {
         content.setText("明年再买吧，有点贵");
         content.setTitle("改装");
         requestContext.setContent(content);
-        requestContext.setUserId(6L);
-        requestContext.setUserLoginId("18473837405");
+        requestContext.setUserId(14L);
+        requestContext.setUserLoginId("18927512986");
         requestContext.setHandleType(TaskTypeEnum.COMMENT);
         requestContext.setPlatform(PlatformEnum.PCAUTO);
-        requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENT);
+        requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
         //requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1323/13233103.html");
-        requestContext.setPrefixUrl("https://www.pcauto.com.cn/nation/1314/13149105.html");
+        requestContext.setPrefixUrl("https://price.pcauto.com.cn/comment/sg21775/m79917/view_884063.html");
         HashMap map = new HashMap();
         map.put(RequestConsts.COMMENT_ID,"32202092");
         map.put(RequestConsts.COMMENT_CONTENT,"666");
