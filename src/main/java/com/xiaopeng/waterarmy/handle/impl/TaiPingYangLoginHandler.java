@@ -93,7 +93,7 @@ public class TaiPingYangLoginHandler implements LoginHandler {
         nameValuePairs.add(new BasicNameValuePair("password", passWord));
 
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
             CloseableHttpResponse response = httpClient.execute(httpPost);
             if (response.getStatusLine().getStatusCode() != HttpResultCode.RESULT_OK.getResultCode()) {
                 logger.error("[TaiPingYangLoginHandler.login] UrlEncodedFormEntity login failed! account is " + account);
