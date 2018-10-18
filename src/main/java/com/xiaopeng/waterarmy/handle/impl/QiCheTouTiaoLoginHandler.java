@@ -84,7 +84,7 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
             logger.error("[QiCheTouTiaoLoginHandler]login error; param is invalid username is" + userName + "password is" + passWord);
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
         }
-        LoginResultDTO loginResult = loginResultPool.getLoginResult(account.getUserName());
+        LoginResultDTO loginResult = loginResultPool.getLoginResult(String.valueOf(account.getId()));
         if (loginResult != null) {
             return new Result<>(loginResult);
         }
@@ -113,7 +113,7 @@ public class QiCheTouTiaoLoginHandler implements LoginHandler {
                 loginResultDTO.setId(account.getId());
                 loginResultDTO.setOutUserId(account.getUserName());
                 loginResultDTO.setToken(token);
-                loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
+                loginResultPool.putToLoginResultMap(String.valueOf(account.getId()), loginResultDTO);
                 return new Result<>(loginResultDTO);
             }
         } catch (Exception e) {

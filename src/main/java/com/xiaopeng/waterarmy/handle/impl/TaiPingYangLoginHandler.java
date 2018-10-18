@@ -81,7 +81,7 @@ public class TaiPingYangLoginHandler implements LoginHandler {
             logger.error("[TaiPingYangLoginHandler]login error; param is invalid username is" + userName + "password is" + passWord);
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
         }
-        LoginResultDTO loginResult = loginResultPool.getLoginResult(account.getUserName());
+        LoginResultDTO loginResult = loginResultPool.getLoginResult(String.valueOf(account.getId()));
         if (loginResult != null) {
             return new Result<>(loginResult);
         }
@@ -93,7 +93,7 @@ public class TaiPingYangLoginHandler implements LoginHandler {
         nameValuePairs.add(new BasicNameValuePair("password", passWord));
 
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
             CloseableHttpResponse response = httpClient.execute(httpPost);
             if (response.getStatusLine().getStatusCode() != HttpResultCode.RESULT_OK.getResultCode()) {
                 logger.error("[TaiPingYangLoginHandler.login] UrlEncodedFormEntity login failed! account is " + account);
@@ -109,7 +109,7 @@ public class TaiPingYangLoginHandler implements LoginHandler {
         }
         LoginResultDTO loginResultDTO = new LoginResultDTO();
         loginResultDTO.setHttpClient(httpClient);
-        loginResultPool.putToLoginResultMap(account.getUserName(), loginResultDTO);
+        loginResultPool.putToLoginResultMap(String.valueOf(account.getId()), loginResultDTO);
         return new Result<>(loginResultDTO);
     }
 
