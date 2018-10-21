@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
@@ -18,13 +19,14 @@ import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -38,6 +40,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import static com.xiaopeng.waterarmy.common.constants.RequestConsts.COMMENT_CONTENT;
+import static com.xiaopeng.waterarmy.common.constants.RequestConsts.COMMENT_ID;
 
 @Component
 public class YiCheHandler extends PlatformHandler {
@@ -612,6 +617,11 @@ public class YiCheHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            //find comment id by comment content
+            String commentId = findCommentIdByCommentContent(requestContext.getPrefixUrl(), (String) requestContext.getRequestParam().get(COMMENT_CONTENT));
+            if (commentId != null) {
+                requestContext.getRequestParam().put(COMMENT_ID, commentId);
+            }
             HttpGet httpGet = createCommentNewsPraiseHttpGet(requestContext, httpClient);
             setCommentNewsHeader(httpGet);
             CloseableHttpResponse response = httpClient.execute(httpGet);
@@ -680,6 +690,60 @@ public class YiCheHandler extends PlatformHandler {
         }catch (Exception e) {
             logger.error("[YiCheHandler.createCommentNewsPraisePost] error!",e);
             return null;
+        }
+        return null;
+    }
+
+    /**
+     * 根据评论的内容，在文章评论列表中找寻评论的ID然后返回
+     * API地址：http://newsapi.bitauto.com/comment/comment/getdata?productId=6&objectId=968281&pageIndex=1&pageSize=9
+     *
+     * @param paperUrl 文章链接
+     * @param comment  评论内容
+     * @return 评论id，如果没有找打返回空值 null,注意处理空指针异常
+     */
+    private String findCommentIdByCommentContent(String paperUrl, String comment) {
+        int pageSize = 50;
+        String productId = "6";
+        String objectId = paperUrl.split("/")[paperUrl.split("/").length - 1];
+        String pageSizeUrl = "http://newsapi.bitauto.com/comment/comment/getdata?productId=" + productId + "&objectId=" + objectId + "&pageIndex=1&pageSize=0";
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            //获取评论总页数
+            HttpResponse httpResponse = httpClient.execute(new HttpGet(pageSizeUrl));
+            String content = EntityUtils.toString(httpResponse.getEntity());
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            int total = 0;
+            if (jsonObject.getIntValue("code") == 0) {
+                total = jsonObject.getJSONObject("result").getInteger("total");
+            }
+            System.out.println(total);
+            int totalPage = total / pageSize + 1;
+            int lastPageCount = total % pageSize;
+            if (lastPageCount > 0) {
+                totalPage++;
+            }
+            //页面计数是从1开始计算的，从1开始找
+            for (int i = 1; i <= totalPage; ++i) {
+                String url = "http://newsapi.bitauto.com/comment/comment/getdata?productId=" + productId + "&objectId=" + objectId + "&pageIndex=" + i + "&pageSize=" + pageSize;
+                HttpGet httpGet = new HttpGet(url);
+                httpResponse = httpClient.execute(httpGet);
+                content = EntityUtils.toString(httpResponse.getEntity());
+                jsonObject = JSONObject.parseObject(content);
+                if (jsonObject.getIntValue("code") == 0) {
+                    JSONArray jsonArray = jsonObject.getJSONObject("result").getJSONArray("list");
+                    for (int j = 0; j < jsonArray.size(); ++j) {
+                        JSONObject commentObject = jsonArray.getJSONObject(j);
+                        if (commentObject.getString("content").contains(comment)) {
+                            if (logger.isInfoEnabled()) {
+                                logger.info("get comment id:" + commentObject.getLong("id"));
+                            }
+                            return commentObject.getString("id");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("获取评论id出错", e);
         }
         return null;
     }
