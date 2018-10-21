@@ -14,9 +14,9 @@ public class HtmlReadUtil {
     private static ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setNameFormat("HtmlReadUtil").build();
 
-    private static ExecutorService threadPoolExecutor = new ThreadPoolExecutor(100, 1000,
+    private static ExecutorService threadPoolExecutor = new ThreadPoolExecutor(30, 30,
             50L, TimeUnit.MINUTES,
-            new LinkedBlockingQueue<Runnable>(1000)
+            new LinkedBlockingQueue<Runnable>(100000)
             , threadFactory, new ThreadPoolExecutor.AbortPolicy());
 
     public static boolean read(final String url) {
