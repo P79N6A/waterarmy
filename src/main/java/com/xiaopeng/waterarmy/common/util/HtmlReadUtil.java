@@ -5,6 +5,8 @@ import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.util.concurrent.*;
 
@@ -53,5 +55,24 @@ public class HtmlReadUtil {
 //            System.out.println(element.getElementsByTag("h2").first().getElementsByTag("a").text());
 //            System.out.println(element.getElementsByTag("h2").first().getElementsByTag("a").attr("href"));
 //        });
+    }
+
+    public static void read(String url, int count) {
+        threadPoolExecutor.execute(() -> {
+            WebDriver webDriver = new ChromeDriver();
+            try {
+                webDriver.get(url);
+                for (int i = 0; i < count; i++) {
+                    try {
+                        TimeUnit.SECONDS.sleep(2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    webDriver.navigate().refresh();
+                }
+            } finally {
+                webDriver.close();
+            }
+        });
     }
 }
