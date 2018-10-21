@@ -19,6 +19,7 @@ import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -617,11 +618,6 @@ public class YiCheHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            //find comment id by comment content
-            String commentId = findCommentIdByCommentContent(requestContext.getPrefixUrl(), (String) requestContext.getRequestParam().get(COMMENT_CONTENT));
-            if (commentId != null) {
-                requestContext.getRequestParam().put(COMMENT_ID, commentId);
-            }
             HttpGet httpGet = createCommentNewsPraiseHttpGet(requestContext, httpClient);
             setCommentNewsHeader(httpGet);
             CloseableHttpResponse response = httpClient.execute(httpGet);
@@ -664,8 +660,11 @@ public class YiCheHandler extends PlatformHandler {
 
                 String objectId = FetchParamUtil.getMatherStr(content,"objectId: \\'\\d+");
                 objectId = FetchParamUtil.getMatherStr(objectId,"\\d+");
-
-
+                //find comment id by comment content
+                String commentId = findCommentIdByCommentContent(productId, objectId, (String) requestContext.getRequestParam().get(COMMENT_CONTENT));
+                if (commentId == null) {
+                    return null;
+                }
                 HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
                 CloseableHttpResponse response1 = client.execute(httpGet1);
                 HttpEntity entity1 = response1.getEntity();
@@ -678,7 +677,7 @@ public class YiCheHandler extends PlatformHandler {
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("callback", "jQuery18006913486550558714_"+new Date().getTime()));
                 nameValuePairs.add(new BasicNameValuePair("userid", userid));
-                nameValuePairs.add(new BasicNameValuePair("commentId", (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID)));
+                nameValuePairs.add(new BasicNameValuePair("commentId", commentId));
                 nameValuePairs.add(new BasicNameValuePair("objectId", objectId));
                 nameValuePairs.add(new BasicNameValuePair("productId", productId));
                 nameValuePairs.add(new BasicNameValuePair("_", String.valueOf(new Date().getTime())));
@@ -698,14 +697,12 @@ public class YiCheHandler extends PlatformHandler {
      * 根据评论的内容，在文章评论列表中找寻评论的ID然后返回
      * API地址：http://newsapi.bitauto.com/comment/comment/getdata?productId=6&objectId=968281&pageIndex=1&pageSize=9
      *
-     * @param paperUrl 文章链接
-     * @param comment  评论内容
+     * @param productId 文章链接
+     * @param objectId  评论内容
      * @return 评论id，如果没有找打返回空值 null,注意处理空指针异常
      */
-    private String findCommentIdByCommentContent(String paperUrl, String comment) {
+    private String findCommentIdByCommentContent(String productId, String objectId, String comment) {
         int pageSize = 50;
-        String productId = "6";
-        String objectId = paperUrl.split("/")[paperUrl.split("/").length - 1];
         String pageSizeUrl = "http://newsapi.bitauto.com/comment/comment/getdata?productId=" + productId + "&objectId=" + objectId + "&pageIndex=1&pageSize=0";
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             //获取评论总页数
