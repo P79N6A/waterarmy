@@ -786,7 +786,7 @@ public class YiCheHandler extends PlatformHandler {
     @Override
     public Result<HandlerResultDTO> read(RequestContext requestContext) {
 //        HtmlReadUtil.read(requestContext.getTargetUrl());
-        HtmlReadUtil.read(requestContext.getTargetUrl(), 100);
+        HtmlReadUtil.read(requestContext.getTargetUrl(), 1);
         HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, "{success:true,url:" + requestContext.getTargetUrl());
         return new Result(handlerResultDTO);
     }
