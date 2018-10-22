@@ -5,9 +5,11 @@ import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class HtmlReadUtil {
@@ -47,32 +49,31 @@ public class HtmlReadUtil {
                 }
         });
         return true;
-//        //TODO 下面的代码就是对字符串的操作了,常规的爬虫操作,用到了比较好用的Jsoup库
-//
-//        Document document = Jsoup.parse(pageXml);//获取html文档
-//        List<Element> infoListEle = document.getElementById("feedCardContent").getElementsByAttributeValue("class", "feed-card-item");//获取元素节点等
-//        infoListEle.forEach(element -> {
-//            System.out.println(element.getElementsByTag("h2").first().getElementsByTag("a").text());
-//            System.out.println(element.getElementsByTag("h2").first().getElementsByTag("a").attr("href"));
-//        });
+    }
+
+    private static final LinkedBlockingQueue<String> URLS = new LinkedBlockingQueue<>(100000);
+    private static List<ChromeDriver> chromeDrivers = new ArrayList<>();
+
+    static {
+        for (int i = 0; i < 10; i++) {
+            ChromeDriver chromeDriver = new ChromeDriver();
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        chromeDriver.get(URLS.take());
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (Exception e) {
+                        chromeDriver.close();
+                        chromeDrivers.remove(chromeDriver);
+                    }
+                }
+            }).start();
+            chromeDrivers.add(chromeDriver);
+        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> chromeDrivers.forEach(RemoteWebDriver::close)));
     }
 
     public static void read(String url, int count) {
-        threadPoolExecutor.execute(() -> {
-            WebDriver webDriver = new ChromeDriver();
-            try {
-                webDriver.get(url);
-                for (int i = 0; i < count; i++) {
-                    try {
-                        TimeUnit.SECONDS.sleep(2);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    webDriver.navigate().refresh();
-                }
-            } finally {
-                webDriver.close();
-            }
-        });
+        URLS.add(url);
     }
 }
