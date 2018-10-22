@@ -104,7 +104,7 @@ public class ScheduledPublishTask {
      * @param publishAccount
      */
     private boolean publishTask(RequestContext context, Map<String, Object> task
-            , Account publishAccount, ContentInfo publishContent, String pulicIP, String platform) {
+            , Account publishAccount, ContentInfo publishContent, String publicIP, String platform) {
         boolean isSucceed = false;
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
@@ -118,10 +118,10 @@ public class ScheduledPublishTask {
             taskService.updateFinishCount(taskInfoId);
             accountService.updateTaskCount(publishAccount.getUserName());
             AccountIPInfo accountIPInfo = new AccountIPInfo();
-            Map<String, Object> info = accountService.getAccountIPInfo(pulicIP, platform, publishAccount.getUserName());
+            Map<String, Object> info = accountService.getAccountIPInfo(publicIP, platform, publishAccount.getUserName());
             if (ObjectUtils.isEmpty(info)) {
                 accountIPInfo.setUserName(publishAccount.getUserName());
-                accountIPInfo.setIp(pulicIP);
+                accountIPInfo.setIp(publicIP);
                 accountIPInfo.setPlatform(platform);
                 accountService.saveAccountIPInfo(accountIPInfo);
             }
@@ -172,11 +172,11 @@ public class ScheduledPublishTask {
     }
 
 
-    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP) {
+    private Account getAccountByIP(List<Account> accounts, String platform, String publicIP) {
         for (Account acc: accounts) {
-            if (!ObjectUtils.isEmpty(pulicIP)) {
+            if (!ObjectUtils.isEmpty(publicIP)) {
                 Map<String, Object> accountIPInfo
-                        = accountService.getAccountIPInfo(pulicIP, platform, null);
+                        = accountService.getAccountIPInfo(publicIP, platform, null);
                 if (!ObjectUtils.isEmpty(accountIPInfo)) {
                     String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
                     if (acc.getUserName().equals(publicIPUserName)) {
