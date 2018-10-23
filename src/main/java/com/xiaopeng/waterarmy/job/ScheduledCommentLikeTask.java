@@ -3,10 +3,14 @@ package com.xiaopeng.waterarmy.job;
 import com.alibaba.fastjson.JSON;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.*;
+import com.xiaopeng.waterarmy.common.util.IPUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
+import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
+import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -37,19 +41,27 @@ public class ScheduledCommentLikeTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
+    @Autowired
+    private AccountService accountService;
+
     @Scheduled(fixedRate = 6000)//5000
     public void reportCurrentTime() {
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.LIKE.getName());
         for (Map<String, Object> task : tasks) {
             //获取需要评论点赞的平台对应的用户列表
             String platform = MapUtils.getString(task, "platform");
-            //获取评论点赞上下文
-            RequestContext context = createCommentLikeContext(task);
-            //执行评论点赞任务
-            if (!ObjectUtils.isEmpty(context)) {
-                commentLikeTask(context, task);
-            } else {
-                logger.error("获取评论点赞上下文为空! task：{}", JSON.toJSONString(task));
+            List<Account> accounts = accountService.getAccountsByPlatform(platform);
+            if (!ObjectUtils.isEmpty(accounts)) {
+                String publicIP = IPUtil.getPublicIP();
+                Account commentLikeAccount = getAccountByIP(accounts, platform, publicIP);
+                //获取评论点赞上下文
+                RequestContext context = createCommentLikeContext(task, commentLikeAccount);
+                //执行评论点赞任务
+                if (!ObjectUtils.isEmpty(context)) {
+                    commentLikeTask(context, task, commentLikeAccount, publicIP, platform);
+                } else {
+                    logger.error("获取评论点赞上下文为空! task：{}", JSON.toJSONString(task));
+                }
             }
         }
     }
@@ -60,16 +72,28 @@ public class ScheduledCommentLikeTask {
      * @param context
      * @param task
      */
-    private void commentLikeTask(RequestContext context, Map<String, Object> task) {
+    private void commentLikeTask(RequestContext context, Map<String, Object> task
+            , Account commentLikeAccount, String publicIP, String platform) {
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
         Long taskInfoId = id.longValue();
         taskExecuteLog.put("taskInfoId", taskInfoId);
-        taskExecuteLog.put("executor", "xiaoa");
+        taskExecuteLog.put("executor", commentLikeAccount.getUserName());
+
         if (handlerResult.getSuccess()) {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
+            accountService.updateTaskCount(commentLikeAccount.getUserName());
+            Map<String, Object> info
+                    = accountService.getAccountIPInfo(publicIP, platform, commentLikeAccount.getUserName());
+            if (ObjectUtils.isEmpty(info)) {
+                AccountIPInfo accountIPInfo = new AccountIPInfo();
+                accountIPInfo.setUserName(commentLikeAccount.getUserName());
+                accountIPInfo.setPlatform(platform);
+                accountIPInfo.setIp(publicIP);
+                accountService.saveAccountIPInfo(accountIPInfo);
+            }
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论点赞失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -88,7 +112,7 @@ public class ScheduledCommentLikeTask {
      * @param task
      * @return
      */
-    private RequestContext createCommentLikeContext(Map<String, Object> task) {
+    private RequestContext createCommentLikeContext(Map<String, Object> task, Account commentLikeAccount) {
         RequestContext requestContext = null;
         try {
             requestContext = new RequestContext();
@@ -96,6 +120,8 @@ public class ScheduledCommentLikeTask {
             String likeContent = MapUtils.getString(task, "likeContent");
             content.setText(likeContent);
             requestContext.setContent(content);
+            requestContext.setUserId(commentLikeAccount.getId());
+            requestContext.setUserLoginId(commentLikeAccount.getUserName());
             requestContext.setHandleType(TaskTypeEnum.LIKE);
             String platform = MapUtils.getString(task, "platform");
             requestContext.setPlatform(PlatformEnum.getEnum(platform));
@@ -122,6 +148,26 @@ public class ScheduledCommentLikeTask {
             logger.error("获取评论点赞上下文失败, ", e);
         }
         return requestContext;
+    }
+
+    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP) {
+        for (Account acc: accounts) {
+            if (!ObjectUtils.isEmpty(pulicIP)) {
+                Map<String, Object> accountIPInfo
+                        = accountService.getAccountIPInfo(pulicIP, platform, null);
+                if (!ObjectUtils.isEmpty(accountIPInfo)) {
+                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
+                    if (acc.getUserName().equals(publicIPUserName)) {
+                        return acc;
+                    } else {
+                        return accountService.getAccountByUserName(publicIPUserName);
+                    }
+                } else {
+                    return acc;
+                }
+            }
+        }
+        return accounts.get(0);
     }
 
 }
