@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
@@ -10,7 +11,10 @@ import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
-import com.xiaopeng.waterarmy.handle.Util.*;
+import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
+import com.xiaopeng.waterarmy.handle.Util.Util;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
@@ -19,13 +23,15 @@ import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -37,13 +43,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 import static com.xiaopeng.waterarmy.common.constants.RequestConsts.COMMENT_CONTENT;
-import static com.xiaopeng.waterarmy.common.constants.RequestConsts.COMMENT_ID;
 
 @Component
 public class YiCheHandler extends PlatformHandler {
@@ -92,15 +97,33 @@ public class YiCheHandler extends PlatformHandler {
             while (retry>0) {
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-                HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO,targetUrl,needCode);
+
+                //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
+                FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/download.jpeg");
+                YiCheImage yiCheImage = yicheImageUpload(httpClient, fileInputStream);
+
+                String fileProgressID = UUID.randomUUID().toString();
+                String imageContent = "<p><img class=\"fileProgress\" type=\"upload\" fileprogressid=\"" + fileProgressID + "\" src=\"" + yiCheImage.fileUrl + "\" /></p>";
+                requestContext.getContent().setText(requestContext.getContent().getText() + imageContent);
+
+                YiCheAttachment yiCheAttachment = new YiCheAttachment();
+                yiCheAttachment.FileOldName = yiCheImage.fileName;
+                yiCheAttachment.FileName = yiCheImage.fileSubPath;
+                yiCheAttachment.Filetype = yiCheImage.fileType;
+                yiCheAttachment.FileProgressID = fileProgressID;
+                yiCheAttachment.Width = yiCheImage.width;
+                yiCheAttachment.Height = yiCheImage.height;
+
+                HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO, targetUrl, needCode, Collections.singletonList(yiCheAttachment));
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 HttpEntity entity = response.getEntity();
-                String content = null;
+                String content;
                 if (entity != null) {
                     content = EntityUtils.toString(entity, "utf-8");
                     if(content.contains("returnUrl")) {
                         JSONObject jsonObject = JSONObject.parseObject(content);
                         String returnUrl = (String) jsonObject.get("returnUrl");
+                        logger.info("成功创建帖子地址：" + returnUrl);
                         PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, returnUrl);
                         save(new SaveContext(publishInfo));
                         HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, returnUrl);
@@ -177,7 +200,7 @@ public class YiCheHandler extends PlatformHandler {
         return null;
     }
 
-    private HttpPost createPublishHttpPost(RequestContext requestContext, LoginResultDTO loginResultDTO,String targetUrl,boolean needCode) {
+    private HttpPost createPublishHttpPost(RequestContext requestContext, LoginResultDTO loginResultDTO,String targetUrl,boolean needCode,List<YiCheAttachment> attachments) {
         /**
          * target 需要发帖的栏目 http://baa.bitauto.com/cs55
          *  拼接后访问http://baa.bitauto.com/cs55/posttopic-0.html，获取fid:0,fgid:8775,tid:0,pid:0,parentId:0
@@ -212,7 +235,7 @@ public class YiCheHandler extends PlatformHandler {
         HttpPost httpPost = new HttpPost(targetUrl);
         setHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("attachments", "[]"));
+        nameValuePairs.add(new BasicNameValuePair("attachments", attachments == null ? "[]" : JSON.toJSONString(attachments)));
         nameValuePairs.add(new BasicNameValuePair("hdnAttachmentList", null));
         nameValuePairs.add(new BasicNameValuePair("digest", "0"));
         nameValuePairs.add(new BasicNameValuePair("title", requestContext.getContent().getTitle()));
@@ -952,5 +975,88 @@ public class YiCheHandler extends PlatformHandler {
             suffix.append(random.nextInt(9));
         }
         return "a" + prefix.toString() + "-87bb-5d43-394f-e0423" + suffix.toString();
+    }
+
+
+    /**
+     * 易车图片资源上传
+     *
+     * @param httpClient
+     * @param inputStream
+     * @return
+     */
+    public YiCheImage yicheImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+        String uploadUrl = "http://baa.bitauto.com/cs55/upload.html";
+        HttpPost httpPost = new HttpPost(uploadUrl);
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", inputStream, ContentType.create("application/octet-stream"), "file.png")
+                .build();
+        httpPost.setEntity(entity);
+
+        HttpResponse httpResponse = httpClient.execute(httpPost);
+        String content = EntityUtils.toString(httpResponse.getEntity());
+
+        String upRes = content.replace("var uploadResult=", "").replace("'", "\"").replace(";", "");
+
+        return JSON.parseObject(upRes, YiCheImage.class);
+    }
+
+    public static class YiCheAttachment {
+        public String FileOldName;
+        public String FileName;
+        public String Filetype;
+        public String FileProgressID;
+        public Integer Width;
+        public Integer Height;
+        public Integer InsertCount = 1;
+        public int FileSize = 0;
+        public String EXIF = "";
+        public Integer Rotate = 0;
+
+
+        @Override
+        public String toString() {
+            return "YiCheAttatenchment{" +
+                    "FileOldName='" + FileOldName + '\'' +
+                    ", FileName='" + FileName + '\'' +
+                    ", Filetype='" + Filetype + '\'' +
+                    ", FileProgressID='" + FileProgressID + '\'' +
+                    ", Width=" + Width +
+                    ", Height=" + Height +
+                    ", InsertCount=" + InsertCount +
+                    ", FileSize=" + FileSize +
+                    ", EXIF='" + EXIF + '\'' +
+                    ", Rotate=" + Rotate +
+                    '}';
+        }
+    }
+
+    public static class YiCheImage {
+        public String fileUrl;
+        public String fileSubPath;
+        public String fileName;
+        public String fileType;
+        public String fileSize;
+        public String thumbUrl;
+        public int width;
+        public int height;
+        public String EXIF;
+
+        @Override
+        public String toString() {
+            return "YiCheImage{" +
+                    "fileUrl='" + fileUrl + '\'' +
+                    ", fileSubPath='" + fileSubPath + '\'' +
+                    ", fileName='" + fileName + '\'' +
+                    ", fileType='" + fileType + '\'' +
+                    ", fileSize='" + fileSize + '\'' +
+                    ", thumbUrl='" + thumbUrl + '\'' +
+                    ", width='" + width + '\'' +
+                    ", height='" + height + '\'' +
+                    ", EXIF='" + EXIF + '\'' +
+                    '}';
+        }
     }
 }
