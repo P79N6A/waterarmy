@@ -53,6 +53,7 @@ public abstract class PlatformHandler implements  RequestHandler{
                     loginResultPool.removeLoginResult(String.valueOf(requestContext.getUserId()));
                 }
                 return result2;
+                //return praise(requestContext);
             case READ:
                 return read(requestContext);
             case PLAY:

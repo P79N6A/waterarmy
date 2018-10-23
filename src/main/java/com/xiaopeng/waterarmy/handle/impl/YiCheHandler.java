@@ -666,9 +666,9 @@ public class YiCheHandler extends PlatformHandler {
     private HttpGet createCommentNewsPraiseHttpGet(RequestContext requestContext,CloseableHttpClient client) {
 
         //参数校验
-        if (requestContext.getRequestParam().get(RequestConsts.COMMENT_ID)==null) {
-            return null;
-        }
+//        if (requestContext.getRequestParam().get(RequestConsts.COMMENT_ID)==null) {
+//            return null;
+//        }
 
         try {
             String url = requestContext.getPrefixUrl();
@@ -684,10 +684,11 @@ public class YiCheHandler extends PlatformHandler {
                 String objectId = FetchParamUtil.getMatherStr(content,"objectId: \\'\\d+");
                 objectId = FetchParamUtil.getMatherStr(objectId,"\\d+");
                 //find comment id by comment content
-                String commentId = findCommentIdByCommentContent(productId, objectId, (String) requestContext.getRequestParam().get(COMMENT_CONTENT));
+                String commentId = findCommentIdByCommentContent(productId, objectId, (String) requestContext.getContent().getText());//.getRequestParam().get(COMMENT_CONTENT)
                 if (commentId == null) {
                     return null;
                 }
+                requestContext.getRequestParam().put(RequestConsts.COMMENT_ID, commentId);
                 HttpGet httpGet1 = new HttpGet(getUserIdUrl1);
                 CloseableHttpResponse response1 = client.execute(httpGet1);
                 HttpEntity entity1 = response1.getEntity();

@@ -128,6 +128,9 @@ public class ScheduledCommentLikeTask {
             String link = MapUtils.getString(task, "link");
             requestContext.setPrefixUrl(link);
 
+            Map requestParam = new HashMap();
+            requestContext.setRequestParam(requestParam);
+
             //设置子任务类型
             String module = String.valueOf(task.get("module"));
             if (PlatformEnum.YICHE.getName().equals(platform)) {
