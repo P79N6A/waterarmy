@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.LoginHandler;
@@ -8,6 +9,7 @@ import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -69,19 +71,58 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
         CookieStore cookieStore = new BasicCookieStore();
         CloseableHttpClient httpClient = httpFactory.getHttpClientWithCookies(cookieStore);
+        return validateByJiyan(httpClient,account);
+
+
+
+
+
+    }
+
+    public Result<LoginResultDTO> validateByJiyan(CloseableHttpClient httpClient,Account account) {
         Long ll = System.currentTimeMillis();
-
+        String url = "https://account.autohome.com.cn/AccountApi/GetCaptcha?site=web&t="+ll;
+        String gt = null;
+        String challenge = null;
         //TODO 获取validate
+        try {
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = EntityUtils.toString(entity, "utf-8");
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            gt = (String) jsonObject.get("gt");
+            challenge = (String)jsonObject.get("challenge");
+        }catch (Exception e) {
+            e.printStackTrace();
+            logger.error("qichezhijialogin",e);
+        }
 
+        if (gt == null || challenge == null) {
+            return new Result(ResultCodeEnum.LOGIN_FAILED);
+        }
+
+        //http://jiyan.c2567.com/index.php/user2/index.html
+
+        String jiyan_url = "http://jiyanapi.c2567.com/shibie?gt="+gt+"&challenge="+challenge+"&referer=https://account.autohome.com.cn/&user=test&pass=test&return=json&model=3&format=utf8";
+        //极验验证识别
+        try {
+            CloseableHttpResponse response = httpClient.execute(new HttpGet(jiyan_url));
+
+            HttpEntity entity = response.getEntity();
+            String content = EntityUtils.toString(entity, "utf-8");
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            gt = (String) jsonObject.get("gt");
+            challenge = (String)jsonObject.get("challenge");
+        }catch (Exception e ) {
+
+        }
         //加入验证
 
         LoginResultDTO loginResultDTO = new LoginResultDTO();
         loginResultDTO.setHttpClient(httpClient);
         loginResultPool.putToLoginResultMap(String.valueOf(account.getId()), loginResultDTO);
         return new Result<>(loginResultDTO);
-
-
-
     }
 
     public static void setParam(CloseableHttpClient httpClient,String challenge,String seccode,String validate,String username,String password) {
@@ -93,7 +134,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
            // nameValuePairs1.add(new BasicNameValuePair("name", "13438369217"));
             nameValuePairs1.add(new BasicNameValuePair("name", username));
             //nameValuePairs1.add(new BasicNameValuePair("pwd", "3f9a81af6a76fe603beac02003056c09"));
-            nameValuePairs1.add(new BasicNameValuePair("pwd", password));
+            nameValuePairs1.add(new BasicNameValuePair("pwd", DigestUtils.md5Hex(password)));
             nameValuePairs1.add(new BasicNameValuePair("isauto", "true"));
             nameValuePairs1.add(new BasicNameValuePair("type", "json"));
             nameValuePairs1.add(new BasicNameValuePair("fPosition", "0"));
@@ -124,7 +165,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
         httpGet.setHeader("Host","account.autohome.com.cn");
         httpGet.setHeader("Referer","https://account.autohome.com.cn/");
         httpGet.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
-        httpGet.setHeader("X-Requested-With","XMLHttpRequest");:
+        httpGet.setHeader("X-Requested-With","XMLHttpRequest");
     }
 
     public static void setHeader(HttpPost httpPost) {
