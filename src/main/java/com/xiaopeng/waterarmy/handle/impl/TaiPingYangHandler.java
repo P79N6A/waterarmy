@@ -1,11 +1,10 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sun.org.apache.regexp.internal.RE;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
-import com.xiaopeng.waterarmy.common.constants.ResultConstants;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
@@ -24,11 +23,15 @@ import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -40,6 +43,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -87,6 +93,15 @@ public class TaiPingYangHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+
+            //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
+            FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/image.png");
+            TaiPingYangImage taiPingYangImage = taiPingYangImageUpload(httpClient, fileInputStream);
+            if (logger.isDebugEnabled()) {
+                logger.info("太平洋图片上传结果：" + taiPingYangImage);
+            }
+            requestContext.getContent().setText(requestContext.getContent().getText() + "[img=" + taiPingYangImage.width + "," + taiPingYangImage.height + ",5Y+v5re75YqgMjAw5a2X5Lul5YaF55qE5o+P6L+w]" + taiPingYangImage.url + "[/img]");
+
             HttpPost httpPost = createPublishHttpPost(requestContext);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
@@ -109,6 +124,64 @@ public class TaiPingYangHandler extends PlatformHandler {
             logger.error("[TaiPingYangHandler.comment] error!", e);
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        }
+    }
+
+
+    /**
+     * 太平洋图片资源上传
+     *
+     * @param httpClient
+     * @param inputStream
+     * @return
+     */
+    public TaiPingYangImage taiPingYangImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+        String uploadUrl = "https://upctemp.pcauto.com.cn/upload_quick.jsp?application=bbs6&keepSrc=true&readExif=true";//+ common_session_id;
+        HttpPost httpPost = new HttpPost(uploadUrl);
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", inputStream, ContentType.create("application/octet-stream"), "file.png")
+                .addTextBody("id", "WU_FILE_1")
+                .addTextBody("name", "image.png")
+                .build();
+        httpPost.setEntity(entity);
+
+        HttpResponse httpResponse = httpClient.execute(httpPost);
+        String content = EntityUtils.toString(httpResponse.getEntity());
+        JSONObject jsonObject = JSON.parseObject(content);
+        int retCode = jsonObject.getInteger("retCode");
+        if (retCode == 0) {
+            return JSON.parseObject(jsonObject.getJSONArray("files").get(0).toString(), TaiPingYangImage.class);
+        } else {
+            throw new IOException("太平洋图片上传失败：" + content);
+        }
+    }
+
+    public static class TaiPingYangImage {
+        public String fileSize;
+        public int height;
+        public int rid;
+        public int width;
+        public String fileName;
+        public String audit;
+        public String orgFileName;
+        public String isorg;
+        public String url;
+
+        @Override
+        public String toString() {
+            return "YiCheImage{" +
+                    "fileSize='" + fileSize + '\'' +
+                    ", height=" + height +
+                    ", rid=" + rid +
+                    ", width=" + width +
+                    ", fileName='" + fileName + '\'' +
+                    ", audit='" + audit + '\'' +
+                    ", orgFileName='" + orgFileName + '\'' +
+                    ", isorg='" + isorg + '\'' +
+                    ", url='" + url + '\'' +
+                    '}';
         }
     }
 
@@ -390,7 +463,6 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
 
-
     private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
 
 
@@ -413,7 +485,7 @@ public class TaiPingYangHandler extends PlatformHandler {
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //新闻评论成功
-                    if ((resultDTO.getResultCode())==0) {
+                    if ((resultDTO.getResultCode()) == 0) {
                         //评论成功
                         HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
                         CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
@@ -421,7 +493,7 @@ public class TaiPingYangHandler extends PlatformHandler {
                         return new Result(handlerResultDTO);
                     } else {
                         //评论失败
-                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                        return new Result(ResultCodeEnum.HANDLE_FAILED, content);
                     }
                 }
             }
@@ -454,7 +526,7 @@ public class TaiPingYangHandler extends PlatformHandler {
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //新闻评论成功
-                    if ((resultDTO.getResultCode())==0) {
+                    if ((resultDTO.getResultCode()) == 0) {
                         //评论成功
                         //发起通知请求
                         /*HttpGet httpGet = createCheZhuCommentNoticeHttpGet(requestContext,httpClient,resultDTO);
@@ -467,7 +539,7 @@ public class TaiPingYangHandler extends PlatformHandler {
                         return new Result(handlerResultDTO);
                     } else {
                         //评论失败
-                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                        return new Result(ResultCodeEnum.HANDLE_FAILED, content);
                     }
                 }
             }
@@ -481,7 +553,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
 
-    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext,CloseableHttpClient httpClient,TaiPingYangCommentResultDTO resultDTO) {
+    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext, CloseableHttpClient httpClient, TaiPingYangCommentResultDTO resultDTO) {
         /**
          * req-enc: utf-8
          * commentId: 881901
@@ -503,33 +575,33 @@ public class TaiPingYangHandler extends PlatformHandler {
             String sgId = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
-                mobileId = FetchParamUtil.getMatherStr(content,"var modelId = \"\\d+");
-                mobileId = FetchParamUtil.getMatherStr(mobileId,"\\d+");
+                mobileId = FetchParamUtil.getMatherStr(content, "var modelId = \"\\d+");
+                mobileId = FetchParamUtil.getMatherStr(mobileId, "\\d+");
 
-                sgId = FetchParamUtil.getMatherStr(content,"var SGID='\\d+");
-                sgId = FetchParamUtil.getMatherStr(sgId,"\\d+");
+                sgId = FetchParamUtil.getMatherStr(content, "var SGID='\\d+");
+                sgId = FetchParamUtil.getMatherStr(sgId, "\\d+");
             }
 
-            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"view_\\d+.html");
-            commentId = FetchParamUtil.getMatherStr(commentId,"\\d+");
+            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), "view_\\d+.html");
+            commentId = FetchParamUtil.getMatherStr(commentId, "\\d+");
 
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("req-enc", "utf-8"));
             nameValuePairs.add(new BasicNameValuePair("commentId", commentId));
             nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
             nameValuePairs.add(new BasicNameValuePair("accountId", String.valueOf(resultDTO.getUserId())));
-            nameValuePairs.add(new BasicNameValuePair("sgId",sgId ));
-            nameValuePairs.add(new BasicNameValuePair("modelId",mobileId));
-            nameValuePairs.add(new BasicNameValuePair("account",resultDTO.getShowName()));
-            nameValuePairs.add(new BasicNameValuePair("replyId",String.valueOf(resultDTO.getCommentId())));
-            nameValuePairs.add(new BasicNameValuePair("floor",String.valueOf(resultDTO.getFloor())));
+            nameValuePairs.add(new BasicNameValuePair("sgId", sgId));
+            nameValuePairs.add(new BasicNameValuePair("modelId", mobileId));
+            nameValuePairs.add(new BasicNameValuePair("account", resultDTO.getShowName()));
+            nameValuePairs.add(new BasicNameValuePair("replyId", String.valueOf(resultDTO.getCommentId())));
+            nameValuePairs.add(new BasicNameValuePair("floor", String.valueOf(resultDTO.getFloor())));
 
             String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             String url = TARGET_COMMENT_CHEZHU_MESSAGE + "?" + str;
             HttpGet httpGet1 = new HttpGet(url);
             return httpGet1;
-        }catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]",e);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]", e);
             return null;
         }
     }
@@ -552,13 +624,13 @@ public class TaiPingYangHandler extends PlatformHandler {
                 content = EntityUtils.toString(entity, "utf-8");
                 content = content.trim();
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
-                if (resultDTO.getCode()==1) {
+                if (resultDTO.getCode() == 1) {
                     HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
                     PraiseInfo praiseInfo = ResultParamUtil.createPraiseInfo(requestContext, content);
                     save(new SaveContext(praiseInfo));
                     return new Result(handlerResultDTO);
                 }
-                return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                return new Result(ResultCodeEnum.HANDLE_FAILED, content);
             }
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
@@ -579,7 +651,7 @@ public class TaiPingYangHandler extends PlatformHandler {
          */
         try {
             String cid = (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID);
-            if (cid==null) {
+            if (cid == null) {
                 return null;
             }
             HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS_PRAISE);
@@ -629,10 +701,10 @@ public class TaiPingYangHandler extends PlatformHandler {
         HttpPost httpPost = null;
         String url = requestContext.getPrefixUrl();
         if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
-            url = url.replaceAll("https:","");
-            url = url.replaceAll("http:","");
+            url = url.replaceAll("https:", "");
+            url = url.replaceAll("http:", "");
             httpPost = new HttpPost(TARGET_COMMENT_CHE_ZHU);
-        }else {
+        } else {
             httpPost = new HttpPost(TARGET_COMMENT_NEWS);
         }
         String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
@@ -688,8 +760,6 @@ public class TaiPingYangHandler extends PlatformHandler {
             return null;
         }
     }
-
-
 
 
     private void setCommentNewsHeader(HttpPost httpPost) {
