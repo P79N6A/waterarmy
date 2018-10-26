@@ -29,6 +29,9 @@ public class HandlerDispatcher {
     private YiCheHandler yiCheHandler;
 
     @Autowired
+    private AutoHomeHandler autoHomeHandler;
+
+    @Autowired
     private AiKaHandler aiKaHandler;
 
     @Autowired
@@ -40,7 +43,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        //requestContext = this.createTestTaiPingYangContext();
+        requestContext = this.createAutoHomeContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:
@@ -53,11 +56,25 @@ public class HandlerDispatcher {
                 return aiKaHandler.handle(requestContext);
             case YICHE:
                 return yiCheHandler.handle(requestContext);
+            case AUTOHOME:
+                return autoHomeHandler.handle(requestContext);
             default:
                 return new Result<HandlerResultDTO>(null,false, ResultCodeEnum.HANDLER_NOT_FOUND.getIndex(),ResultCodeEnum.HANDLER_NOT_FOUND.getDesc());
         }
     }
 
+    private RequestContext createAutoHomeContext() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("这个车真心不错，我昨天试了一下，好想买");
+        requestContext.setContent(content);
+        requestContext.setUserId(16L);
+        requestContext.setUserLoginId("13216894048");
+        requestContext.setHandleType(TaskTypeEnum.POSIED);
+        requestContext.setPlatform(PlatformEnum.AUTOHOME);
+        requestContext.setPrefixUrl("http://baa.bitauto.com/jilidihaogs/thread-15766298-goto179749454.html");
+        return requestContext;
+    }
 
     private RequestContext createTestContext() {
         RequestContext requestContext = new RequestContext();

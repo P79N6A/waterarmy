@@ -17,15 +17,15 @@ import java.util.Map;
  */
 public enum PlatformEnum {
 
-//    /**
-//     * 汽车之家
-//     */
-//    AUTOHOME ("AUTOHOME", "汽车之家"),
+    /**
+     * 汽车之家
+     */
+    AUTOHOME ("AUTOHOME", "汽车之家"),
 
-//    /**
-//     * 新浪微博
-//     */
-//    WEIBO ("WEIBO", "新浪微博"),
+    /**
+     * 新浪微博
+     */
+    WEIBO ("WEIBO", "新浪微博"),
 
     /**
      * 太平洋汽车

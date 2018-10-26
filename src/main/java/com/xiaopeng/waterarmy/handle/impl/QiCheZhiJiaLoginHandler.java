@@ -25,10 +25,12 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class QiCheZhiJiaLoginHandler implements LoginHandler {
     private static Logger logger = LoggerFactory.getLogger(QiCheZhiJiaLoginHandler.class);
 
@@ -71,9 +73,16 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
         CookieStore cookieStore = new BasicCookieStore();
         CloseableHttpClient httpClient = httpFactory.getHttpClientWithCookies(cookieStore);
-        return validateByJiyan(httpClient, account);
-
-
+        //重试五次
+        int retry = 5;
+        while (retry>0) {
+            retry--;
+            Result<LoginResultDTO> result = validateByJiyan(httpClient, account);
+            if (result.getSuccess()) {
+                return result;
+            }
+        }
+        return new Result(ResultCodeEnum.LOGIN_FAILED);
     }
 
     public Result<LoginResultDTO> validateByJiyan(CloseableHttpClient httpClient, Account account) {
@@ -105,8 +114,11 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             //add validate
             //https://account.autohome.com.cn/ValidateCode/AddValidateCode
             String validateUrl = "https://account.autohome.com.cn/ValidateCode/AddValidateCode";
-            HttpGet httpGet1 = new HttpGet(validateUrl);
-            httpClient.execute(httpGet1);
+            HttpPost httpPost1 = new HttpPost(validateUrl);
+            CloseableHttpResponse response1 = httpClient.execute(httpPost1);
+            HttpEntity entity1 = response1.getEntity();
+            String content1 = EntityUtils.toString(entity1, "utf-8");
+            System.out.println(content1);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("qichezhijialogin", e);
@@ -119,7 +131,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
         //http://jiyan.c2567.com/index.php/user2/index.html
 
-        String jiyan_url = "http://jiyanapi.c2567.com/shibie?gt=" + gt + "&challenge=" + challenge + "&referer=https://account.autohome.com.cn/&user=test&pass=test&return=json&model=3&format=utf8";
+        String jiyan_url = "http://jiyanapi.c2567.com/shibie?gt=" + gt + "&challenge=" + challenge + "&referer=https://account.autohome.com.cn/&user=watermy&pass=qwertyui123&return=json&model=3&format=utf8";
         //极验验证识别
         try {
             CloseableHttpResponse response = httpClient.execute(new HttpGet(jiyan_url));
@@ -127,22 +139,25 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             HttpEntity entity = response.getEntity();
             String content = EntityUtils.toString(entity, "utf-8");
             JSONObject jsonObject = JSONObject.parseObject(content);
-            gt = (String) jsonObject.get("gt");
-            challenge = (String) jsonObject.get("challenge");
-            String seccode = gt+"|jordan";
-            setParam(httpClient, challenge,seccode, gt,account.getUserName(),account.getPassword());
+
+            String jiyan_validate = (String) jsonObject.get("validate");
+            String jiyan_challenge = (String) jsonObject.get("challenge");
+            String seccode = jiyan_validate + "|jordan";
+            boolean login = setParam(httpClient, jiyan_challenge, seccode, jiyan_validate, account.getUserName(), account.getPassword());
+            if (login) {
+                //登陆成功
+                LoginResultDTO loginResultDTO = new LoginResultDTO();
+                loginResultDTO.setHttpClient(httpClient);
+                loginResultPool.putToLoginResultMap(String.valueOf(account.getId()), loginResultDTO);
+                return new Result<>(loginResultDTO);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //加入验证
-
-        LoginResultDTO loginResultDTO = new LoginResultDTO();
-        loginResultDTO.setHttpClient(httpClient);
-        loginResultPool.putToLoginResultMap(String.valueOf(account.getId()), loginResultDTO);
-        return new Result<>(loginResultDTO);
+        return new Result<>(ResultCodeEnum.LOGIN_FAILED);
     }
 
-    public static void setParam(CloseableHttpClient httpClient, String challenge, String seccode, String validate, String username, String password) {
+    public boolean setParam(CloseableHttpClient httpClient, String challenge, String seccode, String validate, String username, String password) {
         try {
 //评论:
             HttpPost httpPost1 = new HttpPost("https://account.autohome.com.cn/Login/ValidIndex");
@@ -164,15 +179,38 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             nameValuePairs1.add(new BasicNameValuePair("geetest_challenge", challenge));
             nameValuePairs1.add(new BasicNameValuePair("geetest_seccode", seccode));
             nameValuePairs1.add(new BasicNameValuePair("geetest_validate", validate));
-            nameValuePairs1.add(new BasicNameValuePair("", ""));
             httpPost1.setEntity(new UrlEncodedFormEntity(nameValuePairs1, "UTF-8"));
             CloseableHttpResponse response1 = httpClient.execute(httpPost1);
             HttpEntity entity1 = response1.getEntity();
             String content1 = EntityUtils.toString(entity1, "utf-8");
             System.out.println(content1);
+            //登陆成功,设置httpclient的cookie
+            if (content1.contains("Msg.Success")) {
+                JSONObject jsonObject = JSONObject.parseObject(content1);
+                String loginUrl = (String) jsonObject.get("LoginUrl");
+                String ssoAutohomeUrl = (String) jsonObject.get("ssoAutohomeUrl");
+                String ssoChe168Url = (String) jsonObject.get("ssoChe168Url");
+                String loginUrlJiaJiaBX = (String) jsonObject.get("loginUrlJiaJiaBX");
+
+                HttpGet httpGet = new HttpGet(loginUrl);
+                HttpGet httpGet1 = new HttpGet(ssoAutohomeUrl);
+                HttpGet httpGet2 = new HttpGet(ssoChe168Url);
+                HttpGet httpGet3 = new HttpGet(loginUrlJiaJiaBX);
+
+                setHeader(httpGet);
+                setHeader(httpGet1);
+                setHeader(httpGet2);
+                setHeader(httpGet3);
+                httpClient.execute(httpGet);
+                httpClient.execute(httpGet1);
+                httpClient.execute(httpGet2);
+                httpClient.execute(httpGet3);
+                return true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public static void setHeader(HttpGet httpGet) {
