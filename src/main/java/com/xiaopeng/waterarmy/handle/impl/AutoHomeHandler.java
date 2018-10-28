@@ -23,10 +23,14 @@ import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -83,13 +87,11 @@ public class AutoHomeHandler extends PlatformHandler {
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
 
-        System.out.println("2321313");
-
 
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createPublishHttpPost(requestContext);
+            HttpPost httpPost = createPublishHttpPost(httpClient, requestContext, loginResultDTO.getCookieStore());
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -256,69 +258,85 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
 
-    private HttpPost createPublishHttpPost(RequestContext requestContext) {
-        /**
-         * target https://bbs.pcauto.com.cn/forum-20095.html 需要发帖的论坛
-         */
-        /**
-         * editor: 1
-         * sendMsg: true
-         * fid: 20095
-         * type:
-         * topicTitleMaxLength: 40
-         * category: 综合
-         * uploadKeepSource: false
-         * topicContentMinLength: 1
-         * topicContentMaxLength: 500000
-         * title: 国庆带着小白出行
-         * message: 前几天陪媳妇开车去三门峡市办事，因为我主要是担任司机角色，她去忙她的，我就有时间在附近随便溜达了。未完待续
-         * upload2Album: 2982656
-         * file:
-         * file:
-         * albumId: 2982656
-         */
-        String fid = null;
-        if (requestContext.getRequestParam() != null) {
-            Object object = requestContext.getRequestParam().get(FID);
-            if (object != null) {
-                fid = (String) object;
+    private HttpPost createPublishHttpPost(CloseableHttpClient httpClient, RequestContext requestContext, BasicCookieStore cookieStore) {
+        try {
+            String url = "https://clubajax.autohome.com.cn/ajax/corsagent?type=1&method=post";
+            HttpPost httpPost = new HttpPost(url);
+            httpPost = createPublish(httpClient, httpPost, requestContext, cookieStore);
+            return httpPost;
+        }catch (Exception e) {
+            logger.error("[createPublishHttpPost] error!",e);
+            return  null;
+        }
+    }
+
+    private HttpPost createPublish(CloseableHttpClient httpClient, HttpPost httpPost, RequestContext requestContext, BasicCookieStore cookieStore) {
+        //Accept: application/json, text/plain, */*
+        //Accept-Encoding: gzip, deflate, br
+        //Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+        //Connection: keep-alive
+        //Host: clubajax.autohome.com.cn
+        //Origin: https://clubajax.autohome.com.cn
+        //Referer: https://clubajax.autohome.com.cn/NewPost/CardPost?bbs=a&bbsId=100025&urlbbsId=100025&from_bj=0
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+
+        httpPost.setHeader("Accept", "application/json, text/plain, */*");
+        httpPost.setHeader("Accept-Encoding", "gzip, deflate, br");
+        httpPost.setHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+        httpPost.setHeader("Host", "clubajax.autohome.com.cn");
+        httpPost.setHeader("Origin", "https://clubajax.autohome.com.cn");
+
+        String url = requestContext.getPrefixUrl();
+        //https://club.autohome.com.cn/bbs/forum-c-2615-1.html
+        String temp = FetchParamUtil.getMatherStr(url, "forum-.*-\\d+-\\d+.html");
+        String temp2 = FetchParamUtil.getMatherStr(temp, "forum-.*-\\d+-");
+        temp2 = FetchParamUtil.getMatherStr(temp2,"-.*-\\d+");
+        temp2 = FetchParamUtil.getMatherStr(temp2,"-.*-");
+        String type = temp2.replaceAll("-","");
+        //type = type.replaceAll("-", "");
+        String forumId = FetchParamUtil.getMatherStr(temp, "-\\d+-");
+        forumId = forumId.replaceAll("-", "");
+        //https://clubajax.autohome.com.cn/NewPost/CardPost?bbs=c&bbsId=2615&urlbbsId=2615&from_bj=0
+        String reffer = "https://clubajax.autohome.com.cn/NewPost/CardPost?bbs=" + type + "&bbsId=" + forumId + "&urlbbsId=" + forumId + "&from_bj=0";
+        httpPost.setHeader("Referer", reffer);
+        httpPost.setHeader("Content-Type","application/x-www-form-urlencoded");
+
+        //设置cookie
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Cookie cookie : cookieStore.getCookies()) {
+             if (cookie.getDomain().contains("autohome.com.cn")) {
+                 stringBuilder.append(cookie.getName());
+                 stringBuilder.append(":");
+                 stringBuilder.append(cookie.getValue());
+                 stringBuilder.append(";");
+             }
+        }
+        httpPost.setHeader("Cookie",stringBuilder.toString());
+        String memberId = null;
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if ("sessionuserid".equals(cookie.getName())) {
+                memberId = cookie.getValue();
             }
         }
-        if (fid == null) { //https://bbs.pcauto.com.cn/topic-16868614.html
-            //太平洋的可以直接从url中截取
-            String pattern = "-(\\d+).html";
-            String temp = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), pattern);
-            fid = FetchParamUtil.getMatherStr(temp, "(\\d+)");
-        }
-
-        String targetUrl = requestContext.getTargetUrl();
-        if (StringUtils.isBlank(targetUrl)) {
-            targetUrl = TARGET_PUBLISH_URL;
-        }
-        HttpPost httpPost = new HttpPost(targetUrl);
-
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-        nameValuePairs.add(new BasicNameValuePair("editor", "1"));
-        nameValuePairs.add(new BasicNameValuePair("sendMsg", "true"));
-        nameValuePairs.add(new BasicNameValuePair("fid", fid));
-        nameValuePairs.add(new BasicNameValuePair("topicTitleMaxLength", "40"));
-        nameValuePairs.add(new BasicNameValuePair("category", "综合"));
-        nameValuePairs.add(new BasicNameValuePair("uploadKeepSource", "false"));
-        nameValuePairs.add(new BasicNameValuePair("topicContentMinLength", "1"));
-        nameValuePairs.add(new BasicNameValuePair("topicContentMaxLength", "500000"));
-        nameValuePairs.add(new BasicNameValuePair("title", requestContext.getContent().getTitle()));
-        nameValuePairs.add(new BasicNameValuePair("message", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("upload2Album", "2982656")); //由于现在没有图片需求这里就写死相册好了
-        nameValuePairs.add(new BasicNameValuePair("albumId", "2982656"));
-
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            String str = createTopicContent(memberId, type, forumId, requestContext.getContent().getTitle(), requestContext.getContent().getText());
+            StringEntity entity = new StringEntity(str,"UTF-8");
+            entity.setContentType("application/x-www-form-urlencoded");
+            entity.setContentEncoding("UTF-8");
+            httpPost.setEntity(entity);
+            return httpPost;
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+            logger.error("create publish error!", e);
             return null;
         }
-        return httpPost;
+
+    }
+
+
+    private String createTopicContent(String memberId, String bbs, String bbsId, String title, String content) {
+        //{"topicmain":{"topicid":0,"title":"有没有一起组团参加野外游的","source":"PC.CARD","memberid":"82819437","bbs":"a","bbsid":"100025","clientip":"{$realip$}","autohomeua":"","reply_notify_me":1,"informfriends":1},"topicext":{"lon":0,"lat":0,"postaddress":"","landmark":""},"topiccards":[{"ctype":2,"url":"","des":"想组团去成都自驾游，有没有可以一起的","otherattributes":{"linkurl":""}}]}
+        String str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + title + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + bbs + "\",\"bbsid\":\"" + bbsId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[{\"ctype\":2,\"url\":\"\",\"des\":\"" + content + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
+        return str;
     }
 
 
@@ -392,7 +410,6 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
 
-
     private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
 
 
@@ -415,7 +432,7 @@ public class AutoHomeHandler extends PlatformHandler {
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //新闻评论成功
-                    if ((resultDTO.getResultCode())==0) {
+                    if ((resultDTO.getResultCode()) == 0) {
                         //评论成功
                         HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
                         CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
@@ -423,7 +440,7 @@ public class AutoHomeHandler extends PlatformHandler {
                         return new Result(handlerResultDTO);
                     } else {
                         //评论失败
-                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                        return new Result(ResultCodeEnum.HANDLE_FAILED, content);
                     }
                 }
             }
@@ -456,7 +473,7 @@ public class AutoHomeHandler extends PlatformHandler {
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
                 if (resultDTO.getStatus().equals("0")) {
                     //新闻评论成功
-                    if ((resultDTO.getResultCode())==0) {
+                    if ((resultDTO.getResultCode()) == 0) {
                         //评论成功
                         //发起通知请求
                         /*HttpGet httpGet = createCheZhuCommentNoticeHttpGet(requestContext,httpClient,resultDTO);
@@ -469,7 +486,7 @@ public class AutoHomeHandler extends PlatformHandler {
                         return new Result(handlerResultDTO);
                     } else {
                         //评论失败
-                        return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                        return new Result(ResultCodeEnum.HANDLE_FAILED, content);
                     }
                 }
             }
@@ -483,7 +500,7 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
 
-    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext,CloseableHttpClient httpClient,TaiPingYangCommentResultDTO resultDTO) {
+    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext, CloseableHttpClient httpClient, TaiPingYangCommentResultDTO resultDTO) {
         /**
          * req-enc: utf-8
          * commentId: 881901
@@ -505,33 +522,33 @@ public class AutoHomeHandler extends PlatformHandler {
             String sgId = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
-                mobileId = FetchParamUtil.getMatherStr(content,"var modelId = \"\\d+");
-                mobileId = FetchParamUtil.getMatherStr(mobileId,"\\d+");
+                mobileId = FetchParamUtil.getMatherStr(content, "var modelId = \"\\d+");
+                mobileId = FetchParamUtil.getMatherStr(mobileId, "\\d+");
 
-                sgId = FetchParamUtil.getMatherStr(content,"var SGID='\\d+");
-                sgId = FetchParamUtil.getMatherStr(sgId,"\\d+");
+                sgId = FetchParamUtil.getMatherStr(content, "var SGID='\\d+");
+                sgId = FetchParamUtil.getMatherStr(sgId, "\\d+");
             }
 
-            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"view_\\d+.html");
-            commentId = FetchParamUtil.getMatherStr(commentId,"\\d+");
+            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), "view_\\d+.html");
+            commentId = FetchParamUtil.getMatherStr(commentId, "\\d+");
 
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("req-enc", "utf-8"));
             nameValuePairs.add(new BasicNameValuePair("commentId", commentId));
             nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
             nameValuePairs.add(new BasicNameValuePair("accountId", String.valueOf(resultDTO.getUserId())));
-            nameValuePairs.add(new BasicNameValuePair("sgId",sgId ));
-            nameValuePairs.add(new BasicNameValuePair("modelId",mobileId));
-            nameValuePairs.add(new BasicNameValuePair("account",resultDTO.getShowName()));
-            nameValuePairs.add(new BasicNameValuePair("replyId",String.valueOf(resultDTO.getCommentId())));
-            nameValuePairs.add(new BasicNameValuePair("floor",String.valueOf(resultDTO.getFloor())));
+            nameValuePairs.add(new BasicNameValuePair("sgId", sgId));
+            nameValuePairs.add(new BasicNameValuePair("modelId", mobileId));
+            nameValuePairs.add(new BasicNameValuePair("account", resultDTO.getShowName()));
+            nameValuePairs.add(new BasicNameValuePair("replyId", String.valueOf(resultDTO.getCommentId())));
+            nameValuePairs.add(new BasicNameValuePair("floor", String.valueOf(resultDTO.getFloor())));
 
             String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             String url = TARGET_COMMENT_CHEZHU_MESSAGE + "?" + str;
             HttpGet httpGet1 = new HttpGet(url);
             return httpGet1;
-        }catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]",e);
+        } catch (Exception e) {
+            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]", e);
             return null;
         }
     }
@@ -554,13 +571,13 @@ public class AutoHomeHandler extends PlatformHandler {
                 content = EntityUtils.toString(entity, "utf-8");
                 content = content.trim();
                 TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
-                if (resultDTO.getCode()==1) {
+                if (resultDTO.getCode() == 1) {
                     HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
                     PraiseInfo praiseInfo = ResultParamUtil.createPraiseInfo(requestContext, content);
                     save(new SaveContext(praiseInfo));
                     return new Result(handlerResultDTO);
                 }
-                return new Result(ResultCodeEnum.HANDLE_FAILED,content);
+                return new Result(ResultCodeEnum.HANDLE_FAILED, content);
             }
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
@@ -581,7 +598,7 @@ public class AutoHomeHandler extends PlatformHandler {
          */
         try {
             String cid = (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID);
-            if (cid==null) {
+            if (cid == null) {
                 return null;
             }
             HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS_PRAISE);
@@ -631,10 +648,10 @@ public class AutoHomeHandler extends PlatformHandler {
         HttpPost httpPost = null;
         String url = requestContext.getPrefixUrl();
         if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
-            url = url.replaceAll("https:","");
-            url = url.replaceAll("http:","");
+            url = url.replaceAll("https:", "");
+            url = url.replaceAll("http:", "");
             httpPost = new HttpPost(TARGET_COMMENT_CHE_ZHU);
-        }else {
+        } else {
             httpPost = new HttpPost(TARGET_COMMENT_NEWS);
         }
         String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
@@ -690,8 +707,6 @@ public class AutoHomeHandler extends PlatformHandler {
             return null;
         }
     }
-
-
 
 
     private void setCommentNewsHeader(HttpPost httpPost) {

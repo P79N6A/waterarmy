@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.result;
 
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 public class LoginResultDTO {
@@ -34,6 +35,11 @@ public class LoginResultDTO {
      */
     private CloseableHttpClient httpClient;
 
+    /**
+     *
+     * @return
+     */
+    private BasicCookieStore cookieStore;
 
     public Long getOutId() {
         return outId;
@@ -81,6 +87,14 @@ public class LoginResultDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public BasicCookieStore getCookieStore() {
+        return cookieStore;
+    }
+
+    public void setCookieStore(BasicCookieStore cookieStore) {
+        this.cookieStore = cookieStore;
     }
 
     @Override

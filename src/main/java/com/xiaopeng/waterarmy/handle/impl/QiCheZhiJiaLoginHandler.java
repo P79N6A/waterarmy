@@ -59,7 +59,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             logger.error("[QiCheZhiJiaLoginHandler]login error; account is null");
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
         }
-
+        BasicCookieStore cookieStore;
         String userName = account.getUserName();
         String passWord = account.getPassword();
         if (StringUtils.isBlank(userName) || StringUtils.isBlank(passWord)) {
@@ -76,9 +76,10 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
         int retry = 1;
         while (retry>0) {
             retry--;
-            CookieStore cookieStore = new BasicCookieStore();
+            cookieStore = new BasicCookieStore();
             CloseableHttpClient httpClient = httpFactory.getHttpClientWithCookies(cookieStore);
             Result<LoginResultDTO> result = validateByJiyan(httpClient, account);
+            result.getData().setCookieStore(cookieStore);
             if (result.getSuccess()) {
                 return result;
             }
@@ -201,14 +202,28 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
                 setSyncSSOHeader(httpGet1);
                 setChe168Header(httpGet);
                 setJiaJiaBaoxianHeader(httpGet3);
-                setSyncSSOHeader(httpGet2);
+                setSSOChe168Header(httpGet2);
 
 
                 httpClient.execute(httpGet1);
-                //httpClient.execute(httpGet);
+                try {
+                    httpClient.execute(httpGet);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                //httpClient.execute(httpGet2);
-                //httpClient.execute(httpGet3);
+                try {
+                    httpClient.execute(httpGet2);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    httpClient.execute(httpGet3);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 return true;
             }
         } catch (Exception e) {
@@ -232,6 +247,21 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
         httpGet.setHeader("Referer", "https://account.autohome.com.cn/");
         httpGet.setHeader("User-Agent", "User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
     }
+
+    public void setSSOChe168Header(HttpGet httpGet) {
+        //Accept: */*
+        //Accept-Encoding: gzip, deflate, br
+        //Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+        //Connection: keep-alive
+        //Cookie: __ah_uuid=1FAC53EE-E0FE-43B1-A5C1-BDCCB4AA3B1B; fvlid=1540471585776iwnlf7AfSm; sessionid=71B8270C-17BA-4009-9DDA-7E3A53138FE3%7C%7C2018-10-25+20%3A46%3A28.043%7C%7Cwww.baidu.com; ahpau=1; sessionuid=71B8270C-17BA-4009-9DDA-7E3A53138FE3%7C%7C2018-10-25+20%3A46%3A28.043%7C%7Cwww.baidu.com; __utmc=1; __utmz=1.1540513111.2.2.utmcsr=autohome.com.cn|utmccn=(referral)|utmcmd=referral|utmcct=/hangzhou/; autouserid=83550124; sessionuserid=83550124; autosso=b10d9f04dd5f4a32a2488f8836509c3d04fadfac; sessionlogin=37ffc5aef6d748f59225d32672e8b8cb04fadfac; ahpvno=19; sessionip=115.200.236.208; sessionvid=9D5FA86F-8915-4DE2-8AE2-DDDB0B838DB7; area=330108; __utma=1.173950538.1540471590.1540513111.1540530802.3; __utmb=1.0.10.1540530802; ref=www.baidu.com%7C0%7C0%7C0%7C2018-10-26+13%3A13%3A24.797%7C2018-10-25+20%3A46%3A28.043; ahrlid=1540530801367o54l3qfTE6-1540530844693; pcpopclub=fd1d09677eee4be4a0e1c16ebaad55f104fadfac; clubUserShow=83550124|66|30|ao2yhn9t7|0|0|0||2018-10-26 13:14:03|0
+        //Host: sso.autohome.com.cn
+        //Referer: https://account.autohome.com.cn/
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+        httpGet.setHeader("Host", "sso.che168.com");
+        httpGet.setHeader("Referer", "https://account.autohome.com.cn/");
+        httpGet.setHeader("User-Agent", "User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+    }
+
 
     public  void setSyncSSOHeader(HttpGet httpGet) {
         //Accept: */*

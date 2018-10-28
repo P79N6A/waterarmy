@@ -67,12 +67,13 @@ public class HandlerDispatcher {
         RequestContext requestContext = new RequestContext();
         Content content = new Content();
         content.setText("这个车真心不错，我昨天试了一下，好想买");
+        content.setTitle("有没有一起组团去买车的");
         requestContext.setContent(content);
-        requestContext.setUserId(16L);
+        requestContext.setUserId(17L);
         requestContext.setUserLoginId("13216894048");
         requestContext.setHandleType(TaskTypeEnum.POSIED);
         requestContext.setPlatform(PlatformEnum.AUTOHOME);
-        requestContext.setPrefixUrl("http://baa.bitauto.com/jilidihaogs/thread-15766298-goto179749454.html");
+        requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/forum-c-3465-1.html");
         return requestContext;
     }
 
