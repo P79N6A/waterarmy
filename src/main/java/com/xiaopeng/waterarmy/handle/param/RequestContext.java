@@ -4,6 +4,8 @@ import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 
+import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 public class RequestContext {
@@ -57,6 +59,11 @@ public class RequestContext {
      * 针对http请求，将map中的内容全部映射到header中
      */
     private Map headerParam;
+
+    /**
+     * 图片流list
+     */
+    private List<InputStream> imageInputStreams;
 
     public Long getUserId() {
         return userId;
@@ -136,6 +143,14 @@ public class RequestContext {
 
     public void setHandleEntryType(TaskEntryTypeEnum handleEntryType) {
         this.handleEntryType = handleEntryType;
+    }
+
+    public List<InputStream> getImageInputStreams() {
+        return imageInputStreams;
+    }
+
+    public void setImageInputStreams(List<InputStream> imageInputStreams) {
+        this.imageInputStreams = imageInputStreams;
     }
 
     @Override

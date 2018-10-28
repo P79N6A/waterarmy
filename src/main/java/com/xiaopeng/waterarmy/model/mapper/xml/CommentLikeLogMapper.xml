@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.CommentLikeLogMapper">
+
+    <insert id="save">
+        <selectKey resultType="java.lang.Long" keyProperty="commentLikeLog.id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+       INSERT INTO `comment_like_log` (`user_name`, `platform`, `comment_like_link`, `like_content`)
+       VALUES
+       (#{commentLikeLog.userName}, #{commentLikeLog.platform}, #{commentLikeLog.commentLikeLink}, #{commentLikeLog.likeContent})
+    </insert>
+
+    <select id="getContentLikeLog" resultType="com.xiaopeng.waterarmy.model.dao.CommentLikeLog">
+        SELECT id, user_name AS userName, platform, comment_like_link AS commentLikeLink
+        , like_content AS likeContent
+        FROM comment_like_log WHERE user_name = #{params.userName} AND platform = #{params.platform}
+        AND comment_like_link = #{params.commentLikeLink} AND like_content = #{params.likeContent}
+    </select>
+
+
+</mapper>

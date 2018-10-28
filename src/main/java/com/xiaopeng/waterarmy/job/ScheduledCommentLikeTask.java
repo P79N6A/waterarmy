@@ -10,6 +10,8 @@ import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
+import com.xiaopeng.waterarmy.model.dao.CommentLikeLog;
+import com.xiaopeng.waterarmy.model.mapper.CommentLikeLogMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.TaskService;
 import org.apache.commons.collections4.MapUtils;
@@ -44,8 +46,11 @@ public class ScheduledCommentLikeTask {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private CommentLikeLogMapper commentLikeLogMapper;
+
     @Scheduled(fixedRate = 6000)//5000
-    public void reportCurrentTime() {
+    public void execute() {
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.LIKE.getName());
         for (Map<String, Object> task : tasks) {
             //获取需要评论点赞的平台对应的用户列表
@@ -53,7 +58,7 @@ public class ScheduledCommentLikeTask {
             List<Account> accounts = accountService.getAccountsByPlatform(platform);
             if (!ObjectUtils.isEmpty(accounts)) {
                 String publicIP = IPUtil.getPublicIP();
-                Account commentLikeAccount = getAccountByIP(accounts, platform, publicIP);
+                Account commentLikeAccount = getAccountByIP(accounts, platform, publicIP, task);
                 //获取评论点赞上下文
                 RequestContext context = createCommentLikeContext(task, commentLikeAccount);
                 //执行评论点赞任务
@@ -94,6 +99,12 @@ public class ScheduledCommentLikeTask {
                 accountIPInfo.setIp(publicIP);
                 accountService.saveAccountIPInfo(accountIPInfo);
             }
+            CommentLikeLog likeLog = new CommentLikeLog();
+            likeLog.setUserName(commentLikeAccount.getUserName());
+            likeLog.setPlatform(platform);
+            likeLog.setLikeContent(context.getContent().getText());
+            likeLog.setCommentLikeLink(context.getPrefixUrl());
+            commentLikeLogMapper.save(likeLog);
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论点赞失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -153,8 +164,17 @@ public class ScheduledCommentLikeTask {
         return requestContext;
     }
 
-    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP) {
+    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP, Map<String, Object> task) {
         for (Account acc: accounts) {
+            Map<String, Object> likeInfo = new HashMap<>();
+            likeInfo.put("userName", acc.getUserName());
+            likeInfo.put("platform", platform);
+            likeInfo.put("commentLikeLink", task.get("link"));
+            likeInfo.put("likeContent", task.get("likeContent"));
+            CommentLikeLog commentLikeLog = commentLikeLogMapper.getContentLikeLog(likeInfo);
+            if (!ObjectUtils.isEmpty(commentLikeLog)) {
+                continue;
+            }
             if (!ObjectUtils.isEmpty(pulicIP)) {
                 Map<String, Object> accountIPInfo
                         = accountService.getAccountIPInfo(pulicIP, platform, null);

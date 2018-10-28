@@ -58,7 +58,7 @@ public class ScheduledPublishTask {
     private HandlerDispatcher handlerDispatcher;
 
     @Scheduled(fixedRate = 60000)//5000
-    public void reportCurrentTime() {
+    public void execute() {
         //logger.info("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.POSIED.getName());
         for (Map<String, Object> task : tasks) {

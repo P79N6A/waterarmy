@@ -56,7 +56,7 @@ public class ScheduledReadTask {
             , threadFactory, new ThreadPoolExecutor.AbortPolicy());
 
     @Scheduled(fixedRate = 50)//5000
-    public void reportCurrentTime() {
+    public void execute() {
         //logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
         for (Map<String, Object> task : tasks) {
