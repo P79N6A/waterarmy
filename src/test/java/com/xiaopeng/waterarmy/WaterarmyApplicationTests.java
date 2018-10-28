@@ -1,6 +1,16 @@
 package com.xiaopeng.waterarmy;
 
+import com.xiaopeng.waterarmy.common.constants.RequestConsts;
+import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
+import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.common.util.ExcelUtil;
+import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
+import com.xiaopeng.waterarmy.handle.impl.AiKaHandler;
+import com.xiaopeng.waterarmy.handle.impl.TaiPingYangHandler;
+import com.xiaopeng.waterarmy.handle.impl.YiCheHandler;
+import com.xiaopeng.waterarmy.handle.param.Content;
+import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.model.dao.LinkInfo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -9,6 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
@@ -17,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -25,6 +37,9 @@ import java.util.regex.Pattern;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class WaterarmyApplicationTests {
+
+    public WaterarmyApplicationTests() {
+    }
 
     @Test
     public void test2() {
@@ -108,5 +123,83 @@ public class WaterarmyApplicationTests {
         return datas;
     }
 
+    @Autowired
+    private YiCheHandler yiCheHandler;
 
+    @Autowired
+    private TaiPingYangHandler taiPingYangHandler;
+
+    @Autowired
+    private AiKaHandler aiKaHandler;
+
+    @Test
+    public void testPublist() {
+        RequestContext requestContext = new RequestContext();
+        Content content = new Content();
+        content.setText("这个车真的很帅");
+        content.setTitle("改装");
+        requestContext.setContent(content);
+        requestContext.setUserId(3L);
+        requestContext.setUserLoginId("15164577148");
+        requestContext.setHandleType(TaskTypeEnum.POSIED);
+        requestContext.setPlatform(PlatformEnum.YICHE);
+        //requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHECOMMENTPRAISE);
+        //requestContext.setHandleEntryType(TaskEntryTypeEnum.YICHENEWSCOMMENT);
+        //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1745");
+        requestContext.setPrefixUrl("http://baa.bitauto.com/changancs35/");
+        //requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/viewthread.php?tid=34241863");
+        //requestContext.setPrefixUrl("http://news.bitauto.com/hao/wenzhang/963762");
+       /* HashMap map = new HashMap();
+        map.put(RequestConsts.COMMENT_ID,"257971069489512448");
+        map.put(RequestConsts.COMMENT_CONTENT,"666");
+        requestContext.setRequestParam(map);https://cmt.pcauto.com.cn/action/comment/create.jsp?urlHandle=1*/
+        yiCheHandler.publish(requestContext);
+    }
+
+
+    @Test
+    public void testTaiPinYangPublish() {
+        try {
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("明年再买吧，有点贵");
+            content.setTitle("改装");
+            requestContext.setContent(content);
+            requestContext.setUserId(7L);
+            requestContext.setUserLoginId("18482193356");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.PCAUTO);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+            requestContext.setPrefixUrl("https://bbs.pcauto.com.cn/forum-20095.html");
+            HashMap<String, String> map = new HashMap<>();
+            map.put(RequestConsts.COMMENT_ID, "32202092");
+            map.put(RequestConsts.COMMENT_CONTENT, "666");
+            requestContext.setRequestParam(map);
+            taiPingYangHandler.publish(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testXCARPublish() {
+        try {
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("明年再买吧，有点贵");
+            content.setTitle("改装");
+            requestContext.setContent(content);
+            requestContext.setUserId(1L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.POSIED);
+            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPrefixUrl("http://www.xcar.com.cn/bbs/forumdisplay.php?fid=1604");
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+            HashMap<String, String> map = new HashMap<>();
+            requestContext.setRequestParam(map);
+            aiKaHandler.publish(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

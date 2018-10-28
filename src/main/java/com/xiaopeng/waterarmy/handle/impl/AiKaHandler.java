@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -21,11 +22,14 @@ import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -37,6 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -90,7 +97,7 @@ public class AiKaHandler extends PlatformHandler {
             logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
-        Map map = null;
+        Map map = new HashMap();
         boolean needRetry = true;
         int retry = 3;
         try {
@@ -99,6 +106,15 @@ public class AiKaHandler extends PlatformHandler {
                 retry -- ;
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+
+                //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
+                FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/image.png");
+                AiKaImage aiKaImage = aiKaImageUpload(httpClient, fileInputStream);
+                if (logger.isDebugEnabled()) {
+                    logger.info("爱卡图片上传结果：" + aiKaImage);
+                }
+                map.put("aiKaImage", aiKaImage);
+
                 map = createPublishHttpPost(requestContext,map);
                 CloseableHttpResponse response = httpClient.execute((HttpPost)map.get("httpPost"));
                 HttpEntity entity = response.getEntity();
@@ -165,7 +181,14 @@ public class AiKaHandler extends PlatformHandler {
         try {
             String temp = requestContext.getContent().getTitle();
             nameValuePairs.add(new BasicNameValuePair("subject", temp));
-            nameValuePairs.add(new BasicNameValuePair("message", URLEncoder.encode("[textcard]" + requestContext.getContent().getText() + "[/textcard]", "GB2312")));//meesageBody
+            AiKaImage aiKaImage = (AiKaImage) map.get("aiKaImage");
+            String msg;
+            if (aiKaImage != null) {
+                msg = URLEncoder.encode("[textcard]" + requestContext.getContent().getText() + "[/textcard][piccard][img=960,641]" + aiKaImage.src + "[/img][/piccard]", "GB2312");
+            } else {
+                msg = URLEncoder.encode("[textcard]" + requestContext.getContent().getText() + "[/textcard]", "GB2312");
+            }
+            nameValuePairs.add(new BasicNameValuePair("message", msg));//meesageBody
             if (map.get("formhash")!=null) {
                 nameValuePairs.add(new BasicNameValuePair("formhash", (String) map.get("formhash")));
             }
@@ -279,6 +302,44 @@ public class AiKaHandler extends PlatformHandler {
             logger.error("[AiKaHandler.comment] error!", e);
         }
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
+
+    /**
+     * 易车图片资源上传
+     *
+     * @param httpClient
+     * @param inputStream
+     * @return
+     */
+    public AiKaImage aiKaImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+        String uploadUrl = "http://www.xcar.com.cn/bbs/post_card_ajax.php?a=upload_pic";
+        HttpPost httpPost = new HttpPost(uploadUrl);
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .addBinaryBody("Filedata", inputStream, ContentType.create("application/octet-stream"), "file.png")
+                .build();
+        httpPost.setEntity(entity);
+
+        HttpResponse httpResponse = httpClient.execute(httpPost);
+        String content = EntityUtils.toString(httpResponse.getEntity());
+        System.out.println(content);
+        return JSON.parseObject(content, AiKaImage.class);
+    }
+
+
+    public static class AiKaImage {
+        public String status;
+        public String msg;
+        public String src;
+
+        @Override
+        public String toString() {
+            return "YiCheImage{" +
+                    "status='" + status + '\'' +
+                    ", msg='" + msg + '\'' +
+                    ", src='" + src + '\'' +
+                    '}';
+        }
     }
 
 
