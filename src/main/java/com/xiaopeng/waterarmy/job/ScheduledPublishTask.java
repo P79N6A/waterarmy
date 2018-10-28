@@ -15,6 +15,8 @@ import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import com.xiaopeng.waterarmy.model.dao.ContentInfo;
+import com.xiaopeng.waterarmy.model.dao.TaskImageInfo;
+import com.xiaopeng.waterarmy.model.mapper.TaskImageInfoMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.ContentService;
 import com.xiaopeng.waterarmy.service.TaskService;
@@ -26,6 +28,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -56,6 +59,9 @@ public class ScheduledPublishTask {
 
     @Autowired
     private HandlerDispatcher handlerDispatcher;
+
+    @Autowired
+    private TaskImageInfoMapper taskImageInfoMapper;
 
     @Scheduled(fixedRate = 60000)//5000
     public void execute() {
@@ -165,6 +171,16 @@ public class ScheduledPublishTask {
             requestContext.setPlatform(PlatformEnum.getEnum(platform));//PlatformEnum.YICHE
             String link = MapUtils.getString(task, "link");
             requestContext.setPrefixUrl(link);//"http://baa.bitauto.com/langdong/"
+
+//            Map<String, Object> imageInfos = new HashMap<>();
+//            imageInfos.put("taskId", task.get(""));
+//            List<Map<String, Object>> taskImageInfos = taskImageInfoMapper.getTaskImageInfos(imageInfos);
+//            imageInfos.put("fileName", taskImageInfos.get("fileName"));
+//            imageInfos.put("filePath", "");
+//            File imageFile = new File();
+//            imageFile
+//            requestContext.setImageInputStreams();
+
         } catch (Exception e) {
             logger.error("获取发帖上下文失败, ", e);
         }

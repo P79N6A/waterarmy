@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.service;
 import com.github.pagehelper.PageInfo;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -109,4 +110,11 @@ public interface TaskService {
 
     JsonMessage updatePublishTask(Map<String,Object> params);
 
+    /**
+     * 上传帖子图片
+     *
+     * @param file
+     * @return
+     */
+    JsonMessage uploadTaskImg(MultipartFile file);
 }

@@ -54,6 +54,21 @@
                 <el-input type="textarea" v-model="form.content"
                           :rows="5"></el-input>
             </el-form-item>
+
+            <div class="ui-title">
+                上传帖子图片
+            </div>
+            <el-upload
+                    class="upload-demo"
+                    action="/task/uploadTaskImg"
+                    :on-success="successUpload"
+                    multiple
+                    :limit="1"
+                    :file-list="fileList"
+                    :data="type">
+                <el-button size="small" type="primary">上传帖子图片</el-button>
+            </el-upload>
+
             <div class="ui-title">
                 内容库
             </div>
@@ -130,6 +145,7 @@
             isShowEdit: false,
             // 编辑的内容
             formEdit: {},
+            fileList: [], // 上传文件
             // 编辑的条目
             formEditItem: {},
             pageTotal: 0, // 总条数
@@ -277,6 +293,20 @@
                     }
                 });
             },
+
+            successUpload : function(response, file, fileList, $event) {
+                var _this = this;
+                console.log(JSON.stringify(response));
+                _this.message('上传成功 !');
+                if(response.code == 200){
+                    setTimeout(function() {
+                        _this.refresh();
+                    }, 500)
+                }else {
+                    this.message('上传失败 !');
+                }
+            },
+
             init: function(taskPublishId) {
                 this.form.taskPublishId  = taskPublishId;
                 console.log("taskPublishId:  " + taskPublishId)

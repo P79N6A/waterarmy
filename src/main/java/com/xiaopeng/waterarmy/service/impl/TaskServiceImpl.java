@@ -9,6 +9,7 @@ import com.xiaopeng.waterarmy.common.message.CodeEnum;
 import com.xiaopeng.waterarmy.common.message.JsonMessage;
 import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
+import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.TaskPublish;
 import com.xiaopeng.waterarmy.model.mapper.*;
@@ -18,8 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -252,6 +256,50 @@ public class TaskServiceImpl implements TaskService {
                 result.put("executableCount", executableCount);
             }
         }
+    }
+
+    @Override
+    public JsonMessage uploadTaskImg(MultipartFile file) {
+        JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
+        String fileName = file.getOriginalFilename();
+        RequestContext context = new RequestContext();
+        List<InputStream> imgInputStreams = new ArrayList<>();
+        try {
+            imgInputStreams.add(file.getInputStream());
+            //String path = System.getProperty("java.class.path");
+            String path
+                    = ClassUtils.getDefaultClassLoader()
+                    .getResource("").getPath() + "images/";
+            File f = new File(path);
+            File imgFile = new File(path + fileName);
+            Map<String, String> files = new HashMap<>();
+            files.put("fileName", path + fileName);
+            message.setData(files);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            inputStreamToFile(file.getInputStream(), path + fileName);
+        } catch (IOException e) {
+            logger.error("上传图片流失败, ", e);
+        }
+        //file.getInputStream();
+        return message;
+    }
+
+    public static void inputStreamToFile(InputStream is, String fileName)
+            throws IOException {
+        OutputStream outputStream = null;
+        File file = new File(fileName);
+        outputStream = new FileOutputStream(file);
+        int bytesWritten = 0;
+        int byteCount = 0;
+        byte[] bytes = new byte[1024];
+        while ((byteCount = is.read(bytes)) != -1) {
+            outputStream.write(bytes, bytesWritten, byteCount);
+            bytesWritten += byteCount;
+        }
+        is.close();
+        outputStream.close();
     }
 
     /**
