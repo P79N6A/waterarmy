@@ -22,6 +22,7 @@ import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
+import jdk.internal.util.xml.impl.Input;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -98,23 +99,16 @@ public class YiCheHandler extends PlatformHandler {
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
 
-                //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
-                FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/download.jpeg");
-                YiCheImage yiCheImage = yicheImageUpload(httpClient, fileInputStream);
+                //如果有图片则上传图片
+                List<InputStream> inputStreams = requestContext.getImageInputStreams();
+                List<YiCheAttachment> yiCheAttachments = new ArrayList<>();
+                if (inputStreams != null) {
+                    Map<String, Object> imageRes = yiCheImageUpload(httpClient, inputStreams);
+                    requestContext.getContent().setText(requestContext.getContent().getText() + imageRes.get("textContent"));
+                    yiCheAttachments = (List<YiCheAttachment>) imageRes.get("attachments");
+                }
 
-                String fileProgressID = UUID.randomUUID().toString();
-                String imageContent = "<p><img class=\"fileProgress\" type=\"upload\" fileprogressid=\"" + fileProgressID + "\" src=\"" + yiCheImage.fileUrl + "\" /></p>";
-                requestContext.getContent().setText(requestContext.getContent().getText() + imageContent);
-
-                YiCheAttachment yiCheAttachment = new YiCheAttachment();
-                yiCheAttachment.FileOldName = yiCheImage.fileName;
-                yiCheAttachment.FileName = yiCheImage.fileSubPath;
-                yiCheAttachment.Filetype = yiCheImage.fileType;
-                yiCheAttachment.FileProgressID = fileProgressID;
-                yiCheAttachment.Width = yiCheImage.width;
-                yiCheAttachment.Height = yiCheImage.height;
-
-                HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO, targetUrl, needCode, Collections.singletonList(yiCheAttachment));
+                HttpPost httpPost = createPublishHttpPost(requestContext, loginResultDTO, targetUrl, needCode, yiCheAttachments);
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 HttpEntity entity = response.getEntity();
                 String content;
@@ -978,6 +972,37 @@ public class YiCheHandler extends PlatformHandler {
         return "a" + prefix.toString() + "-87bb-5d43-394f-e0423" + suffix.toString();
     }
 
+    /**
+     * 多张图片上传
+     *
+     * @param httpClient
+     * @param inputStreams
+     * @return
+     * @throws IOException
+     */
+    private Map<String, Object> yiCheImageUpload(HttpClient httpClient, List<InputStream> inputStreams) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        List<YiCheAttachment> yiCheAttachments = new ArrayList<>();
+        Map<String, Object> res = new HashMap<>();
+        for (InputStream inputStream : inputStreams) {
+            YiCheImage yiCheImage = yiCheImageUpload(httpClient, inputStream);
+            String fileProgressID = UUID.randomUUID().toString();
+            String imageContent = "<p><img class=\"fileProgress\" type=\"upload\" fileprogressid=\"" + fileProgressID + "\" src=\"" + yiCheImage.fileUrl + "\" /></p>";
+            stringBuilder.append(imageContent);
+
+            YiCheAttachment yiCheAttachment = new YiCheAttachment();
+            yiCheAttachment.FileOldName = yiCheImage.fileName;
+            yiCheAttachment.FileName = yiCheImage.fileSubPath;
+            yiCheAttachment.Filetype = yiCheImage.fileType;
+            yiCheAttachment.FileProgressID = fileProgressID;
+            yiCheAttachment.Width = yiCheImage.width;
+            yiCheAttachment.Height = yiCheImage.height;
+            yiCheAttachments.add(yiCheAttachment);
+        }
+        res.put("textContent", stringBuilder.toString());
+        res.put("attachments", yiCheAttachments);
+        return res;
+    }
 
     /**
      * 易车图片资源上传
@@ -986,7 +1011,7 @@ public class YiCheHandler extends PlatformHandler {
      * @param inputStream
      * @return
      */
-    public YiCheImage yicheImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+    private YiCheImage yiCheImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
         String uploadUrl = "http://baa.bitauto.com/cs55/upload.html";
         HttpPost httpPost = new HttpPost(uploadUrl);
         httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
