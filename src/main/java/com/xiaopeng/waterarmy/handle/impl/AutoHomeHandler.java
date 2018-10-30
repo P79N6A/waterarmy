@@ -97,19 +97,21 @@ public class AutoHomeHandler extends PlatformHandler {
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
                 JSONObject jsonObject = JSONObject.parseObject(content);
-                Integer status = (Integer) jsonObject.get("status");
-                Integer tid = (Integer) jsonObject.get("tid");
-                if (status.intValue() == 0 && tid > 0) {
-                    String url = generatePublishUrlByTopicId(tid);
-                    PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, url);
+                String topicId = (String)jsonObject.get("result");
+                if (topicId!=null) {
+                    //发帖成功，拼帖子链接，注意这个帖子链接需要302跳转
+                    //https://club.autohome.com.cn/bbs/thread-a-100022-77217156-1.html?036765385695959547
+                    String prefixUrl = requestContext.getPrefixUrl().split(".")[0];
+                    String targetUrl = prefixUrl+"-"+topicId+"-1.html?636765385695959547";
+                    PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, targetUrl);
                     save(new SaveContext(publishInfo));
-                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, url);
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, targetUrl);
                     return new Result(handlerResultDTO);
                 }
             }
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
+            logger.error("[AutoHomeHandler.publish] error!", e);
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }

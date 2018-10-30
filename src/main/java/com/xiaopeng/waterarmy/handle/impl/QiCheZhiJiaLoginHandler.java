@@ -206,11 +206,11 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
 
                 httpClient.execute(httpGet1);
-                try {
-                    httpClient.execute(httpGet);
+               /* try {
+                    //httpClient.execute(httpGet);
                 }catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 try {
                     httpClient.execute(httpGet2);
@@ -218,11 +218,11 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
                     e.printStackTrace();
                 }
 
-                try {
-                    httpClient.execute(httpGet3);
+              /*  try {
+                    //httpClient.execute(httpGet3);
                 }catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 return true;
             }

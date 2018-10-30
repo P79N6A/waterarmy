@@ -212,13 +212,13 @@ public class WaterarmyApplicationTests {
         try {
             RequestContext requestContext = new RequestContext();
             Content content = new Content();
-            content.setText("今年最好看质量最好的国产SUV是啥");
-            content.setTitle("今年最好看质量最好的国产SUV是啥？");
+            content.setText("想要改装有什么好地方推荐");
+            content.setTitle("想把咱家的车拿去改装下，有什么好的推荐");
             requestContext.setContent(content);
-            requestContext.setUserId(21L);
-            requestContext.setUserLoginId("15246093860");
+            requestContext.setUserId(18L);
+            requestContext.setUserLoginId("17872254983");
             requestContext.setHandleType(TaskTypeEnum.POSIED);
-            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
             requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/forum-o-200325-1.html");
             requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
             HashMap<String, String> map = new HashMap<>();
