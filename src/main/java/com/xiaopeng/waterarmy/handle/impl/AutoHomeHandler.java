@@ -23,7 +23,6 @@ import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -303,15 +302,14 @@ public class AutoHomeHandler extends PlatformHandler {
 
         //设置cookie
         StringBuilder stringBuilder = new StringBuilder();
+        String s=null;
         for (Cookie cookie : cookieStore.getCookies()) {
-             if (cookie.getDomain().contains("autohome.com.cn")) {
-                 stringBuilder.append(cookie.getName());
-                 stringBuilder.append(":");
-                 stringBuilder.append(cookie.getValue());
-                 stringBuilder.append(";");
-             }
+            if ("clubUserShow".equalsIgnoreCase(cookie.getName())){
+                s=cookie.getValue();
+                break;
+            }
         }
-        httpPost.setHeader("Cookie",stringBuilder.toString());
+        httpPost.setHeader("Cookie", "clubUserShow=" + s);
         String memberId = null;
         for (Cookie cookie : cookieStore.getCookies()) {
             if ("sessionuserid".equals(cookie.getName())) {
@@ -328,7 +326,7 @@ public class AutoHomeHandler extends PlatformHandler {
         } catch (Exception e) {
             logger.error("create publish error!", e);
             return null;
-        }
+}
 
     }
 

@@ -7,6 +7,7 @@ import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.impl.AiKaHandler;
+import com.xiaopeng.waterarmy.handle.impl.AutoHomeHandler;
 import com.xiaopeng.waterarmy.handle.impl.TaiPingYangHandler;
 import com.xiaopeng.waterarmy.handle.impl.YiCheHandler;
 import com.xiaopeng.waterarmy.handle.param.Content;
@@ -132,6 +133,9 @@ public class WaterarmyApplicationTests {
     @Autowired
     private AiKaHandler aiKaHandler;
 
+    @Autowired
+    private AutoHomeHandler autoHomeHandler;
+
     @Test
     public void testPublist() {
         RequestContext requestContext = new RequestContext();
@@ -198,6 +202,28 @@ public class WaterarmyApplicationTests {
             HashMap<String, String> map = new HashMap<>();
             requestContext.setRequestParam(map);
             aiKaHandler.publish(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testQiCheZhiJiaPublish() {
+        try {
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("今年最好看质量最好的国产SUV是啥");
+            content.setTitle("今年最好看质量最好的国产SUV是啥？");
+            requestContext.setContent(content);
+            requestContext.setUserId(21L);
+            requestContext.setUserLoginId("15246093860");
+            requestContext.setHandleType(TaskTypeEnum.POSIED);
+            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/forum-o-200325-1.html");
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+            HashMap<String, String> map = new HashMap<>();
+            requestContext.setRequestParam(map);
+            autoHomeHandler.publish(requestContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
