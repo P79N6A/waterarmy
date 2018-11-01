@@ -228,4 +228,26 @@ public class WaterarmyApplicationTests {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testQiCheZhiJiaComment() {
+        try {
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("确实是一辆好车，我都想买很久了");
+            content.setTitle("想把咱家的车拿去改装下，有什么好的推荐");
+            requestContext.setContent(content);
+            requestContext.setUserId(20L);
+            requestContext.setUserLoginId("17872254983");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/thread/24432c3d682250a5/75691906-1.html");
+            //requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+            HashMap<String, String> map = new HashMap<>();
+            requestContext.setRequestParam(map);
+            autoHomeHandler.comment(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

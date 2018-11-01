@@ -23,6 +23,7 @@ import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -123,13 +124,6 @@ public class AutoHomeHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
-
-        if (TaskEntryTypeEnum.TAIPINGYANGNEWSCOMMENT.equals(requestContext.getHandleEntryType())) {
-            return commentNews(requestContext);
-        }
-        if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
-            return commentChezhu(requestContext);
-        }
         return commentForum(requestContext);
     }
 
@@ -142,7 +136,7 @@ public class AutoHomeHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentPost(requestContext);
+            HttpPost httpPost = createCommentPost(requestContext,loginResultDTO);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -191,55 +185,105 @@ public class AutoHomeHandler extends PlatformHandler {
         return new Result<>(ResultCodeEnum.HANDLER_NOT_FOUND);
     }
 
-    private HttpPost createCommentPost(RequestContext requestContext) {
-        //太平洋评论需要的参数
-        /**
-         * tid: 16868614
-         * fid: 24155
-         * message: 今天取看过 不错
-         * needCaptcha: false
-         * captcha:
-         * sendMsg: true
-         * minContentLength: 1
-         * maxContentLength: 500000
-         */
+    private HttpPost createCommentPost(RequestContext requestContext,LoginResultDTO loginResultDTO) {
+       //汽车之家论坛评论
+        //Accept: */*
+        //Accept-Encoding: gzip, deflate, br
+        //Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+        //Connection: keep-alive
+        //Content-Length: 269
+        //Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+        //Cookie: fvlid=1540687271470XXtsV13f28; __utmc=1; sessionid=DD4D08C1-E7A9-447F-AE49-05EA38F430C3%7C%7C2018-10-28+08%3A41%3A10.408%7C%7C0; ahpau=1; sessionuid=DD4D08C1-E7A9-447F-AE49-05EA38F430C3%7C%7C2018-10-28+08%3A41%3A10.408%7C%7C0; __ah_uuid=74F6512B-2EEC-4AB4-8B55-56A67AB69398; area=330104; __utma=1.766039677.1540687272.1540687272.1540911797.2; __utmz=1.1540911797.2.2.utmcsr=club.autohome.com.cn|utmccn=(referral)|utmcmd=referral|utmcct=/bbs/forum-o-200325-1.html; pcpopclub=3b413d61ab4f41a68a127df3afc6e5e204efcf08; clubUserShow=82824968|65|16|%e5%a6%99%e6%8b%a9%e7%81%b5%e9%ad%82%e7%a2%8e%e7%89%87|0|0|0||2018-10-30 23:36:41|0; autouserid=82824968; sessionuserid=82824968; pvidchain=101301; sessionlogin=b662df6756a5496d8258faaea62cd57604efcf08; sessionip=101.71.38.177; sessionvid=2422F8DF-9E14-4E7F-A9CC-F8A1D99A8FE7; autoac=37F17E9943879E2127D6351F17BCEC8D; autotc=2C465285DD24D4C0DBE4722C2CFD8AF8; historybbsName4=o-200325%7C%E9%9D%92%E5%B0%91%E5%B9%B4%2Ca-100025%7C%E5%9B%9B%E5%B7%9D%2Ca-100022%7C%E5%B1%B1%E8%A5%BF%2Cc-2288%7C%E9%98%BF%E5%B0%94%E6%B3%95%E7%BD%97%E5%AF%86%E6%AC%A7; ahpvno=6; ref=0%7C0%7C0%7C0%7C2018-11-01+20%3A13%3A45.518%7C2018-10-28+08%3A41%3A10.408; ahrlid=1541074437104SQi5RL2hNN-1541074487176
+        //Host: club.autohome.com.cn
+        //Origin: https://club.autohome.com.cn
+        //Referer: https://club.autohome.com.cn/bbs/thread/f0dd96c0c425b905/77251423-1.html
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+        //X-Requested-With: XMLHttpRequest
 
-        String topic = null;
-        if (requestContext.getRequestParam() != null) {
-            Object object = requestContext.getRequestParam().get(TOPIC);
-            if (object != null) {
-                topic = (String) object;
-            }
-        }
-        if (topic == null) { //https://bbs.pcauto.com.cn/topic-16868614.html
-            //太平洋的可以直接从url中截取
-            String pattern = "(\\d+)";
-            Pattern r = Pattern.compile(pattern);
-            Matcher m = r.matcher(requestContext.getPrefixUrl());
-            if (m.find()) {
-                topic = m.group(0);
-            }
-        }
 
-        String targetUrl = requestContext.getTargetUrl();
-        if (StringUtils.isBlank(targetUrl)) {
-            targetUrl = TARGET_COMMENT_URL;
-        }
-        HttpPost httpPost = new HttpPost(targetUrl);
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("message", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("fid", this.getFid(requestContext.getPrefixUrl())));
-        nameValuePairs.add(new BasicNameValuePair("tid", topic));
-        nameValuePairs.add(new BasicNameValuePair("sendMsg", "true"));
-        nameValuePairs.add(new BasicNameValuePair("minContentLength", "1"));
-        nameValuePairs.add(new BasicNameValuePair("maxContentLength", "500000"));
+        //request
+        //bbs: c
+        //bbsid: 2288
+        //topicId: 77251423
+        //content: 罗密欧这辆车确实不错，价格多少啊
+        //uniquepageid: 0PipCFBvilX4cO64uAb72kGdCAuwUXyVslgmz9aApuM=
+        //domain: autohome.com.cn
+
+
+        //获取uniquepageid
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-        } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
-            return null;
+            HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+            setFetchTopicsHeader(httpGet);
+            CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                String uniquePageId = FetchParamUtil.getMatherStr(content,"tz.uniquePageId = \".*\"");
+                uniquePageId = FetchParamUtil.getMatherStr(uniquePageId,"\".*\"");
+                uniquePageId = uniquePageId.replaceAll("\"","");
+
+                String topicId = FetchParamUtil.getMatherStr(content,"tz.topicId=.*");
+                topicId = FetchParamUtil.getMatherStr(topicId,"\\d+");
+
+                String bbs = FetchParamUtil.getMatherStr(content,"tz.bbs=\".*\"");
+                bbs = FetchParamUtil.getMatherStr(bbs,"\".*\"");
+                bbs = bbs.replaceAll("\"","");
+
+                String bbsId = FetchParamUtil.getMatherStr(content,"tz.bbsid=.*");
+                bbsId = FetchParamUtil.getMatherStr(bbsId,"\\d+");
+
+                String targetUrl = "https://club.autohome.com.cn/Detail/AddReply";
+                HttpPost httpPost = new HttpPost(targetUrl);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("bbs", bbs));
+                nameValuePairs.add(new BasicNameValuePair("bbsid", bbsId));
+                nameValuePairs.add(new BasicNameValuePair("topicId", topicId));
+                nameValuePairs.add(new BasicNameValuePair("uniquepageid", uniquePageId));
+                nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                setCreateCommentHeader(requestContext,httpPost,loginResultDTO.getCookieStore());
+                return httpPost;
+            }
+
+        }catch (Exception e) {
+            logger.error("createComment error!",e);
         }
-        return httpPost;
+
+        return null;
+    }
+
+    private void setCreateCommentHeader(RequestContext requestContext, HttpPost httpPost, BasicCookieStore cookieStore) {
+        //Host: club.autohome.com.cn
+        //Origin: https://club.autohome.com.cn
+        //Referer: https://club.autohome.com.cn/bbs/thread/f0dd96c0c425b905/77251423-1.html
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+        //X-Requested-With: XMLHttpRequest
+        httpPost.setHeader("Host","club.autohome.com.cn");
+        httpPost.setHeader("Origin","https://club.autohome.com.cn");
+        httpPost.setHeader("Referer",requestContext.getPrefixUrl());
+        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("X-Requested-With","XMLHttpRequest");
+        //设置cookie
+        StringBuilder stringBuilder = new StringBuilder();
+        String s=null;
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if ("clubUserShow".equalsIgnoreCase(cookie.getName())){
+                s=cookie.getValue();
+                break;
+            }
+        }
+        httpPost.setHeader("Cookie", "clubUserShow=" + s);
+    }
+
+    private void setFetchTopicsHeader(HttpGet httpGet) {
+        //Host: club.autohome.com.cn
+        //Upgrade-Insecure-Requests: 1
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+
+        httpGet.setHeader("Host","club.autohome.com.cn");
+        httpGet.setHeader("Upgrade-Insecure-Requests","1");
+        httpGet.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
     }
 
     private String getFid(String url) {
