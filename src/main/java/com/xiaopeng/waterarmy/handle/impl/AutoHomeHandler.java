@@ -15,6 +15,7 @@ import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
+import com.xiaopeng.waterarmy.handle.result.AutoHomeCommentResultDTO;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.handle.result.TaiPingYangCommentResultDTO;
@@ -165,8 +166,10 @@ public class AutoHomeHandler extends PlatformHandler {
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
                 content = content.trim();
-                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
-                if (resultDTO.getStatus().equals("0")) {
+                AutoHomeCommentResultDTO resultDTO = JSONObject.parseObject(
+                        content, AutoHomeCommentResultDTO.class);
+
+                if (resultDTO.isSucceed()) {
                     //评论成功
                     HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
                     CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
