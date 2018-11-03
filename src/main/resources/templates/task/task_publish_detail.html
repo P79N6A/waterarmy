@@ -138,6 +138,8 @@
                 linkTitle: '',
                 contentRepositoriesType: '',
                 contentRepositoriesName: '',
+                imageName: '',
+                imagePath: '',
             },
             tableData: [], // 表格数据
             isLoading: false, // 是否加载中
@@ -163,6 +165,7 @@
             PVStayTimes: [], // PV停留时间枚举列表
             contentRepositories: [], // 内容库枚举列表
             rules: [], //规则列表
+            type: '',
         },
         methods: {
 
@@ -299,9 +302,11 @@
                 console.log(JSON.stringify(response));
                 _this.message('上传成功 !');
                 if(response.code == 200){
-                    setTimeout(function() {
-                        _this.refresh();
-                    }, 500)
+                    _this.form.imageName = response.data.imageName;
+                    _this.form.imagePath = response.data.imagePath;
+//                    setTimeout(function() {
+//                        _this.refresh();
+//                    }, 500)
                 }else {
                     this.message('上传失败 !');
                 }

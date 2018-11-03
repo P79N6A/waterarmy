@@ -11,6 +11,7 @@ import com.xiaopeng.waterarmy.common.util.DateUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dao.TaskImageInfo;
 import com.xiaopeng.waterarmy.model.dao.TaskPublish;
 import com.xiaopeng.waterarmy.model.mapper.*;
 import com.xiaopeng.waterarmy.service.TaskService;
@@ -64,6 +65,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private HandlerDispatcher handlerDispatcher;
+
+    @Autowired
+    private TaskImageInfoMapper taskImageInfoMapper;
 
     @Override
     public PageInfo<Map<String, Object>> taskPublishPage(Integer pageNo, Integer pageSize, Map<String, Object> params) {
@@ -176,12 +180,21 @@ public class TaskServiceImpl implements TaskService {
             Map<String, Object> param = new HashMap<>();
             param.put("link", link);
             param.put("executeCount", executeCount);
+            param.put("executeCount", executeCount);
+            param.put("executeCount", executeCount);
             links.add(param);
         }
         for (Map<String, Object> link: links) {
             params.put("link", link.get("link"));
             params.put("executeCount", link.get("executeCount"));
+            params.put("id", null);
             taskInfoMapper.save(params);
+
+            TaskImageInfo taskImageInfo = new TaskImageInfo();
+            taskImageInfo.setFileName(String.valueOf(params.get("imageName")));
+            taskImageInfo.setFilePath(String.valueOf(params.get("imagePath")));
+            taskImageInfo.setTaskId(String.valueOf(params.get("id")));
+            taskImageInfoMapper.save(taskImageInfo);
         }
         message.success(CodeEnum.SUCCESS).setMsg("发布任务成功!");
         return message;
@@ -262,8 +275,8 @@ public class TaskServiceImpl implements TaskService {
     public JsonMessage uploadTaskImg(MultipartFile file) {
         JsonMessage message = JsonMessage.init().success(CodeEnum.SUCCESS);
         String fileName = file.getOriginalFilename();
-        RequestContext context = new RequestContext();
         List<InputStream> imgInputStreams = new ArrayList<>();
+        Map<String, String> fileInfo = new HashMap<>();
         try {
             imgInputStreams.add(file.getInputStream());
             //String path = System.getProperty("java.class.path");
@@ -271,14 +284,13 @@ public class TaskServiceImpl implements TaskService {
                     = ClassUtils.getDefaultClassLoader()
                     .getResource("").getPath() + "images/";
             File f = new File(path);
-            File imgFile = new File(path + fileName);
-            Map<String, String> files = new HashMap<>();
-            files.put("fileName", path + fileName);
-            message.setData(files);
             if (!f.exists()) {
                 f.mkdirs();
             }
             inputStreamToFile(file.getInputStream(), path + fileName);
+            fileInfo.put("imageName", fileName);
+            fileInfo.put("imagePath", path + fileName);
+            message.setData(fileInfo);
         } catch (IOException e) {
             logger.error("上传图片流失败, ", e);
         }
@@ -286,20 +298,38 @@ public class TaskServiceImpl implements TaskService {
         return message;
     }
 
-    public static void inputStreamToFile(InputStream is, String fileName)
-            throws IOException {
-        OutputStream outputStream = null;
-        File file = new File(fileName);
-        outputStream = new FileOutputStream(file);
-        int bytesWritten = 0;
-        int byteCount = 0;
-        byte[] bytes = new byte[1024];
-        while ((byteCount = is.read(bytes)) != -1) {
-            outputStream.write(bytes, bytesWritten, byteCount);
-            bytesWritten += byteCount;
+
+    public static void inputStreamToFile(InputStream is, String fileName) {
+        BufferedInputStream in = null;
+        BufferedOutputStream out = null;
+        try {
+            int len = -1;
+            in = new BufferedInputStream(is);
+            out = new BufferedOutputStream(new FileOutputStream(fileName));
+            byte[] b = new byte[1024];
+            while ((len = in.read(b)) != -1) {
+                out.write(b, 0, len);
+            }
+        } catch (IOException e) {
+            logger.error("写文件失败, ", e);
+        } finally {
+            if (!ObjectUtils.isEmpty(in)) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("关闭in失败, ", e);
+                }
+            }
+
+            if (!ObjectUtils.isEmpty(in)) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    logger.error("关闭out失败, ", e);
+                }
+            }
         }
-        is.close();
-        outputStream.close();
+
     }
 
     /**

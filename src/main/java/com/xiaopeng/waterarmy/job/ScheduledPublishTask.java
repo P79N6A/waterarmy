@@ -20,6 +20,7 @@ import com.xiaopeng.waterarmy.model.mapper.TaskImageInfoMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.ContentService;
 import com.xiaopeng.waterarmy.service.TaskService;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 定时执行发帖帖子任务
@@ -172,15 +172,19 @@ public class ScheduledPublishTask {
             String link = MapUtils.getString(task, "link");
             requestContext.setPrefixUrl(link);//"http://baa.bitauto.com/langdong/"
 
-//            Map<String, Object> imageInfos = new HashMap<>();
-//            imageInfos.put("taskId", task.get(""));
-//            List<Map<String, Object>> taskImageInfos = taskImageInfoMapper.getTaskImageInfos(imageInfos);
-//            imageInfos.put("fileName", taskImageInfos.get("fileName"));
-//            imageInfos.put("filePath", "");
-//            File imageFile = new File();
-//            imageFile
-//            requestContext.setImageInputStreams();
+            Map<String, Object> imageInfos = new HashMap<>();
+            imageInfos.put("taskId", task.get("id"));
+            List<Map<String, Object>> taskImageInfos = taskImageInfoMapper.getTaskImageInfos(imageInfos);
+            if (!ObjectUtils.isEmpty(taskImageInfos)) {
+                Map<String, Object> taskImageInfo = taskImageInfos.get(0);
+                String filePath = String.valueOf(taskImageInfo.get("filePath"));
+                File imageFile = new File(filePath);
+                InputStream in = new FileInputStream(imageFile);
+                List<InputStream> imageInputStreams = new ArrayList<>();
+                imageInputStreams.add(in);
+                requestContext.setImageInputStreams(imageInputStreams);
 
+            }
         } catch (Exception e) {
             logger.error("获取发帖上下文失败, ", e);
         }

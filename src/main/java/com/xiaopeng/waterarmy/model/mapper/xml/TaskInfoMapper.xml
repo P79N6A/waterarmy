@@ -3,6 +3,10 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskInfoMapper">
 
     <insert id="save">
+        <selectKey resultType="java.lang.Long" keyProperty="taskInfo.id"
+                   order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
         INSERT INTO task_info (task_publish_id, rule_info_id
         , name, platform, module, task_type, link, link_title
         , content_repositories_type, content_repositories_name, like_content, execute_count, finish_count

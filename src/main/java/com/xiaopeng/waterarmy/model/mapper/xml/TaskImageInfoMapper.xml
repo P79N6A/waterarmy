@@ -3,8 +3,9 @@
 <mapper namespace="com.xiaopeng.waterarmy.model.mapper.TaskImageInfoMapper">
 
     <select id="getTaskImageInfos" resultType="java.util.HashMap">
-        SELECT id, task_id AS taskId, file_name AS fileName,
+        SELECT id, task_id AS taskId, file_name AS fileName
         , file_path AS filePath FROM task_image_info
+        WHERE task_id = #{params.taskId}
     </select>
 
     <insert id="save">

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
@@ -176,6 +177,12 @@ public class TaskController {
     public JsonMessage stopTask(@RequestParam Map<String,Object> params) {
         Long id = Long.parseLong(String.valueOf(params.get("id")));
         return taskService.stopTask(id);
+    }
+
+    @RequestMapping(value = "/uploadTaskImg", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonMessage importData(@RequestParam("file") MultipartFile file) {
+        return taskService.uploadTaskImg(file);
     }
 
 }
