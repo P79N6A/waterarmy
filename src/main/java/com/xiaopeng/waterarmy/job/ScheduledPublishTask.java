@@ -124,7 +124,8 @@ public class ScheduledPublishTask {
             taskService.updateFinishCount(taskInfoId);
             accountService.updateTaskCount(publishAccount.getUserName());
             AccountIPInfo accountIPInfo = new AccountIPInfo();
-            Map<String, Object> info = accountService.getAccountIPInfo(publicIP, platform, publishAccount.getUserName());
+            Map<String, Object> info
+                    = accountService.getAccountIPInfo(publicIP, platform, publishAccount.getUserName());
             if (ObjectUtils.isEmpty(info)) {
                 accountIPInfo.setUserName(publishAccount.getUserName());
                 accountIPInfo.setIp(publicIP);

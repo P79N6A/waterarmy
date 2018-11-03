@@ -43,7 +43,7 @@ public class HandlerDispatcher {
 
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
-        requestContext = this.createAutoHomeContext();
+        //requestContext = this.createAutoHomeContext();
 
         switch (requestContext.getPlatform()){
             case PCAUTO:

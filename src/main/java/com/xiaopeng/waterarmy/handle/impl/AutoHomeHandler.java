@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.FileInputStream;
@@ -109,11 +110,20 @@ public class AutoHomeHandler extends PlatformHandler {
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
                 JSONObject jsonObject = JSONObject.parseObject(content);
-                String topicId = (String) jsonObject.get("result");
+
+                String topicId = String.valueOf(jsonObject.get("result"));
                 if (topicId != null) {
                     //发帖成功，拼帖子链接，注意这个帖子链接需要302跳转
                     //https://club.autohome.com.cn/bbs/thread-a-100022-77217156-1.html?036765385695959547
-                    String prefixUrl = requestContext.getPrefixUrl().split(".")[0];
+                    String prefixUrl = "";
+                    if (!ObjectUtils.isEmpty(requestContext.getPrefixUrl())) {
+                        if (ObjectUtils.isEmpty(requestContext.getPrefixUrl().contains("."))) {
+                            prefixUrl = requestContext.getPrefixUrl().split(".")[0];
+                        } else {
+                            prefixUrl = requestContext.getPrefixUrl();
+                        }
+
+                    }
                     String targetUrl = prefixUrl + "-" + topicId + "-1.html?636765385695959547";
                     logger.info("汽车之家发帖成功，帖子地址：" + targetUrl);
                     PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, targetUrl);
