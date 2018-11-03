@@ -94,13 +94,13 @@ public class TaiPingYangHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
 
-            //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
-            FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/image.png");
-            TaiPingYangImage taiPingYangImage = taiPingYangImageUpload(httpClient, fileInputStream);
-            if (logger.isDebugEnabled()) {
-                logger.info("太平洋图片上传结果：" + taiPingYangImage);
+            if (requestContext.getImageInputStreams() != null && !requestContext.getImageInputStreams().isEmpty()) {
+                TaiPingYangImage taiPingYangImage = taiPingYangImageUpload(httpClient, requestContext.getImageInputStreams().get(0));
+                if (logger.isDebugEnabled()) {
+                    logger.info("太平洋图片上传结果：" + taiPingYangImage);
+                }
+                requestContext.getContent().setText(requestContext.getContent().getText() + "[img=" + taiPingYangImage.width + "," + taiPingYangImage.height + ",5Y+v5re75YqgMjAw5a2X5Lul5YaF55qE5o+P6L+w]" + taiPingYangImage.url + "[/img]");
             }
-            requestContext.getContent().setText(requestContext.getContent().getText() + "[img=" + taiPingYangImage.width + "," + taiPingYangImage.height + ",5Y+v5re75YqgMjAw5a2X5Lul5YaF55qE5o+P6L+w]" + taiPingYangImage.url + "[/img]");
 
             HttpPost httpPost = createPublishHttpPost(requestContext);
             CloseableHttpResponse response = httpClient.execute(httpPost);

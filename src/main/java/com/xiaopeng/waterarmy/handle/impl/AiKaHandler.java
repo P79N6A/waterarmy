@@ -107,13 +107,13 @@ public class AiKaHandler extends PlatformHandler {
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
 
-                //TODO 这里需要龙哥传入图片的inputstream，来替换我这个写死的文件
-                FileInputStream fileInputStream = new FileInputStream("/Users/zhangyong/Desktop/image.png");
-                AiKaImage aiKaImage = aiKaImageUpload(httpClient, fileInputStream);
-                if (logger.isDebugEnabled()) {
-                    logger.info("爱卡图片上传结果：" + aiKaImage);
+                if (requestContext.getImageInputStreams() != null && !requestContext.getImageInputStreams().isEmpty()) {
+                    AiKaImage aiKaImage = aiKaImageUpload(httpClient, requestContext.getImageInputStreams().get(0));
+                    if (logger.isDebugEnabled()) {
+                        logger.info("爱卡图片上传结果：" + aiKaImage);
+                    }
+                    map.put("aiKaImage", aiKaImage);
                 }
-                map.put("aiKaImage", aiKaImage);
 
                 map = createPublishHttpPost(requestContext,map);
                 CloseableHttpResponse response = httpClient.execute((HttpPost)map.get("httpPost"));
