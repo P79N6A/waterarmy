@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
@@ -22,14 +23,18 @@ import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -41,9 +46,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,12 +109,13 @@ public class AutoHomeHandler extends PlatformHandler {
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
                 JSONObject jsonObject = JSONObject.parseObject(content);
-                String topicId = (String)jsonObject.get("result");
-                if (topicId!=null) {
+                String topicId = (String) jsonObject.get("result");
+                if (topicId != null) {
                     //发帖成功，拼帖子链接，注意这个帖子链接需要302跳转
                     //https://club.autohome.com.cn/bbs/thread-a-100022-77217156-1.html?036765385695959547
                     String prefixUrl = requestContext.getPrefixUrl().split(".")[0];
-                    String targetUrl = prefixUrl+"-"+topicId+"-1.html?636765385695959547";
+                    String targetUrl = prefixUrl + "-" + topicId + "-1.html?636765385695959547";
+                    logger.info("汽车之家发帖成功，帖子地址：" + targetUrl);
                     PublishInfo publishInfo = ResultParamUtil.createPublishInfo(requestContext, content, targetUrl);
                     save(new SaveContext(publishInfo));
                     HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, targetUrl);
@@ -136,7 +148,7 @@ public class AutoHomeHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentPost(requestContext,loginResultDTO);
+            HttpPost httpPost = createCommentPost(requestContext, loginResultDTO);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -185,8 +197,8 @@ public class AutoHomeHandler extends PlatformHandler {
         return new Result<>(ResultCodeEnum.HANDLER_NOT_FOUND);
     }
 
-    private HttpPost createCommentPost(RequestContext requestContext,LoginResultDTO loginResultDTO) {
-       //汽车之家论坛评论
+    private HttpPost createCommentPost(RequestContext requestContext, LoginResultDTO loginResultDTO) {
+        //汽车之家论坛评论
         //Accept: */*
         //Accept-Encoding: gzip, deflate, br
         //Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
@@ -219,19 +231,19 @@ public class AutoHomeHandler extends PlatformHandler {
             String content = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
-                String uniquePageId = FetchParamUtil.getMatherStr(content,"tz.uniquePageId = \".*\"");
-                uniquePageId = FetchParamUtil.getMatherStr(uniquePageId,"\".*\"");
-                uniquePageId = uniquePageId.replaceAll("\"","");
+                String uniquePageId = FetchParamUtil.getMatherStr(content, "tz.uniquePageId = \".*\"");
+                uniquePageId = FetchParamUtil.getMatherStr(uniquePageId, "\".*\"");
+                uniquePageId = uniquePageId.replaceAll("\"", "");
 
-                String topicId = FetchParamUtil.getMatherStr(content,"tz.topicId=.*");
-                topicId = FetchParamUtil.getMatherStr(topicId,"\\d+");
+                String topicId = FetchParamUtil.getMatherStr(content, "tz.topicId=.*");
+                topicId = FetchParamUtil.getMatherStr(topicId, "\\d+");
 
-                String bbs = FetchParamUtil.getMatherStr(content,"tz.bbs=\".*\"");
-                bbs = FetchParamUtil.getMatherStr(bbs,"\".*\"");
-                bbs = bbs.replaceAll("\"","");
+                String bbs = FetchParamUtil.getMatherStr(content, "tz.bbs=\".*\"");
+                bbs = FetchParamUtil.getMatherStr(bbs, "\".*\"");
+                bbs = bbs.replaceAll("\"", "");
 
-                String bbsId = FetchParamUtil.getMatherStr(content,"tz.bbsid=.*");
-                bbsId = FetchParamUtil.getMatherStr(bbsId,"\\d+");
+                String bbsId = FetchParamUtil.getMatherStr(content, "tz.bbsid=.*");
+                bbsId = FetchParamUtil.getMatherStr(bbsId, "\\d+");
 
                 String targetUrl = "https://club.autohome.com.cn/Detail/AddReply";
                 HttpPost httpPost = new HttpPost(targetUrl);
@@ -242,12 +254,12 @@ public class AutoHomeHandler extends PlatformHandler {
                 nameValuePairs.add(new BasicNameValuePair("uniquepageid", uniquePageId));
                 nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-                setCreateCommentHeader(requestContext,httpPost,loginResultDTO.getCookieStore());
+                setCreateCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
                 return httpPost;
             }
 
-        }catch (Exception e) {
-            logger.error("createComment error!",e);
+        } catch (Exception e) {
+            logger.error("createComment error!", e);
         }
 
         return null;
@@ -259,17 +271,17 @@ public class AutoHomeHandler extends PlatformHandler {
         //Referer: https://club.autohome.com.cn/bbs/thread/f0dd96c0c425b905/77251423-1.html
         //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
         //X-Requested-With: XMLHttpRequest
-        httpPost.setHeader("Host","club.autohome.com.cn");
-        httpPost.setHeader("Origin","https://club.autohome.com.cn");
-        httpPost.setHeader("Referer",requestContext.getPrefixUrl());
-        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-        httpPost.setHeader("X-Requested-With","XMLHttpRequest");
+        httpPost.setHeader("Host", "club.autohome.com.cn");
+        httpPost.setHeader("Origin", "https://club.autohome.com.cn");
+        httpPost.setHeader("Referer", requestContext.getPrefixUrl());
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
         //设置cookie
         StringBuilder stringBuilder = new StringBuilder();
-        String s=null;
+        String s = null;
         for (Cookie cookie : cookieStore.getCookies()) {
-            if ("clubUserShow".equalsIgnoreCase(cookie.getName())){
-                s=cookie.getValue();
+            if ("clubUserShow".equalsIgnoreCase(cookie.getName())) {
+                s = cookie.getValue();
                 break;
             }
         }
@@ -281,9 +293,9 @@ public class AutoHomeHandler extends PlatformHandler {
         //Upgrade-Insecure-Requests: 1
         //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
 
-        httpGet.setHeader("Host","club.autohome.com.cn");
-        httpGet.setHeader("Upgrade-Insecure-Requests","1");
-        httpGet.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpGet.setHeader("Host", "club.autohome.com.cn");
+        httpGet.setHeader("Upgrade-Insecure-Requests", "1");
+        httpGet.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
     }
 
     private String getFid(String url) {
@@ -309,9 +321,9 @@ public class AutoHomeHandler extends PlatformHandler {
             HttpPost httpPost = new HttpPost(url);
             httpPost = createPublish(httpClient, httpPost, requestContext, cookieStore);
             return httpPost;
-        }catch (Exception e) {
-            logger.error("[createPublishHttpPost] error!",e);
-            return  null;
+        } catch (Exception e) {
+            logger.error("[createPublishHttpPost] error!", e);
+            return null;
         }
     }
 
@@ -335,23 +347,23 @@ public class AutoHomeHandler extends PlatformHandler {
         //https://club.autohome.com.cn/bbs/forum-c-2615-1.html
         String temp = FetchParamUtil.getMatherStr(url, "forum-.*-\\d+-\\d+.html");
         String temp2 = FetchParamUtil.getMatherStr(temp, "forum-.*-\\d+-");
-        temp2 = FetchParamUtil.getMatherStr(temp2,"-.*-\\d+");
-        temp2 = FetchParamUtil.getMatherStr(temp2,"-.*-");
-        String type = temp2.replaceAll("-","");
+        temp2 = FetchParamUtil.getMatherStr(temp2, "-.*-\\d+");
+        temp2 = FetchParamUtil.getMatherStr(temp2, "-.*-");
+        String type = temp2.replaceAll("-", "");
         //type = type.replaceAll("-", "");
         String forumId = FetchParamUtil.getMatherStr(temp, "-\\d+-");
         forumId = forumId.replaceAll("-", "");
         //https://clubajax.autohome.com.cn/NewPost/CardPost?bbs=c&bbsId=2615&urlbbsId=2615&from_bj=0
         String reffer = "https://clubajax.autohome.com.cn/NewPost/CardPost?bbs=" + type + "&bbsId=" + forumId + "&urlbbsId=" + forumId + "&from_bj=0";
         httpPost.setHeader("Referer", reffer);
-        httpPost.setHeader("Content-Type","application/x-www-form-urlencoded");
+        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
         //设置cookie
         StringBuilder stringBuilder = new StringBuilder();
-        String s=null;
+        String s = null;
         for (Cookie cookie : cookieStore.getCookies()) {
-            if ("clubUserShow".equalsIgnoreCase(cookie.getName())){
-                s=cookie.getValue();
+            if ("clubUserShow".equalsIgnoreCase(cookie.getName())) {
+                s = cookie.getValue();
                 break;
             }
         }
@@ -363,8 +375,14 @@ public class AutoHomeHandler extends PlatformHandler {
             }
         }
         try {
-            String str = createTopicContent(memberId, type, forumId, requestContext.getContent().getTitle(), requestContext.getContent().getText());
-            StringEntity entity = new StringEntity(str,"UTF-8");
+            String str;
+            if (requestContext.getImageInputStreams() != null) {
+                String imageContent = qichezhijiaImageUpload(httpClient, requestContext.getImageInputStreams());
+                str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + requestContext.getContent().getTitle() + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + type + "\",\"bbsid\":\"" + forumId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[  " + imageContent + ",   {\"ctype\":2,\"url\":\"\",\"des\":\"" + requestContext.getContent().getText() + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
+            } else {
+                str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + requestContext.getContent().getTitle() + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + type + "\",\"bbsid\":\"" + forumId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[{\"ctype\":2,\"url\":\"\",\"des\":\"" + requestContext.getContent().getText() + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
+            }
+            StringEntity entity = new StringEntity(str, "UTF-8");
             entity.setContentType("application/x-www-form-urlencoded");
             entity.setContentEncoding("UTF-8");
             httpPost.setEntity(entity);
@@ -372,15 +390,8 @@ public class AutoHomeHandler extends PlatformHandler {
         } catch (Exception e) {
             logger.error("create publish error!", e);
             return null;
-}
+        }
 
-    }
-
-
-    private String createTopicContent(String memberId, String bbs, String bbsId, String title, String content) {
-        //{"topicmain":{"topicid":0,"title":"有没有一起组团参加野外游的","source":"PC.CARD","memberid":"82819437","bbs":"a","bbsid":"100025","clientip":"{$realip$}","autohomeua":"","reply_notify_me":1,"informfriends":1},"topicext":{"lon":0,"lat":0,"postaddress":"","landmark":""},"topiccards":[{"ctype":2,"url":"","des":"想组团去成都自驾游，有没有可以一起的","otherattributes":{"linkurl":""}}]}
-        String str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + title + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + bbs + "\",\"bbsid\":\"" + bbsId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[{\"ctype\":2,\"url\":\"\",\"des\":\"" + content + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
-        return str;
     }
 
 
@@ -766,6 +777,87 @@ public class AutoHomeHandler extends PlatformHandler {
 
     }
 
+    private String qichezhijiaImageUpload(HttpClient httpClient, List<InputStream> inputStreams) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < inputStreams.size(); ++i) {
+            QiCheZhiJiaImage qiCheZhiJiaImage = qichezhijiaImageUpload(httpClient, inputStreams.get(i));
+            Topiccard topiccard = new Topiccard();
+            topiccard.cardid = (i + 1) + "";
+            topiccard.url = "http://club2.autoimg.cn/album/" + qiCheZhiJiaImage.file;
+            TopiccardOtherattribute otherattributes = new TopiccardOtherattribute(qiCheZhiJiaImage.width, qiCheZhiJiaImage.height);
+            topiccard.otherattributes = otherattributes;
+            if (i == 0) {
+                stringBuilder.append(JSON.toJSONString(topiccard));
+            } else {
+                stringBuilder.append(",").append(JSON.toJSONString(topiccard));
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * 汽车之家图片资源上传
+     *
+     * @param httpClient
+     * @param inputStream
+     * @return
+     */
+    public QiCheZhiJiaImage qichezhijiaImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+        String uploadUrl = "https://clubajax.autohome.com.cn/Upload/UpImageOfBase64New?dir=image&cros=autohome.com.cn";
+        HttpPost httpPost = new HttpPost(uploadUrl);
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", inputStream, ContentType.create("application/octet-stream"), "file.png")
+                .addTextBody("degree", "0")
+                .addTextBody("CategoryId", "0")
+                .addTextBody("id", "WU_FILE_1")
+                .addTextBody("name", "image.png")
+                .addTextBody("type", "image/png")
+                .build();
+        httpPost.setEntity(entity);
+
+        HttpResponse httpResponse = httpClient.execute(httpPost);
+        String content = EntityUtils.toString(httpResponse.getEntity());
+        QiCheZhiJiaImage qiCheZhiJiaImage = JSON.parseObject(content, QiCheZhiJiaImage.class);
+        JSONObject jsonObject = JSON.parseObject(content);
+        JSONObject jsonObject1 = jsonObject.getJSONArray("tripsize").getJSONObject(0);
+        qiCheZhiJiaImage.height = jsonObject1.getInteger("height");
+        qiCheZhiJiaImage.width = jsonObject1.getInteger("width");
+        return qiCheZhiJiaImage;
+    }
+
+
+    public static class QiCheZhiJiaImage {
+        public String file;
+        public int width;
+        public int height;
+
+        @Override
+        public String toString() {
+            return "QiCheZhiJiaImage{" +
+                    "file='" + file + '\'' +
+                    '}';
+        }
+    }
+
+    public static class Topiccard {
+        public String cardid;
+        public String url;
+        public String des = "";
+        public int ctype = 1;
+        public TopiccardOtherattribute otherattributes;
+    }
+
+    public static class TopiccardOtherattribute {
+        public int width;
+        public int height;
+        public String linkurl;
+
+        public TopiccardOtherattribute(int width, int height) {
+            this.width = width;
+            this.height = height;
+        }
+    }
 
 }
 
