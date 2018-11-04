@@ -193,7 +193,7 @@ public class WaterarmyApplicationTests {
             content.setText("明年再买吧，有点贵");
             content.setTitle("改装");
             requestContext.setContent(content);
-            requestContext.setUserId(1L);
+            requestContext.setUserId(25L);
             requestContext.setUserLoginId("18927512986");
             requestContext.setHandleType(TaskTypeEnum.POSIED);
             requestContext.setPlatform(PlatformEnum.XCAR);
@@ -212,11 +212,11 @@ public class WaterarmyApplicationTests {
         try {
             RequestContext requestContext = new RequestContext();
             Content content = new Content();
-            content.setText("想要改装有什么好地方推荐");
-            content.setTitle("想把咱家的车拿去改装下，有什么好的推荐");
+            content.setText("买车是买鸡头好还是凤尾好？");
+            content.setTitle("比如低配版本的奥迪A3和高配版雅阁");
             requestContext.setContent(content);
-            requestContext.setUserId(18L);
-            requestContext.setUserLoginId("17872254983");
+            requestContext.setUserId(23L);
+            requestContext.setUserLoginId("18992572253");
             requestContext.setHandleType(TaskTypeEnum.POSIED);
             requestContext.setPlatform(PlatformEnum.AUTOHOME);
             requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/forum-o-200325-1.html");
@@ -234,16 +234,16 @@ public class WaterarmyApplicationTests {
         try {
             RequestContext requestContext = new RequestContext();
             Content content = new Content();
-            content.setText("确实是一辆好车，我都想买很久了");
+            content.setText("拒绝灌水，从我做起,哈哈哈哈");
             content.setTitle("想把咱家的车拿去改装下，有什么好的推荐");
             requestContext.setContent(content);
-            requestContext.setUserId(20L);
-            requestContext.setUserLoginId("17872254983");
+            requestContext.setUserId(23L);
+            requestContext.setUserLoginId("18992572253");
             requestContext.setHandleType(TaskTypeEnum.COMMENT);
             requestContext.setPlatform(PlatformEnum.AUTOHOME);
-            requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/thread/24432c3d682250a5/75691906-1.html");
-            //requestContext.setHandleEntryType(TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT);
+            requestContext.setPrefixUrl("https://club.autohome.com.cn/bbs/thread/5c44fd06bfc6f993/77286829-1.html");
             HashMap<String, String> map = new HashMap<>();
+            map.put("commentContent", "确实是一辆好车，我都想买很久了");
             requestContext.setRequestParam(map);
             autoHomeHandler.comment(requestContext);
         } catch (Exception e) {

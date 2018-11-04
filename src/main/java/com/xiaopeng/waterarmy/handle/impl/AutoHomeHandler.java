@@ -38,6 +38,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -159,7 +160,14 @@ public class AutoHomeHandler extends PlatformHandler {
         try {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentPost(requestContext, loginResultDTO);
+
+            HttpPost httpPost;
+            if (requestContext.getRequestParam() != null && requestContext.getRequestParam().get("commentContent") != null) {
+                httpPost = createReplyCommentPost(requestContext, loginResultDTO, (String) requestContext.getRequestParam().get("commentContent"));
+            } else {
+                httpPost = createCommentPost(requestContext, loginResultDTO);
+            }
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -266,6 +274,13 @@ public class AutoHomeHandler extends PlatformHandler {
                 nameValuePairs.add(new BasicNameValuePair("topicId", topicId));
                 nameValuePairs.add(new BasicNameValuePair("uniquepageid", uniquePageId));
                 nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+                /**
+                 *获取被评论的内容，如果有就是要盖楼中楼
+                 */
+                if (requestContext.getRequestParam() != null && requestContext.getRequestParam().get("commentContent") != null) {
+                    String commentId = getCommentIdByContent(requestContext.getPrefixUrl(), requestContext.getContent().getText());
+                    nameValuePairs.add(new BasicNameValuePair("targetReplyid", commentId));
+                }
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
                 setCreateCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
                 return httpPost;
@@ -275,6 +290,57 @@ public class AutoHomeHandler extends PlatformHandler {
             logger.error("createComment error!", e);
         }
 
+        return null;
+    }
+
+    /**
+     * 楼中楼回复
+     *
+     * @param requestContext
+     * @param loginResultDTO
+     * @param commentContent
+     * @return
+     */
+    private HttpPost createReplyCommentPost(RequestContext requestContext, LoginResultDTO loginResultDTO, String commentContent) {
+        try {
+            HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+            setFetchTopicsHeader(httpGet);
+            CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                String uniquePageId = FetchParamUtil.getMatherStr(content, "tz.uniquePageId = \".*\"");
+                uniquePageId = FetchParamUtil.getMatherStr(uniquePageId, "\".*\"");
+                uniquePageId = uniquePageId.replaceAll("\"", "");
+
+                String topicId = FetchParamUtil.getMatherStr(content, "tz.topicId=.*");
+                topicId = FetchParamUtil.getMatherStr(topicId, "\\d+");
+
+                String bbs = FetchParamUtil.getMatherStr(content, "tz.bbs=\".*\"");
+                bbs = FetchParamUtil.getMatherStr(bbs, "\".*\"");
+                bbs = bbs.replaceAll("\"", "");
+
+                String bbsId = FetchParamUtil.getMatherStr(content, "tz.bbsid=.*");
+                bbsId = FetchParamUtil.getMatherStr(bbsId, "\\d+");
+
+                String targetUrl = "https://club.autohome.com.cn/Detail/AddReply";
+                HttpPost httpPost = new HttpPost(targetUrl);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("bbs", bbs));
+                nameValuePairs.add(new BasicNameValuePair("bbsid", bbsId));
+                nameValuePairs.add(new BasicNameValuePair("topicId", topicId));
+                nameValuePairs.add(new BasicNameValuePair("uniquepageid", uniquePageId));
+                nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
+                String commentId = getCommentIdByContent(requestContext.getPrefixUrl(), commentContent);
+                nameValuePairs.add(new BasicNameValuePair("targetReplyid", commentId));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                setCreateCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
+                return httpPost;
+            }
+        } catch (Exception e) {
+            logger.error("createComment error!", e);
+        }
         return null;
     }
 
@@ -872,6 +938,28 @@ public class AutoHomeHandler extends PlatformHandler {
         }
     }
 
+    /**
+     * 通过评论获取评论的Id
+     *
+     * @param url
+     * @param content
+     * @return
+     */
+    private String getCommentIdByContent(String url, String content) {
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            String res = EntityUtils.toString(httpResponse.getEntity());
+            String oneLine = res.replaceAll("(\r\n|\r|\n|\n\r)", "");
+            String r = FetchParamUtil.getMatherStr(oneLine, "<div class=\"clearfix contstxt outer-section\".*?" + content);
+            String[] ar = r.split("<div class=\"clearfix contstxt outer-section\"");
+            String ars = ar[ar.length - 1];
+            return FetchParamUtil.getMatherStr(ars, "pk=\"[0-9]+\"").replace("pk=\"", "").replace("\"", "");
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
 
 
