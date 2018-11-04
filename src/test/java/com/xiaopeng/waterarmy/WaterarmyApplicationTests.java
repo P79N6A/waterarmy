@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy;
 
+import com.sun.deploy.net.HttpUtils;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
@@ -13,6 +14,8 @@ import com.xiaopeng.waterarmy.handle.impl.YiCheHandler;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.model.dao.LinkInfo;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -28,10 +31,7 @@ import org.springframework.util.ObjectUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -250,4 +250,30 @@ public class WaterarmyApplicationTests {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testQiCheZhiJiaNewsCommentPraise() {
+        try {
+            String url = "https://www.autohome.com.cn/news/201811/924545.html#pvareaid=102624";
+            String article = url.substring(url.lastIndexOf("/") + 1);
+            String articleId = article.substring(0, article.indexOf("."));
+                    RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("文字精彩");
+            requestContext.setContent(content);
+            requestContext.setUserId(1L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl(url);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMENEWSCOMMENTPRAISE);
+            Map requestParam = new HashMap<>();
+            requestParam.put("articleId", articleId);
+            requestContext.setRequestParam(requestParam);
+            autoHomeHandler.praise(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
