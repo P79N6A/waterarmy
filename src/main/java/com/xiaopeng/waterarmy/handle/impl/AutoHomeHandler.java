@@ -80,7 +80,7 @@ public class AutoHomeHandler extends PlatformHandler {
 
     private static final String TOPIC_PREFIX = "https://bbs.pcauto.com.cn/topic-";
 
-    private static final String TARGET_COMMENT_NEWS = "https://cmt.pcauto.com.cn/action/comment/create.jsp";
+    private static final String TARGET_COMMENT_NEWS = "https://www.autohome.com.cn/ashx/article/AjaxSubmitReply.ashx";
 
     private static final String TARGET_COMMENT_NEWS_PRAISE = "https://www.autohome.com.cn/Ashx/AjaxUserOper.ashx";
 
@@ -163,8 +163,10 @@ public class AutoHomeHandler extends PlatformHandler {
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
 
             HttpPost httpPost;
-            if (requestContext.getRequestParam() != null && requestContext.getRequestParam().get("commentContent") != null) {
-                httpPost = createReplyCommentPost(requestContext, loginResultDTO, (String) requestContext.getRequestParam().get("commentContent"));
+            if (requestContext.getRequestParam() != null
+                    && requestContext.getRequestParam().get("commentContent") != null) {
+                httpPost = createReplyCommentPost(requestContext
+                        , loginResultDTO, (String) requestContext.getRequestParam().get("commentContent"));
             } else {
                 httpPost = createCommentPost(requestContext, loginResultDTO);
             }
@@ -545,7 +547,7 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
 
-    private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
+    public Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
 
 
         Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
@@ -557,7 +559,7 @@ public class AutoHomeHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createCommentNewsHttpPost(requestContext);
-            setCommentNewsHeader(httpPost);
+            setCommentNewsHeader(httpPost, loginResultDTO);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -585,106 +587,6 @@ public class AutoHomeHandler extends PlatformHandler {
             logger.error("[TaiPingYangHandler.comment] error!", e);
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
-        }
-    }
-
-    private Result<HandlerResultDTO> commentChezhu(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
-        if (!resultDTOResult.getSuccess()) {
-            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
-            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
-        }
-        try {
-            LoginResultDTO loginResultDTO = resultDTOResult.getData();
-            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-            HttpPost httpPost = createCommentNewsHttpPost(requestContext);
-            setCommentNewsHeader(httpPost);
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String content = null;
-            if (entity != null) {
-                content = EntityUtils.toString(entity, "utf-8");
-                content = content.trim();
-                TaiPingYangCommentResultDTO resultDTO = JSONObject.parseObject(content, TaiPingYangCommentResultDTO.class);
-                if (resultDTO.getStatus().equals("0")) {
-                    //新闻评论成功
-                    if ((resultDTO.getResultCode()) == 0) {
-                        //评论成功
-                        //发起通知请求
-                        /*HttpGet httpGet = createCheZhuCommentNoticeHttpGet(requestContext,httpClient,resultDTO);
-                        CloseableHttpResponse response1 = httpClient.execute(httpGet);
-                        String content1 = EntityUtils.toString(response1.getEntity(), "utf-8");*/
-
-                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
-                        CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
-                        save(new SaveContext(commentInfo));
-                        return new Result(handlerResultDTO);
-                    } else {
-                        //评论失败
-                        return new Result(ResultCodeEnum.HANDLE_FAILED, content);
-                    }
-                }
-            }
-            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因,这个在业务层处理，决定是否要记录未处理成功的数据
-            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
-        } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.comment] error!", e);
-            //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
-            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
-        }
-    }
-
-
-    private HttpGet createCheZhuCommentNoticeHttpGet(RequestContext requestContext, CloseableHttpClient httpClient, TaiPingYangCommentResultDTO resultDTO) {
-        /**
-         * req-enc: utf-8
-         * commentId: 881901
-         * content: 今年的梦想
-         * accountId: 47446648
-         * sgId: 10349
-         * modelId: 38952
-         * account: eiaxal8142
-         * replyId: 32202248
-         * floor: 1
-         */
-
-        try {
-            HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
-            CloseableHttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            String content = null;
-            String mobileId = null;
-            String sgId = null;
-            if (entity != null) {
-                content = EntityUtils.toString(entity, "utf-8");
-                mobileId = FetchParamUtil.getMatherStr(content, "var modelId = \"\\d+");
-                mobileId = FetchParamUtil.getMatherStr(mobileId, "\\d+");
-
-                sgId = FetchParamUtil.getMatherStr(content, "var SGID='\\d+");
-                sgId = FetchParamUtil.getMatherStr(sgId, "\\d+");
-            }
-
-            String commentId = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), "view_\\d+.html");
-            commentId = FetchParamUtil.getMatherStr(commentId, "\\d+");
-
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("req-enc", "utf-8"));
-            nameValuePairs.add(new BasicNameValuePair("commentId", commentId));
-            nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
-            nameValuePairs.add(new BasicNameValuePair("accountId", String.valueOf(resultDTO.getUserId())));
-            nameValuePairs.add(new BasicNameValuePair("sgId", sgId));
-            nameValuePairs.add(new BasicNameValuePair("modelId", mobileId));
-            nameValuePairs.add(new BasicNameValuePair("account", resultDTO.getShowName()));
-            nameValuePairs.add(new BasicNameValuePair("replyId", String.valueOf(resultDTO.getCommentId())));
-            nameValuePairs.add(new BasicNameValuePair("floor", String.valueOf(resultDTO.getFloor())));
-
-            String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-            String url = TARGET_COMMENT_CHEZHU_MESSAGE + "?" + str;
-            HttpGet httpGet1 = new HttpGet(url);
-            return httpGet1;
-        } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCheZhuCommentNoticeHttpGet]", e);
-            return null;
         }
     }
 
@@ -805,93 +707,80 @@ public class AutoHomeHandler extends PlatformHandler {
 
     private HttpPost createCommentNewsHttpPost(RequestContext requestContext) {
         /**
-         * isEncode: 1
-         * content: %E7%A1%AE%E5%AE%9E%E5%BE%88%E9%9C%B8%E6%B0%94
-         * captcha:
-         * needCaptcha: 0
-         * url: https://www.pcauto.com.cn/nation/1314/13145443.html
-         * title: %E6%96%B0%E6%AC%BE%E6%96%AF%E6%9F%AF%E8%BE%BE%E6%9F%AF%E7%8F%9E%E5%85%8BScout/Sportline%E5%AE%98%E5%9B%BE_%E5%A4%AA%E5%B9%B3%E6%B4%8B%E6%B1%BD%E8%BD%A6%E7%BD%91
-         * columnId:
-         * area:
-         * replyFloor2: 0
-         * partId:
-         * syncsites:
+         *
+         * appid: 1
+         * _appid: cms
+         * objid: 924545
+         * txtcontent: %u671F%u5F85%u672A%u6765%u7684%u7535%u52A8%u8F66%u5E02%u573A
+         * dataType: json
+         *
          */
+        String objid = String.valueOf(requestContext.getRequestParam().get("objid"));
+        if (objid == null) {
+            return null;
+        }
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
         HttpPost httpPost = null;
-        String url = requestContext.getPrefixUrl();
-        if (TaskEntryTypeEnum.TAIPINGYANGCHEZHUCOMMENT.equals(requestContext.getHandleEntryType())) {
-            url = url.replaceAll("https:", "");
-            url = url.replaceAll("http:", "");
-            httpPost = new HttpPost(TARGET_COMMENT_CHE_ZHU);
-        } else {
-            httpPost = new HttpPost(TARGET_COMMENT_NEWS);
-        }
-        String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("isEncode", "1"));
-        nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("needCaptcha", "0"));
-
-
-        nameValuePairs.add(new BasicNameValuePair("url", url));
-        nameValuePairs.add(new BasicNameValuePair("title", title));
-        nameValuePairs.add(new BasicNameValuePair("replyFloor2", "0"));
-
+        httpPost = new HttpPost(TARGET_COMMENT_NEWS);
+        nameValuePairs.add(new BasicNameValuePair("appid", "1"));
+        nameValuePairs.add(new BasicNameValuePair("_appid", "cms"));
+        nameValuePairs.add(new BasicNameValuePair("objid", objid));
+        nameValuePairs.add(new BasicNameValuePair("txtcontent", requestContext.getContent().getText()));
+        nameValuePairs.add(new BasicNameValuePair("dataType", "json"));
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
             return httpPost;
         } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
-            return null;
-        }
-    }
-
-    private HttpPost createCommentCheZhuHttpPost(RequestContext requestContext) {
-        /**
-         * isEncode: 1
-         * content: %E5%AE%87%E5%AE%99%E7%A5%9E%E8%BD%A6%E7%9A%84%E6%84%9F%E8%A7%89
-         * captcha:
-         * needCaptcha: 0
-         * url: //price.pcauto.com.cn/comment/sg21775/m79917/view_884063.html
-         * title: %E9%A3%8E%E5%85%89S560%E6%80%8E%E4%B9%88%E6%A0%B7
-         * columnId:
-         * area:
-         * replyFloor2: 0
-         * partId:
-         * syncsites:
-         */
-        HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS);
-
-        String title = ResolveUtil.fetchTitle(requestContext.getPrefixUrl());
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair("isEncode", "1"));
-        nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
-        nameValuePairs.add(new BasicNameValuePair("needCaptcha", "0"));
-        nameValuePairs.add(new BasicNameValuePair("url", requestContext.getPrefixUrl()));
-        nameValuePairs.add(new BasicNameValuePair("title", title));
-        nameValuePairs.add(new BasicNameValuePair("replyFloor2", "0"));
-
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
-            return httpPost;
-        } catch (Exception e) {
-            logger.error("[TaiPingYangHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
+            logger.error("[AutoHomeHandler.createCommentNewsHttpPost]createCommentNewsHttpPost " +
+                    " UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs);
             return null;
         }
     }
 
 
-    private void setCommentNewsHeader(HttpPost httpPost) {
+    private void setCommentNewsHeader(HttpPost httpPost, LoginResultDTO loginResultDTO) {
         /**
-         * Host: cmt.pcauto.com.cn
-         * Origin: https://www.pcauto.com.cn
-         * Referer: https://www.pcauto.com.cn/nation/1314/13145443.html
-         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+         *
+         **Accept:
+         * Accept-Encoding: gzip, deflate, br
+         * * Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7
+         * Cache-Control: no-cache
+         * Connection: keep-alive
+         * Content-Length: 137
+         * Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+         * Cookie: ASP.NET_SessionId=5ouvwb315qxmiolkqxnzxokg; __ah_uuid=AF1B4AEF-76B1-4BE3-875E-D855374CDF29; fvlid=1541225246038ETN0B4MM0j; __utmc=1; sessionip=183.236.71.86; sessionid=844C060E-A2A3-4468-9986-792ED3788C79%7C%7C2018-11-03+14%3A07%3A29.449%7C%7C0; ahpau=1; area=440106; sessionuid=844C060E-A2A3-4468-9986-792ED3788C79%7C%7C2018-11-03+14%3A07%3A29.449%7C%7C0; nice_id2d64d8c0-810a-11e8-aaa0-b1995d9e8c72=1fa27523-df48-11e8-9b50-6b73d98beb07; historybbsName4=c-3465%7C%E5%B8%9D%E8%B1%AAGS%2Co-200325%7C%E9%9D%92%E5%B0%91%E5%B9%B4; __utma=1.128045129.1541225249.1541238157.1541299668.4; __utmz=1.1541299668.4.4.utmcsr=club.autohome.com.cn|utmccn=(referral)|utmcmd=referral|utmcct=/bbs/thread/e5883eaca45cb512/77290014-1.html; pcpopclub=fabd0a7a9fc248edbd0db0679cfa2fe404557f37; clubUserShow=72711991|4691|6|iason2010|0|0|0||2018-11-04 11:02:30|0; autouserid=72711991; sessionuserid=72711991; sessionlogin=7b46bc479fe441299e8dac5232ab3c0904557f37; ahpvno=59; sessionvid=F7EAFF49-D789-49F9-AE5A-E05E2B1148F4; pvidchain=3311495,102624; _fmdata=bGzHBmBDGV%2BwPRpNFf5jRvfJuGaCaEAK975dzZZ%2BBjA6AOyatgUggVbu%2B51mQcBGor3RZ7jMikdwvgfCI5iq4phRX9%2FMSrFMIl5IA5DH9Ak%3D; ref=www.baidu.com%7C0%7C0%7C0%7C2018-11-04+16%3A43%3A50.006%7C2018-11-03+17%3A07%3A44.512; ahrlid=15413210267567neHthBeLe-1541321898335
+         * Host: www.autohome.com.cn
+         * Origin: https://www.autohome.com.cn
+         * Pragma: no-cache
+         * Referer: https://www.autohome.com.cn/news/201811/924545.html
+         * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36
+         * X-Requested-With: XMLHttpRequest
+         *
          */
-        httpPost.setHeader("Host", "cmt.pcauto.com.cn");
-        httpPost.setHeader("Origin", "https://www.pcauto.com.cn");
-        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        //httpPost.setHeader("Content-Length", "137");
+        //httpPost.setHeader("Connection", "keep-alive");
+        //httpPost.setHeader("Accept-Encoding", "gzip, deflate, br");
+        //httpPost.setHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7");
+        //httpPost.setHeader("Cache-Control", "no-cache");
+        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        //httpPost.setHeader("Cookie", "ASP.NET_SessionId=5ouvwb315qxmiolkqxnzxokg; __ah_uuid=AF1B4AEF-76B1-4BE3-875E-D855374CDF29; fvlid=1541225246038ETN0B4MM0j; __utmc=1; sessionip=183.236.71.86; sessionid=844C060E-A2A3-4468-9986-792ED3788C79%7C%7C2018-11-03+14%3A07%3A29.449%7C%7C0; ahpau=1; area=440106; sessionuid=844C060E-A2A3-4468-9986-792ED3788C79%7C%7C2018-11-03+14%3A07%3A29.449%7C%7C0; nice_id2d64d8c0-810a-11e8-aaa0-b1995d9e8c72=1fa27523-df48-11e8-9b50-6b73d98beb07; historybbsName4=c-3465%7C%E5%B8%9D%E8%B1%AAGS%2Co-200325%7C%E9%9D%92%E5%B0%91%E5%B9%B4; __utma=1.128045129.1541225249.1541238157.1541299668.4; __utmz=1.1541299668.4.4.utmcsr=club.autohome.com.cn|utmccn=(referral)|utmcmd=referral|utmcct=/bbs/thread/e5883eaca45cb512/77290014-1.html; pcpopclub=fabd0a7a9fc248edbd0db0679cfa2fe404557f37; clubUserShow=72711991|4691|6|iason2010|0|0|0||2018-11-04 11:02:30|0; autouserid=72711991; sessionuserid=72711991; sessionlogin=7b46bc479fe441299e8dac5232ab3c0904557f37; ahpvno=58; pvidchain=3311495; sessionvid=6CDD128A-E55F-4D7E-9966-8C5C7714E88D; _fmdata=bGzHBmBDGV%2BwPRpNFf5jRvfJuGaCaEAK975dzZZ%2BBjA6AOyatgUggVbu%2B51mQcBGVzRSZKLN%2BFSBYwsD3Sq6BQFvhIdry4h8jMqxXK4WzcQ%3D; ref=www.baidu.com%7C0%7C0%7C0%7C2018-11-04+12%3A06%3A44.129%7C2018-11-03+17%3A07%3A44.512; ahrlid=1541304401989S0azDBbwSA-1541304537256");
+        httpPost.setHeader("Host", "www.autohome.com.cn");
+        httpPost.setHeader("Origin", "https://www.autohome.com.cn");
+        //httpPost.setHeader("Pragma", "no-cache");
+        //httpPost.setHeader("Referer", "https://www.autohome.com.cn/news/201811/924429.html");
+        //httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
+        //httpPost.setHeader("X-Requested-With","XMLHttpRequest");
 
+        //设置cookie
+        StringBuilder stringBuilder = new StringBuilder();
+        String s = null;
+        for (Cookie cookie : loginResultDTO.getCookieStore().getCookies()) {
+            if ("clubUserShow".equalsIgnoreCase(cookie.getName())) {
+                s = cookie.getValue();
+                break;
+            }
+        }
+        httpPost.setHeader("Cookie", "clubUserShow=" + s);
     }
 
     private String qichezhijiaImageUpload(HttpClient httpClient, List<InputStream> inputStreams) throws IOException {

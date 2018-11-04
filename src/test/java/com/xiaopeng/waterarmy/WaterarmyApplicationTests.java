@@ -251,6 +251,9 @@ public class WaterarmyApplicationTests {
         }
     }
 
+    /**
+     * 汽车之家新闻评论点赞
+     */
     @Test
     public void testQiCheZhiJiaNewsCommentPraise() {
         try {
@@ -271,6 +274,34 @@ public class WaterarmyApplicationTests {
             requestParam.put("articleId", articleId);
             requestContext.setRequestParam(requestParam);
             autoHomeHandler.praise(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 汽车之家新闻评论
+     */
+    @Test
+    public void testQiCheZhiJiaNewsComment() {
+        try {
+            String url = "https://www.autohome.com.cn/news/201811/924429.html#pvareaid=3311495";
+            String obj = url.substring(url.lastIndexOf("/") + 1);
+            String objid = obj.substring(0, obj.indexOf("."));
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("沃尔沃豪车啊 ~~~~");
+            requestContext.setContent(content);
+            requestContext.setUserId(1L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl(url);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMENEWSCOMMENT);
+            Map requestParam = new HashMap<>();
+            requestParam.put("objid", objid);
+            requestContext.setRequestParam(requestParam);
+            autoHomeHandler.commentNews(requestContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
