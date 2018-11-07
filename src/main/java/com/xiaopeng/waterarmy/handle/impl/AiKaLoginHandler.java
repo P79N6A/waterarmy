@@ -118,31 +118,32 @@ public class AiKaLoginHandler implements LoginHandler {
              * checkcode: 4688
              * uniquekey: a94737cfcde96d69cd01944f57d24e6e
              */
-            HttpPost httpPost = new HttpPost(loginUrl);
-            setHeader(httpPost);
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("username", userName));
-            nameValuePairs.add(new BasicNameValuePair("userpwd", DigestUtils.md5Hex(passWord)));
-            nameValuePairs.add(new BasicNameValuePair("logintype", "2"));
-            Util.HttpResp resp = null;
-            if (needVerifyCode) {
-                String time = String.valueOf(new Date().getTime());
-                String codeToken = getCodeToken(httpClient,time);
-                String codeUrl = getValidateCodeUrl(httpClient,codeToken,time);
-                resp = TranslateCodeUtil.getInstance().convertByFeiFei(codeUrl,FeiFeiTypeEnum.FOUR_NUMBERS.getName());
-                if (StringUtils.isNotBlank(resp.pred_resl)){
-                    validateSuccess = true;
-                }else {
-                    continue;
-                }
-                nameValuePairs.add(new BasicNameValuePair("checkcode", resp.pred_resl));
-                nameValuePairs.add(new BasicNameValuePair("uniquekey", codeToken));
-            }else {
-                nameValuePairs.add(new BasicNameValuePair("checkcode", "请输入验证码"));
-                nameValuePairs.add(new BasicNameValuePair("uniquekey", null));
-            }
-
             try {
+                HttpPost httpPost = new HttpPost(loginUrl);
+                setHeader(httpPost);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("username", userName));
+                nameValuePairs.add(new BasicNameValuePair("userpwd", DigestUtils.md5Hex(passWord)));
+                nameValuePairs.add(new BasicNameValuePair("logintype", "2"));
+                Util.HttpResp resp = null;
+                if (needVerifyCode) {
+                    String time = String.valueOf(new Date().getTime());
+                    String codeToken = getCodeToken(httpClient, time);
+                    String codeUrl = getValidateCodeUrl(httpClient, codeToken, time);
+                    resp = TranslateCodeUtil.getInstance().convertByFeiFei(codeUrl, FeiFeiTypeEnum.FOUR_NUMBERS.getName());
+                    if (StringUtils.isNotBlank(resp.pred_resl)) {
+                        validateSuccess = true;
+                    } else {
+                        continue;
+                    }
+                    nameValuePairs.add(new BasicNameValuePair("checkcode", resp.pred_resl));
+                    nameValuePairs.add(new BasicNameValuePair("uniquekey", codeToken));
+                } else {
+                    nameValuePairs.add(new BasicNameValuePair("checkcode", "请输入验证码"));
+                    nameValuePairs.add(new BasicNameValuePair("uniquekey", null));
+                }
+
+
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                /* if (response.getStatusLine().getStatusCode() != HttpResultCode.RESULT_OK.getResultCode()) {
@@ -153,7 +154,7 @@ public class AiKaLoginHandler implements LoginHandler {
                 }*/
                 HttpEntity entity = response.getEntity();
                 String content = EntityUtils.toString(entity, "utf-8");
-                if (content.contains("\\u9a8c\\u8bc1\\u7801\\u9519\\u8bef")||content.contains("\\u8bf7\\u8f93\\u5165\\u9a8c\\u8bc1\\u7801")) {
+                if (content.contains("\\u9a8c\\u8bc1\\u7801\\u9519\\u8bef") || content.contains("\\u8bf7\\u8f93\\u5165\\u9a8c\\u8bc1\\u7801")) {
                     if (validateSuccess) {
                         //结果告知成功，但是却未通过系统校验退款
                         TranslateCodeUtil.getInstance().refund(resp.req_id);
@@ -175,7 +176,7 @@ public class AiKaLoginHandler implements LoginHandler {
         }
         try {
             httpClient.close();
-        }catch (Exception e) {
+        } catch (Exception e) {
 
         }
 
@@ -186,7 +187,7 @@ public class AiKaLoginHandler implements LoginHandler {
         httpPost.setHeader("User-Agent", UserAgent);
         httpPost.setHeader("Origin", Origin);
         httpPost.setHeader("Host", Host);
-        httpPost.setHeader("X-Requested-With",XMLHttpRequest);
+        httpPost.setHeader("X-Requested-With", XMLHttpRequest);
     }
 
     private void setHeader(HttpGet httpGet) {
@@ -207,7 +208,7 @@ public class AiKaLoginHandler implements LoginHandler {
             String content = null;
             if (entity != null) {
                 content = EntityUtils.toString(entity, "utf-8");
-                content = content.replaceAll("\"","");
+                content = content.replaceAll("\"", "");
                 return content;
             }
         } catch (Exception e) {
@@ -217,7 +218,7 @@ public class AiKaLoginHandler implements LoginHandler {
     }
 
 
-    private String getValidateCodeUrl(CloseableHttpClient httpClient,String code,String time) {
+    private String getValidateCodeUrl(CloseableHttpClient httpClient, String code, String time) {
         if (StringUtils.isBlank(code)) {
             logger.error("[AiKaLoginHandler.getValidateCodeUrl] error!");
             return null;
