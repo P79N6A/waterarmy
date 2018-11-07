@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.xiaopeng.waterarmy.common.Result.AiKaCommentList;
+import com.xiaopeng.waterarmy.common.Result.AiKaCommentNews;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
@@ -27,6 +29,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.xiaopeng.waterarmy.common.Result.AiKaComment;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -102,8 +106,8 @@ public class AiKaHandler extends PlatformHandler {
         int retry = 3;
         try {
 
-            while (needRetry&&retry>0) {
-                retry -- ;
+            while (needRetry && retry > 0) {
+                retry--;
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
 
@@ -115,8 +119,8 @@ public class AiKaHandler extends PlatformHandler {
                     map.put("aiKaImage", aiKaImage);
                 }
 
-                map = createPublishHttpPost(requestContext,map);
-                CloseableHttpResponse response = httpClient.execute((HttpPost)map.get("httpPost"));
+                map = createPublishHttpPost(requestContext, map);
+                CloseableHttpResponse response = httpClient.execute((HttpPost) map.get("httpPost"));
                 HttpEntity entity = response.getEntity();
                 String content = null;
                 if (entity != null) {
@@ -131,7 +135,7 @@ public class AiKaHandler extends PlatformHandler {
                             HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content, url);
                             return new Result(handlerResultDTO);
                         }
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         Document document = Jsoup.parse(content);
                         Elements elements = document.select("[name=formhash]");
                         String formhash = elements.get(0).val();
@@ -139,10 +143,10 @@ public class AiKaHandler extends PlatformHandler {
                         Elements elements1 = document.select("[name=ssid]");
                         String ssid = elements1.get(0).val();
                         if (formhash != null && ssid != null) {
-                            map.put("formhash",formhash);
-                            map.put("ssid",ssid);
+                            map.put("formhash", formhash);
+                            map.put("ssid", ssid);
                             needRetry = true;
-                        }else{
+                        } else {
                             needRetry = false;
                         }
                     }
@@ -157,7 +161,7 @@ public class AiKaHandler extends PlatformHandler {
     }
 
 
-    private Map createPublishHttpPost(RequestContext requestContext,Map map) {
+    private Map createPublishHttpPost(RequestContext requestContext, Map map) {
 
         /**
          * subject: (unable to decode value)
@@ -189,11 +193,11 @@ public class AiKaHandler extends PlatformHandler {
                 msg = URLEncoder.encode("[textcard]" + requestContext.getContent().getText() + "[/textcard]", "GB2312");
             }
             nameValuePairs.add(new BasicNameValuePair("message", msg));//meesageBody
-            if (map.get("formhash")!=null) {
+            if (map.get("formhash") != null) {
                 nameValuePairs.add(new BasicNameValuePair("formhash", (String) map.get("formhash")));
             }
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
-            map.put("httpPost",httpPost);
+            map.put("httpPost", httpPost);
             return map;
         } catch (Exception e) {
             logger.error("[AiKaHandler.createPublishHttpPost]createPublishHttpPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs, e);
@@ -248,7 +252,7 @@ public class AiKaHandler extends PlatformHandler {
         return commentForum(requestContext);
     }
 
-    private  Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
+    private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
         if (!resultDTOResult.getSuccess()) {
             logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
@@ -260,8 +264,8 @@ public class AiKaHandler extends PlatformHandler {
 
         try {
             Map map = null;
-            while (retry>0 && needRetry) {
-                retry -- ;
+            while (retry > 0 && needRetry) {
+                retry--;
                 LoginResultDTO loginResultDTO = resultDTOResult.getData();
                 CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
                 map = createCommentPost(requestContext, map);
@@ -287,10 +291,10 @@ public class AiKaHandler extends PlatformHandler {
                         Elements elements1 = document.select("[name=ssid]");
                         String ssid = elements1.get(0).val();
                         if (formhash != null && ssid != null) {
-                            map.put("formhash",formhash);
-                            map.put("ssid",ssid);
+                            map.put("formhash", formhash);
+                            map.put("ssid", ssid);
                             needRetry = true;
-                        }else{
+                        } else {
                             needRetry = false;
                         }
                     }
@@ -495,9 +499,112 @@ public class AiKaHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        LoginResultDTO loginResultDTO = resultDTOResult.getData();
+        CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+        HttpGet httpGet = createPraiseParamHttpGet(requestContext);
+
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                AiKaCommentList aiKaCommentList = JSONObject.parseObject(content, AiKaCommentList.class);
+                AiKaCommentNews aiKaCommentNews = aiKaCommentList.getNews();
+                List<AiKaComment>  aiKaCommentList1 = aiKaCommentList.getList();
+                AiKaComment comment = null;
+                for (AiKaComment tempComment : aiKaCommentList1) {
+                    if (tempComment.getConts().contains(requestContext.getContent().getText())) {
+                        comment = tempComment;
+                        break;
+                    }
+                }
+                if (comment!=null) {
+                    HttpGet httpGet1 = createPraiseHttpGet(requestContext,aiKaCommentNews.getId(),comment.getId(),aiKaCommentNews.getCid());
+                    CloseableHttpResponse response1 = httpClient.execute(httpGet1);
+                    HttpEntity entity1 = response1.getEntity();
+                    String content1 = null;
+                    if (entity1 != null) {
+                        content1 = EntityUtils.toString(entity1, "utf-8");
+                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                        return new Result(handlerResultDTO);
+                    }
+                }else {
+                    logger.error("AiKapraise error!");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("AiKaHandler.praise error", e);
+        }
+
+
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
+
+
+    private HttpGet createPraiseHttpGet(RequestContext requestContext, String newsId,String commentId,String newsCid) {
+        //http://comment.xcar.com.cn/interface/newsd_api.php?jsonpCallback=jQuery1124008292429965515535_1541595874336&cid=28976776&cmid=1125645&ctype=0&nid=2027320&action=agree&_=1541595874340
+        String cid = newsCid;
+        String cmid = commentId;
+        String nid = newsCid;
+
+        String ctype = "0";
+        String action = "agree";
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+        String jsonpCallback = "jQuery1124008292429965515535_" + String.valueOf(System.currentTimeMillis());
+
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("jsonpCallback", jsonpCallback));
+            nameValuePairs.add(new BasicNameValuePair("cid", cid));
+            nameValuePairs.add(new BasicNameValuePair("cmid", cmid));
+            nameValuePairs.add(new BasicNameValuePair("ctype", ctype));
+            nameValuePairs.add(new BasicNameValuePair("nid", nid));
+            nameValuePairs.add(new BasicNameValuePair("action", action));
+            nameValuePairs.add(new BasicNameValuePair("_", timeStamp));
+
+            String str = EntityUtils.toString(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            String url = "http://comment.xcar.com.cn/interface/newsd_api.php?" + str;
+            HttpGet httpGet = new HttpGet(url);
+            setPraiseHttpGet(httpGet);
+            return httpGet;
+        }catch (Exception e) {
+            logger.error("createPraiseHttpGet error!",e);
+        }
+
         return null;
     }
 
+    private void setPraiseHttpGet(HttpGet httpGet) {
+        //Host: comment.xcar.com.cn
+        //Referer: http://comment.xcar.com.cn/comments_news.php?cid=2027320&ctype=0&curl=http://newcar.xcar.com.cn/201810/news_2027320_1.html
+        //User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
+        //X-Requested-With: XMLHttpRequest
+
+        httpGet.setHeader("Host","comment.xcar.com.cn");
+        httpGet.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpGet.setHeader("X-Requested-With","XMLHttpRequest");
+    }
+
+    private HttpGet createPraiseParamHttpGet(RequestContext requestContext) {
+        String cid = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), "_\\d+_");
+        cid = FetchParamUtil.getMatherStr(cid, "\\d+");
+        String commentsJsonTargetUrl = "http://comment.xcar.com.cn/interface/index.php?iact=CommentLevel&cid=" + cid + "&action=getNewsComment&sort=ups&ctype=0&page=1&limit=10000&_=1541592906003";
+        HttpGet httpGet = new HttpGet(commentsJsonTargetUrl);
+        setCommentListHeader(httpGet);
+        return httpGet;
+    }
+
+    private void setCommentListHeader(HttpGet httpGet) {
+        httpGet.setHeader("Host", "comment.xcar.com.cn");
+        httpGet.setHeader("Upgrade-Insecure-Requests", "1");
+        httpGet.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+    }
 
     private Result<HandlerResultDTO> createCommentNews(RequestContext requestContext) {
         Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
@@ -506,26 +613,26 @@ public class AiKaHandler extends PlatformHandler {
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
         }
         try {
-                LoginResultDTO loginResultDTO = resultDTOResult.getData();
-                CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
-                HttpPost httpPost = createCommentNewsHttpPost(requestContext);
-                setCommentNewsHeader(httpPost);
-                CloseableHttpResponse response = httpClient.execute(httpPost);
-                HttpEntity entity = response.getEntity();
-                String content = null;
-                if (entity != null) {
-                    content = EntityUtils.toString(entity, "utf-8");
-                    AiKaCommentResultDTO aiKaCommentResultDTO = JSONObject.parseObject(content, AiKaCommentResultDTO.class);
-                    if ("0".equals(aiKaCommentResultDTO.getMsg())) {
-                        HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
-                        CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
-                        save(new SaveContext(commentInfo));
-                        return new Result(handlerResultDTO);
-                    }
+            LoginResultDTO loginResultDTO = resultDTOResult.getData();
+            CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+            HttpPost httpPost = createCommentNewsHttpPost(requestContext);
+            setCommentNewsHeader(httpPost);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String content = null;
+            if (entity != null) {
+                content = EntityUtils.toString(entity, "utf-8");
+                AiKaCommentResultDTO aiKaCommentResultDTO = JSONObject.parseObject(content, AiKaCommentResultDTO.class);
+                if ("0".equals(aiKaCommentResultDTO.getMsg())) {
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, content);
+                    CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, content);
+                    save(new SaveContext(commentInfo));
+                    return new Result(handlerResultDTO);
                 }
-                return new Result<>(ResultCodeEnum.HANDLE_FAILED);
-        }catch (Exception e) {
-            logger.error("[AiKaHandler.createCommentNews]",e);
+            }
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+        } catch (Exception e) {
+            logger.error("[AiKaHandler.createCommentNews]", e);
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
     }
@@ -546,21 +653,21 @@ public class AiKaHandler extends PlatformHandler {
         setCommentNewsHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
 
-        String cid = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(),"_\\d+_");
-        cid = cid.replaceAll("_","");
+        String cid = FetchParamUtil.getMatherStr(requestContext.getPrefixUrl(), "_\\d+_");
+        cid = cid.replaceAll("_", "");
 
         try {
             nameValuePairs.add(new BasicNameValuePair("action", "Dresponse"));
             nameValuePairs.add(new BasicNameValuePair("cid", cid));
             nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
-            nameValuePairs.add(new BasicNameValuePair("ctype","0"));
-            nameValuePairs.add(new BasicNameValuePair("curl",requestContext.getPrefixUrl()));
-            nameValuePairs.add(new BasicNameValuePair("istoeditor","0"));
-            nameValuePairs.add(new BasicNameValuePair("date",String.valueOf(new Date().getTime())));
+            nameValuePairs.add(new BasicNameValuePair("ctype", "0"));
+            nameValuePairs.add(new BasicNameValuePair("curl", requestContext.getPrefixUrl()));
+            nameValuePairs.add(new BasicNameValuePair("istoeditor", "0"));
+            nameValuePairs.add(new BasicNameValuePair("date", String.valueOf(new Date().getTime())));
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             return httpPost;
-        }catch (Exception e) {
-            logger.error("[AiKaHandler.createCommentNewsHttpPost]",e);
+        } catch (Exception e) {
+            logger.error("[AiKaHandler.createCommentNewsHttpPost]", e);
             return null;
         }
 
@@ -575,9 +682,9 @@ public class AiKaHandler extends PlatformHandler {
          * User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36
          * X-Requested-With: XMLHttpRequest
          */
-        httpPost.setHeader("Host","comment.xcar.com.cn");
-        httpPost.setHeader("Origin","http://comment.xcar.com.cn");
-        httpPost.setHeader("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-        httpPost.setHeader("Origin","http://comment.xcar.com.cn");
+        httpPost.setHeader("Host", "comment.xcar.com.cn");
+        httpPost.setHeader("Origin", "http://comment.xcar.com.cn");
+        httpPost.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        httpPost.setHeader("Origin", "http://comment.xcar.com.cn");
     }
 }

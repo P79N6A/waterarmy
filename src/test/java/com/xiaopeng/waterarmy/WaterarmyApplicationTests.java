@@ -136,6 +136,7 @@ public class WaterarmyApplicationTests {
     @Autowired
     private AutoHomeHandler autoHomeHandler;
 
+
     @Test
     public void testPublist() {
         RequestContext requestContext = new RequestContext();
@@ -302,6 +303,30 @@ public class WaterarmyApplicationTests {
             requestParam.put("objid", objid);
             requestContext.setRequestParam(requestParam);
             autoHomeHandler.commentNews(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    /**
+     * 汽车之家新闻评论
+     */
+    @Test
+    public void testAikaCommentPraise() {
+        try {
+            String url = "http://info.xcar.com.cn/201810/news_2027037_1.html";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("探岳330TSI两驱豪华型请问都是什么配置倒车影像这个级别有了吗");
+            requestContext.setContent(content);
+            requestContext.setUserId(4L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.LIKE);
+            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPrefixUrl(url);
+            aiKaHandler.praise(requestContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
