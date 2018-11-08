@@ -343,10 +343,10 @@ public class WaterarmyApplicationTests {
     @Test
     public void testAikaLouZhongLou() {
         try {
-            String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=33957894";
+            String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=30519335";
             RequestContext requestContext = new RequestContext();
             Content content = new Content();
-            content.setText("这个车我确实很喜欢的");
+            content.setText("i like");
             requestContext.setContent(content);
             requestContext.setUserId(3L);
             requestContext.setUserLoginId("18927512986");
@@ -354,7 +354,7 @@ public class WaterarmyApplicationTests {
             requestContext.setPlatform(PlatformEnum.XCAR);
             requestContext.setPrefixUrl(url);
             Map map = new HashMap();
-            map.put("commentContent","发票就相当于现金，丢了发票就相当于丢了现金，显然是不能补的");
+            map.put("commentContent","这都是神马和神马");
             requestContext.setRequestParam(map);
             aiKaHandler.comment(requestContext);
         } catch (Exception e) {

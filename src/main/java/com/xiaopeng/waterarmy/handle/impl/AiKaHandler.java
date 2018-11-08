@@ -471,7 +471,7 @@ public class AiKaHandler extends PlatformHandler {
                     map.put("uid",uid);
 
                     String qutoId = FetchParamUtil.getMatherStr(element.toString(),"id=\"table_\\d+\"");
-                    qutoId = FetchParamUtil.getMatherStr(uid,"\\d+");
+                    qutoId = FetchParamUtil.getMatherStr(qutoId,"\\d+");
                     map.put("qutoId",qutoId);
                     break;
                 }
