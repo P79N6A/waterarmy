@@ -446,7 +446,7 @@ public class AiKaHandler extends PlatformHandler {
             int count = 3;
             while (count > 0) {
                 try {
-                    page = webClient.getPage(requestContext.getPrefixUrl());
+                    page = webClient.getPage(url);
                     break;
                 } catch (Exception e) {
                     logger.error("getParameters", e);
