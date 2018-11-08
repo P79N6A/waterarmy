@@ -319,9 +319,9 @@ public class WaterarmyApplicationTests {
             String url = "http://info.xcar.com.cn/201810/news_2027037_1.html";
             RequestContext requestContext = new RequestContext();
             Content content = new Content();
-            content.setText("探岳330TSI两驱豪华型请问都是什么配置倒车影像这个级别有了吗");
+            content.setText("销量应该高不了，毕竟途观L在那呢，不说别的");
             requestContext.setContent(content);
-            requestContext.setUserId(4L);
+            requestContext.setUserId(3L);
             requestContext.setUserLoginId("18927512986");
             requestContext.setHandleType(TaskTypeEnum.LIKE);
             requestContext.setPlatform(PlatformEnum.XCAR);

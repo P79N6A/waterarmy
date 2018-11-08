@@ -549,8 +549,8 @@ public class AiKaHandler extends PlatformHandler {
 
     private HttpGet createPraiseHttpGet(RequestContext requestContext, String newsId,String commentId,String newsCid) {
         //http://comment.xcar.com.cn/interface/newsd_api.php?jsonpCallback=jQuery1124008292429965515535_1541595874336&cid=28976776&cmid=1125645&ctype=0&nid=2027320&action=agree&_=1541595874340
-        String cid = newsCid;
-        String cmid = commentId;
+        String cid = commentId;
+        String cmid = newsId;
         String nid = newsCid;
 
         String ctype = "0";
