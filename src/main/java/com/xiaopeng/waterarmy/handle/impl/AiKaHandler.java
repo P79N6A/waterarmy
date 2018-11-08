@@ -38,6 +38,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -362,6 +363,20 @@ public class AiKaHandler extends PlatformHandler {
          * replysubmit: yes
          */
 
+
+        //tid: 80136066
+        //fid: 223
+        //action: reply
+        //mt: 0.24824193206404255
+        //land: lord
+        //message: %5B%E5%9D%8F%E7%AC%91%5D%5B%E5%9D%8F%E7%AC%91%5D%5B%E5%9D%8F%E7%AC%91%5D%5B%E5%9D%8F%E7%AC%91%5D
+        //formhash: b9894710
+        //usesig: 1
+        //ssid: 1541685415
+        //repquote: 916757846
+        //replysubmit: yes
+        //repquote_authorid: 2271566
+
         HttpPost httpPost = new HttpPost(TARGET_COMMENT_URL);
         setHeader(httpPost);
         List<NameValuePair> nameValuePairs = new ArrayList<>();
@@ -390,12 +405,81 @@ public class AiKaHandler extends PlatformHandler {
             }
             nameValuePairs.add(new BasicNameValuePair("replysubmit", "yes"));
 
+
+            /**
+             *获取被评论的内容，如果有就是要盖楼中楼
+             */
+            if (requestContext.getRequestParam() != null && requestContext.getRequestParam().get("commentContent") != null) {
+                Map map1 = new HashMap();
+                getReplyCommentParameters(requestContext, map1);
+                String uid = (String) map1.get("uid");
+                String qutoId = (String) map1.get("qutoId");
+
+                nameValuePairs.add(new BasicNameValuePair("repquote_authorid", uid));
+                nameValuePairs.add(new BasicNameValuePair("repquote", qutoId));
+            }
+
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             map.put("httpPost", httpPost);
             return map;
         } catch (Exception e) {
             logger.error("[AiKaHandler.createCommentPost]createCommentPost  UrlEncodedFormEntity error! nameValuePairs" + nameValuePairs, e);
             return null;
+        }
+    }
+
+
+    private void getReplyCommentParameters(RequestContext requestContext,Map map) {
+
+        //循环50页 获取数据
+        int maxPage = 50;
+
+        while (maxPage>0) {
+            maxPage -- ;
+            String url = requestContext.getPrefixUrl();
+            if (maxPage<49) {
+                url = url+"&page="+(50-maxPage);
+            }
+            WebClient webClient = WebClientFatory.getInstance();
+            HtmlPage page = null;
+            //重试三次
+            int count = 3;
+            while (count > 0) {
+                try {
+                    page = webClient.getPage(requestContext.getPrefixUrl());
+                    break;
+                } catch (Exception e) {
+                    logger.error("getParameters", e);
+                    e.printStackTrace();
+                    count--;
+                } finally {
+                    webClient.close();
+                }
+            }
+            webClient.waitForBackgroundJavaScript(500);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
+
+            String pageXml = page.asXml();//直接将加载完成的页面转换成xml格式的字符串
+            Document document = Jsoup.parse(pageXml);//获取html文档
+            Elements tables = document.select("table[id]");
+            Element element = null;
+            for (Element tempElement:tables) {
+                String str = tempElement.text();
+                if (str.contains((String)requestContext.getRequestParam().get("commentContent"))) {
+                    element = tempElement;
+                    String uid = FetchParamUtil.getMatherStr(element.toString(),"uid=\\d+");
+                    uid = FetchParamUtil.getMatherStr(uid,"\\d+");
+                    map.put("uid",uid);
+
+                    String qutoId = FetchParamUtil.getMatherStr(element.toString(),"id=\"table_\\d+\"");
+                    qutoId = FetchParamUtil.getMatherStr(uid,"\\d+");
+                    map.put("qutoId",qutoId);
+                    break;
+                }
+            }
+
+            if (element != null) {
+                break;
+            }
         }
     }
 

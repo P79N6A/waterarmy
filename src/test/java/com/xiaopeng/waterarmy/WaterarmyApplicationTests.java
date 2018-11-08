@@ -1,5 +1,7 @@
 package com.xiaopeng.waterarmy;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sun.deploy.net.HttpUtils;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
@@ -7,6 +9,8 @@ import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
+import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
+import com.xiaopeng.waterarmy.handle.Util.WebClientFatory;
 import com.xiaopeng.waterarmy.handle.impl.AiKaHandler;
 import com.xiaopeng.waterarmy.handle.impl.AutoHomeHandler;
 import com.xiaopeng.waterarmy.handle.impl.TaiPingYangHandler;
@@ -21,6 +25,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,6 +338,63 @@ public class WaterarmyApplicationTests {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testAikaLouZhongLou() {
+        try {
+            String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=33957894";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("这个车我确实很喜欢的");
+            requestContext.setContent(content);
+            requestContext.setUserId(3L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPrefixUrl(url);
+            Map map = new HashMap();
+            map.put("commentContent","发票就相当于现金，丢了发票就相当于丢了现金，显然是不能补的");
+            requestContext.setRequestParam(map);
+            aiKaHandler.comment(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testPage() {
+        String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=33957894&page=2";
+            WebClient webClient = WebClientFatory.getInstance();
+            HtmlPage page = null;
+            //重试三次
+            int count = 3;
+            while (count > 0) {
+                try {
+                    page = webClient.getPage(url);//尝试加载上面图片例子给出的网页
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    count--;
+                } finally {
+                    webClient.close();
+                }
+            }
+            webClient.waitForBackgroundJavaScript(500);//异步JS执行需要耗时,所以这里线程要阻塞30秒,等待异步JS执行结束
+
+            String pageXml = page.asXml();//直接将加载完成的页面转换成xml格式的字符串
+            Document document = Jsoup.parse(pageXml);//获取html文档
+            Elements tables = document.select("table[id]");
+            Element element = null;
+            for (Element tempElement:tables) {
+                String str = tempElement.text();
+                if (str.contains("事情已经圆满解决，女儿此次出国实习可报销部分，学校均给予了报销")) {
+                    element = tempElement;
+                    String uid = FetchParamUtil.getMatherStr(element.toString(),"uid=\\d+");
+                    uid = FetchParamUtil.getMatherStr(uid,"\\d+");
+                }
+            }
+
     }
 
 }
