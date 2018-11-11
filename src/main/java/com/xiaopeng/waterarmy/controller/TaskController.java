@@ -181,7 +181,7 @@ public class TaskController {
 
     @RequestMapping(value = "/uploadTaskImg", method = RequestMethod.POST)
     @ResponseBody
-    public JsonMessage importData(@RequestParam("file") MultipartFile file) {
+    public JsonMessage uploadTaskImg(@RequestParam("file") MultipartFile file) {
         return taskService.uploadTaskImg(file);
     }
 

@@ -33,11 +33,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -650,10 +652,7 @@ public class TaiPingYangHandler extends PlatformHandler {
          * r: 0.24152560137723267
          */
         try {
-            String cid = (String) requestContext.getRequestParam().get(RequestConsts.COMMENT_ID);
-            if (cid == null) {
-                return null;
-            }
+            String cid = getTaiPinYangCommentIdByCommentContent(requestContext.getPrefixUrl(), requestContext.getContent().getText());
             HttpPost httpPost = new HttpPost(TARGET_COMMENT_NEWS_PRAISE);
 
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -775,7 +774,50 @@ public class TaiPingYangHandler extends PlatformHandler {
 
     }
 
-
+    /**
+     * 通过文章url和评论获取评论的ID
+     * https://www.pcauto.com.cn/nation/1355/13551303.html
+     *
+     * @param articleUrl     文章链接
+     * @param commentContent 评论内容
+     * @return
+     */
+    private String getTaiPinYangCommentIdByCommentContent(String articleUrl, String commentContent) {
+        Pattern pattern = Pattern.compile("data-id=\"[0-9]+\"");
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            String getData = "https://cmt.pcauto.com.cn/action/topic/get_data.jsp?url=" + articleUrl;
+            HttpGet httpGetData = new HttpGet(getData);
+            HttpResponse httpGetDataResponse = httpClient.execute(httpGetData);
+            String replyUrlContent = EntityUtils.toString(httpGetDataResponse.getEntity());
+            String url = JSON.parseObject(replyUrlContent).getString("url");
+            for (int i = 1; ; i++) {
+                String realUrl = url.replace("/p1/", "/p" + i + "/");
+                System.out.println(realUrl);
+                HttpGet httpGet = new HttpGet(realUrl);
+                HttpResponse httpResponse = httpClient.execute(httpGet);
+                String res = EntityUtils.toString(httpResponse.getEntity(), "GB2312");
+                Document document = Jsoup.parse(res);
+                Element commentTableElement = document.getElementById("commentTable");
+                Elements e = commentTableElement.getElementsByTag("li");
+                for (Element liE : e) {
+                    String liEString = liE.toString().replaceAll("(\r\n|\r|\n|\n\r)", "");
+                    if (liEString.contains(commentContent)) {
+                        Matcher matcher = pattern.matcher(liEString);
+                        if (matcher.find()) {
+                            String idS = matcher.group();
+                            return idS.replace("data-id=", "").replace("\"", "");
+                        }
+                    }
+                }
+                if (!commentTableElement.toString().contains("下一页")) {
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 
 
