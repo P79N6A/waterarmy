@@ -50,7 +50,12 @@ public enum PlatformEnum {
     /**
      * 汽车头条
      */
-    QCTT ("QCTT", "汽车头条");
+    QCTT ("QCTT", "汽车头条"),
+
+    /**
+     * 今日头条
+     */
+    TOUTIAO ("TOUTIAO", "今日头条");
 
     private String name;
     private String desc;

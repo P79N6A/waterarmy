@@ -11,10 +11,7 @@ import com.xiaopeng.waterarmy.common.util.ExcelUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.WebClientFatory;
-import com.xiaopeng.waterarmy.handle.impl.AiKaHandler;
-import com.xiaopeng.waterarmy.handle.impl.AutoHomeHandler;
-import com.xiaopeng.waterarmy.handle.impl.TaiPingYangHandler;
-import com.xiaopeng.waterarmy.handle.impl.YiCheHandler;
+import com.xiaopeng.waterarmy.handle.impl.*;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.model.dao.LinkInfo;
@@ -143,6 +140,9 @@ public class WaterarmyApplicationTests {
 
     @Autowired
     private AutoHomeHandler autoHomeHandler;
+
+    @Autowired
+    private TouTiaoLoginHandler touTiaoLoginHandler;
 
 
     @Test
@@ -363,6 +363,31 @@ public class WaterarmyApplicationTests {
     }
 
     @Test
+    public void testToutiao() {
+        try {
+           /* String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=30519335";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("i like");
+            requestContext.setContent(content);
+            requestContext.setUserId(3L);
+            requestContext.setUserLoginId("18927512986");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.XCAR);
+            requestContext.setPrefixUrl(url);
+            Map map = new HashMap();
+            map.put("commentContent","这都是神马和神马");
+            requestContext.setRequestParam(map);*/
+
+
+
+            touTiaoLoginHandler.login(21L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testPage() {
         String url = "http://www.xcar.com.cn/bbs/viewthread.php?tid=33957894&page=2";
             WebClient webClient = WebClientFatory.getInstance();
@@ -396,5 +421,8 @@ public class WaterarmyApplicationTests {
             }
 
     }
+
+
+
 
 }

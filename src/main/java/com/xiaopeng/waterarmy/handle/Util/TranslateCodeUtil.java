@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -105,6 +107,21 @@ public class TranslateCodeUtil {
             return null;
         }
     }
+
+
+    public Util.HttpResp convertByFeiFeiWithBase64(String bytes,String pre_type) {
+        try {
+            FeiFeiApi feiFeiApi = FeiFeiApi.getInstance();
+            BASE64Decoder decode = new BASE64Decoder();
+            byte[] decodeBytes = decode.decodeBuffer(bytes);
+            Util.HttpResp resp = feiFeiApi.Predict(pre_type,decodeBytes);
+            return resp;
+        }catch (Exception e) {
+            logger.error("[TranslateCodeUtil.convertByFeiFei] error!",e);
+            return null;
+        }
+    }
+
 
     public void refund(String req_id) {
         // 识别的结果如果与预期不符，可以调用这个接口将预期不符的订单退款
