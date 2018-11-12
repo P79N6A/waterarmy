@@ -14,6 +14,8 @@ public interface ContentInfoMapper extends MyMapper<ContentInfo> {
 
     List<ContentInfo> querysByRepositoriesType(@Param("type") String type);
 
+    List<ContentInfo> querysRepositorieContents(@Param("type") String type, @Param("name") String name);
+
     void save(@Param("contentInfo") ContentInfo contentInfo);
 
     void updateRepositoriesType(@Param("params") Map<String, Object> params);

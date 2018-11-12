@@ -40,6 +40,12 @@
         SELECT * FROM content_info WHERE content_repositories_type = #{type}
     </select>
 
+    <select id="querysRepositorieContents" resultType="com.xiaopeng.waterarmy.model.dao.ContentInfo">
+        SELECT ci.* FROM content_info_repositories cir
+        LEFT JOIN content_info ci ON cir.id = ci.content_info_repositories_id
+        WHERE cir.type = #{type} AND cir.name = #{name}
+    </select>
+
     <delete id="deleteById">
         DELETE FROM content_info WHERE id = #{id}
     </delete>

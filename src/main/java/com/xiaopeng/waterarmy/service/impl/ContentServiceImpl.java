@@ -120,6 +120,13 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public List<ContentInfo> querysRepositorieContents(String contentRepositoriesType, String contentRepositoriesName) {
+        List<ContentInfo> contentInfos = contentInfoMapper.querysRepositorieContents(
+                contentRepositoriesType, contentRepositoriesName);
+        return contentInfos;
+    }
+
+    @Override
     public JsonMessage delete(Long id) {
         JsonMessage message = JsonMessage.init();
         try {

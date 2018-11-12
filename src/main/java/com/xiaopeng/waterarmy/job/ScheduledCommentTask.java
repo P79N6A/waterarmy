@@ -64,7 +64,8 @@ public class ScheduledCommentTask {
             List<Account> accounts = accountService.getAccountsByPlatform(platform);
             //获取发帖内容库内容信息
             List<ContentInfo> contentInfos
-                    = contentService.querysByRepositoriesType(ContentRepositoriesEnum.COMMENT.getName());
+                    = contentService.querysRepositorieContents(String.valueOf(task.get("contentRepositoriesType"))
+                    , String.valueOf(task.get("contentRepositoriesName")));
             if (!ObjectUtils.isEmpty(accounts) && !ObjectUtils.isEmpty(contentInfos)) {
                 String publicIP = IPUtil.getPublicIP();
                 //随机获取待执行评论任务用户id
