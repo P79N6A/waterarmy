@@ -44,4 +44,11 @@
         ORDER BY ID DESC
     </select>
 
+    <select id="getTaskExecuteCount" resultType="java.util.HashMap">
+        SELECT * FROM `task_execute_log` tel
+        LEFT JOIN `task_info` ti ON tel.task_info_id = ti.id
+        WHERE SUBDATE(CURDATE(),INTERVAL 6 DAY) &lt; tel.create_time AND ti.task_type = #{params.taskType}
+        AND
+    </select>
+
 </mapper>

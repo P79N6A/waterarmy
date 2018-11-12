@@ -186,8 +186,14 @@ public class ScheduledCommentTask {
                 if (PlatFormModuleEnum.VIDEO_COMMENT.getName().equals(module)) {
                     requestContext.setHandleEntryType(TaskEntryTypeEnum.QICHEVIDEOCOMMENT);
                 }
+            } else if (PlatformEnum.AUTOHOME.getName().equals(platform)) {
+                if (PlatFormModuleEnum.CHEJIAHAO.getName().equals(module)) {
+                    requestContext.setHandleEntryType(TaskEntryTypeEnum.CHEJIAHAOCOMMENT);
+                } else if (PlatFormModuleEnum.KOUBEI.getName().equals(module)) {
+                    requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMEKOUBEICOMMENT);
+                }
             }
-                return requestContext;
+            return requestContext;
         } catch (Exception e) {
             logger.error("获取评论上下文失败, ", e);
         }

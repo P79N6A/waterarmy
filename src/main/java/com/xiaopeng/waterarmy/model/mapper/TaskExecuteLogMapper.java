@@ -13,4 +13,6 @@ public interface TaskExecuteLogMapper extends MyMapper<TaskExecuteLog> {
 
     void save(@Param("taskExecuteLog") Map<String, Object> taskExecuteLog);
 
+    List<Map<String,Object>> getTaskExecuteCount(@Param("params") Map<String, Object> params);
+
 }
