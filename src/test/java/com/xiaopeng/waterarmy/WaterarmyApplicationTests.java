@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.sun.deploy.net.HttpUtils;
+import com.sun.deploy.net.URLEncoder;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
@@ -22,6 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tomcat.util.buf.UEncoder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -315,6 +317,34 @@ public class WaterarmyApplicationTests {
             e.printStackTrace();
         }
     }
+
+
+
+    /**
+     * 汽车之家口碑评论
+     */
+    @Test
+    public void testQiCheZhiJiaKouBeiComment() {
+        try {
+            String url = "https://k.autohome.com.cn/detail/view_01cvgvbk7h68s3ce1h6mtg0000.html?st=1&piap=0|4817|0|0|1|0|0|0|0|0|1";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("想买~~");
+            requestContext.setContent(content);
+            requestContext.setUserId(23L);
+            requestContext.setUserLoginId("18992572253");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl(url);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMEKOUBEICOMMENT);
+            Map requestParam = new HashMap<>();
+            requestContext.setRequestParam(requestParam);
+            autoHomeHandler.comment(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 

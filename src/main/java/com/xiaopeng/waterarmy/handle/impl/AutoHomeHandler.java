@@ -41,6 +41,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.beetl.ext.fn.Json;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -60,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMEKOUBEICOMMENT;
 
 @Component
 public class AutoHomeHandler extends PlatformHandler {
@@ -149,7 +152,12 @@ public class AutoHomeHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
-        return commentForum(requestContext);
+        if (requestContext.getHandleEntryType() == AUTOHOMEKOUBEICOMMENT) {
+            //汽车之家口碑评论
+            return commentKouBei(requestContext);
+        } else {
+            return commentForum(requestContext);
+        }
     }
 
     private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
@@ -220,6 +228,69 @@ public class AutoHomeHandler extends PlatformHandler {
         }
         return new Result<>(ResultCodeEnum.HANDLER_NOT_FOUND);
     }
+
+    /**
+     * 汽车之家口碑评论给
+     * <p>
+     * 输入连接：https://k.autohome.com.cn/detail/view_01cvgvbk7h68s3ce1h6mtg0000.html?st=1&piap=0|4817|0|0|1|0|0|0|0|0|1###
+     * 评论给链接：https://k.autohome.com.cn/Controls/SubmitComment
+     * <p>
+     * id: 2268155
+     * objectType: 1
+     * target: 0
+     * filterValue:
+     * txtContent: 车挺好的
+     *
+     * @param requestContext
+     * @return
+     */
+    private Result<HandlerResultDTO> commentKouBei(RequestContext requestContext) {
+        requestContext.setPrefixUrl(requestContext.getPrefixUrl().replace("|", "%7c"));
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        LoginResultDTO loginResultDTO = resultDTOResult.getData();
+        CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+
+        Pattern pattern = Pattern.compile("\"objectId\":\"[0-9]+\"");
+        HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+        httpGet.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            String res = EntityUtils.toString(httpResponse.getEntity());
+            String oneLine = res.replaceAll("(\r\n|\r|\n|\n\r)", "");
+            Matcher matcher = pattern.matcher(oneLine);
+            if (matcher.find()) {
+                String objectId = matcher.group().replace("\"objectId\":\"", "").replace("\"", "");
+                HttpPost httpPost = new HttpPost("https://k.autohome.com.cn/Controls/SubmitComment");
+                setCreateKouBeiCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
+                List<NameValuePair> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(new BasicNameValuePair("id", objectId));
+                nameValuePairs.add(new BasicNameValuePair("objectType", "1"));
+                nameValuePairs.add(new BasicNameValuePair("target", "0"));
+                nameValuePairs.add(new BasicNameValuePair("txtContent", requestContext.getContent().getText()));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
+
+                HttpResponse httpResponse1 = httpClient.execute(httpPost);
+                String resContent = EntityUtils.toString(httpResponse1.getEntity());
+                System.out.println(requestContext);
+
+                JSONObject jsonObject = JSON.parseObject(resContent);
+                if (jsonObject.getLong("replyid") > 0) {
+                    HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, resContent);
+                    CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, resContent);
+                    save(new SaveContext(commentInfo));
+                    return new Result(handlerResultDTO);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
+
 
     private HttpPost createCommentPost(RequestContext requestContext, LoginResultDTO loginResultDTO) {
         //汽车之家论坛评论
@@ -368,6 +439,17 @@ public class AutoHomeHandler extends PlatformHandler {
             }
         }
         httpPost.setHeader("Cookie", "clubUserShow=" + s);
+    }
+
+    private void setCreateKouBeiCommentHeader(RequestContext requestContext, HttpPost httpPost, BasicCookieStore cookieStore) {
+        httpPost.addHeader("Referer", requestContext.getPrefixUrl());
+        httpPost.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
+        //设置cookie
+        String s = "";
+        for (Cookie cookie : cookieStore.getCookies()) {
+            s = s + ";" + cookie.getName() + "=" + cookie.getValue();
+        }
+        httpPost.setHeader("Cookie", "sessionlogin=" + s);
     }
 
     private void setFetchTopicsHeader(HttpGet httpGet) {
