@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMECHEJIAHAOCOMMENT;
 import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMEKOUBEICOMMENT;
 
 @Component
@@ -155,6 +156,8 @@ public class AutoHomeHandler extends PlatformHandler {
         if (requestContext.getHandleEntryType() == AUTOHOMEKOUBEICOMMENT) {
             //汽车之家口碑评论
             return commentKouBei(requestContext);
+        } else if (requestContext.getHandleEntryType() == AUTOHOMECHEJIAHAOCOMMENT) {
+            return cheJiaHaoComment(requestContext);
         } else {
             return commentForum(requestContext);
         }
@@ -291,6 +294,64 @@ public class AutoHomeHandler extends PlatformHandler {
         return new Result<>(ResultCodeEnum.HANDLE_FAILED);
     }
 
+    /**
+     * 通过评论获取评论的Id
+     * <p>
+     * https://chejiahao.autohome.com.cn/ashx/ajaxSubmit.ashx
+     * <p>
+     * form 表单：
+     * <p>
+     * appid: 21
+     * objid: 2941259
+     * txtcontent: 666
+     * TargetReplyId: 0
+     * share:
+     *
+     * @return
+     */
+
+    private Result<HandlerResultDTO> cheJiaHaoComment(RequestContext requestContext) {
+        Pattern pattern = Pattern.compile("/[0-9]+");
+        Matcher matcher = pattern.matcher(requestContext.getPrefixUrl());
+        String id = null;
+        if (matcher.find()) {
+            id = matcher.group().replace("/", "");
+        } else {
+            return new Result<>(ResultCodeEnum.HANDLE_FAILED.getIndex(), "没有在url中找到车家号文章的id");
+        }
+
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        if (!resultDTOResult.getSuccess()) {
+            logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
+            return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
+        }
+        LoginResultDTO loginResultDTO = resultDTOResult.getData();
+        CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
+        try {
+            HttpPost httpPost = new HttpPost("https://chejiahao.autohome.com.cn/ashx/ajaxSubmit.ashx");
+            setCreateKouBeiCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
+            List<NameValuePair> nameValuePairs = new ArrayList<>();
+            nameValuePairs.add(new BasicNameValuePair("appid", "21"));
+            nameValuePairs.add(new BasicNameValuePair("objid", id));
+            nameValuePairs.add(new BasicNameValuePair("TargetReplyId", "0"));
+            nameValuePairs.add(new BasicNameValuePair("txtcontent", requestContext.getContent().getText()));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "GB2312"));
+            HttpResponse httpResponse1 = httpClient.execute(httpPost);
+            String resContent = EntityUtils.toString(httpResponse1.getEntity());
+            JSONObject jsonObject = JSON.parseObject(resContent);
+            JSONObject j = jsonObject.getJSONObject("result");
+            if (j != null && j.getLong("ReplyId") > 0) {
+                HandlerResultDTO handlerResultDTO = ResultParamUtil.createHandlerResultDTO(requestContext, resContent);
+                CommentInfo commentInfo = ResultParamUtil.createCommentInfo(requestContext, resContent);
+                save(new SaveContext(commentInfo));
+                return new Result(handlerResultDTO);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
 
     private HttpPost createCommentPost(RequestContext requestContext, LoginResultDTO loginResultDTO) {
         //汽车之家论坛评论

@@ -345,6 +345,31 @@ public class WaterarmyApplicationTests {
         }
     }
 
+    /**
+     * 汽车之家口碑评论
+     */
+    @Test
+    public void testQiCheZhiJiaCheJiaHaoComment() {
+        try {
+            String url = "https://chejiahao.autohome.com.cn/info/2941259#pvareaid=2808106";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("how much~");
+            requestContext.setContent(content);
+            requestContext.setUserId(23L);
+            requestContext.setUserLoginId("18992572253");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl(url);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMECHEJIAHAOCOMMENT);
+            Map requestParam = new HashMap<>();
+            requestContext.setRequestParam(requestParam);
+            autoHomeHandler.comment(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 
