@@ -6,13 +6,19 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class HtmlReadUtil {
+
+    private static final  Logger logger = LoggerFactory.getLogger(HtmlReadUtil.class);
+
     private static ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setNameFormat("HtmlReadUtil").build();
 
@@ -56,13 +62,17 @@ public class HtmlReadUtil {
 
     static {
         for (int i = 0; i < 10; i++) {
-            ChromeDriver chromeDriver = new ChromeDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200", "--ignore-certificate-errors");
+            ChromeDriver chromeDriver = new ChromeDriver(options);
             new Thread(() -> {
                 while (true) {
                     try {
-                        chromeDriver.get(URLS.take());
+                        String readUrl = URLS.take();
+                        chromeDriver.get(readUrl);
                         TimeUnit.SECONDS.sleep(1);
                     } catch (Exception e) {
+                        logger.error("阅读失败", e);
                         chromeDriver.close();
                         chromeDrivers.remove(chromeDriver);
                     }
