@@ -18,6 +18,7 @@ public class GithubRepoPageProcessor implements PageProcessor {
     @Override
     // process是定制爬虫逻辑的核心接口，在这里编写抽取逻辑
     public void process(Page page) {
+        System.out.println("html---------------------------" + page.getHtml().get());
         page.addTargetRequests(page.getHtml().links().regex("http://news.bitauto\\.com/.*").all());//http://news.bitauto\.com/.*
         if (page.getUrl().toString().contains("pins")) {
             page.putField("img", page.getHtml().xpath("//div[@id='pin_img']/img/@src").toString());
