@@ -55,7 +55,7 @@ public class ScheduledReadTask {
             new LinkedBlockingQueue<Runnable>(200)
             , threadFactory, new ThreadPoolExecutor.AbortPolicy());
 
-    @Scheduled(fixedRate = 50)//5000
+    @Scheduled(fixedRate = 500)//5000
     public void execute() {
         //logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
