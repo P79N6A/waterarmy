@@ -65,11 +65,11 @@ public class ScheduledReadTask {
             //执行阅读任务
             if (!ObjectUtils.isEmpty(context)) {
                 readTask(context, task);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    logger.error("阅读任务, sleep出错,", e);
-                }
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    logger.error("阅读任务, sleep出错,", e);
+//                }
             } else {
                 logger.error("获取阅读上下文为空! task：{}", JSON.toJSONString(task));
             }
