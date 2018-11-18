@@ -12,7 +12,8 @@ public class HtmlReadUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlReadUtil.class);
 
-    private static ThreadLocal<ChromeDriver> chromeDriverThreadLocal = ThreadLocal.withInitial(() -> {
+    private static ThreadLocal<ChromeDriver> chromeDriverThreadLocal
+            = ThreadLocal.withInitial(() -> {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--no-sandbox");
@@ -27,14 +28,16 @@ public class HtmlReadUtil {
     });
 
 
-    public static void read(String url) {
+    public static boolean read(String url) {
         try {
             chromeDriverThreadLocal.get().navigate().to(url);
             chromeDriverThreadLocal.get().navigate().refresh();
             String title = chromeDriverThreadLocal.get().getTitle();
             logger.info("Read url " + title + "  " + url + " successful!!!!!!!!! ");
+            return true;
         } catch (Exception e) {
             logger.error("read error!!!!!!!!!!!", e);
         }
+        return false;
     }
 }

@@ -58,7 +58,8 @@ public class ScheduledReadTask {
     @Scheduled(fixedRate = 500)//5000
     public void execute() {
         //logger.info("定时阅读啦，现在时间：" + dateFormat.format(new Date()));
-        List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
+        List<Map<String, Object>> tasks
+                = taskService.getExecutableTaskInfos(TaskTypeEnum.READ.getName());
         for (Map<String, Object> task : tasks) {
             //获取阅读上下文
             RequestContext context = createReadContext(task);
