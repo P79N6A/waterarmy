@@ -284,6 +284,32 @@ public class WaterarmyApplicationTests {
         }
     }
 
+
+    /**
+     * 汽车之家车家号评论点赞
+     */
+    @Test
+    public void testQiCheZhiJiaCheJiaHaoCommentPraise() {
+        try {
+            String url = "https://chejiahao.autohome.com.cn/info/2157890#pvareaid=2808376";
+            RequestContext requestContext = new RequestContext();
+            Content content = new Content();
+            content.setText("油门刹车一样");
+            requestContext.setContent(content);
+            requestContext.setUserId(2L);
+            requestContext.setUserLoginId("18992572253");
+            requestContext.setHandleType(TaskTypeEnum.COMMENT);
+            requestContext.setPlatform(PlatformEnum.AUTOHOME);
+            requestContext.setPrefixUrl(url);
+            requestContext.setHandleEntryType(TaskEntryTypeEnum.AUTOHOMECHEJIAHAOCOMMENTPRAISE);
+            Map requestParam = new HashMap<>();
+            requestContext.setRequestParam(requestParam);
+            autoHomeHandler.praise(requestContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 汽车之家新闻评论
      */

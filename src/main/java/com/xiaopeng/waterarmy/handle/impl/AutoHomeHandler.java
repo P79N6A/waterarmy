@@ -4,16 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.Result.Result;
-import com.xiaopeng.waterarmy.common.constants.RequestConsts;
-import com.xiaopeng.waterarmy.common.enums.CharsetEnum;
 import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.util.HtmlPlayUtil;
 import com.xiaopeng.waterarmy.common.util.HtmlReadUtil;
-import com.xiaopeng.waterarmy.common.util.HttpUtil;
 import com.xiaopeng.waterarmy.handle.PlatformHandler;
 import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
-import com.xiaopeng.waterarmy.handle.Util.ResolveUtil;
 import com.xiaopeng.waterarmy.handle.Util.ResultParamUtil;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.param.SaveContext;
@@ -21,12 +17,9 @@ import com.xiaopeng.waterarmy.handle.result.*;
 import com.xiaopeng.waterarmy.model.dao.CommentInfo;
 import com.xiaopeng.waterarmy.model.dao.PraiseInfo;
 import com.xiaopeng.waterarmy.model.dao.PublishInfo;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -41,7 +34,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.beetl.ext.fn.Json;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,19 +42,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMECHEJIAHAOCOMMENT;
+import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMECHEJIAHAOCOMMENTPRAISE;
 import static com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum.AUTOHOMEKOUBEICOMMENT;
 
 @Component
@@ -228,6 +217,8 @@ public class AutoHomeHandler extends PlatformHandler {
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
         if (TaskEntryTypeEnum.AUTOHOMENEWSCOMMENTPRAISE.equals(requestContext.getHandleEntryType())) {
             return commentNewsPraise(requestContext);
+        }else if(AUTOHOMECHEJIAHAOCOMMENTPRAISE.equals(requestContext.getHandleEntryType())){
+            return commentCheJiaHaoPraise(requestContext);
         }
         return new Result<>(ResultCodeEnum.HANDLER_NOT_FOUND);
     }
@@ -768,6 +759,68 @@ public class AutoHomeHandler extends PlatformHandler {
             //处理失败的回复，把context记录下来，可以决定是否重新扫描,并且记录失败原因
             return new Result<>(ResultCodeEnum.HANDLE_FAILED);
         }
+    }
+
+    /**
+     * 汽车之家车家号评论点赞
+     *
+     * @return
+     */
+    private Result<HandlerResultDTO> commentCheJiaHaoPraise(RequestContext requestContext) {
+        String url = requestContext.getPrefixUrl();
+        String commentContent = requestContext.getContent().getText();
+        String id = url.split("#")[0].split("/")[url.split("#")[0].split("/").length - 1];
+        HttpClient httpClient = HttpClients.createDefault();
+        String commentId = getCheJiaHaoCommentIdByCommentContent(httpClient, id, commentContent);
+        System.out.println(commentId);
+        HttpGet httpGet = new HttpGet("https://reply.autohome.com.cn/ReceiveRequest/upcomment.ashx?appid=21&replyid=" + commentId + "&datatype=jsonp&callback=jsonpCallback");
+        String res;
+        try {
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            res = EntityUtils.toString(httpResponse.getEntity());
+            System.out.println(res);
+            if (res.contains("true")) {
+                HandlerResultDTO handlerResultDTO
+                        = ResultParamUtil.createHandlerResultDTO(requestContext, res);
+                PraiseInfo praiseInfo = ResultParamUtil.createPraiseInfo(requestContext, res);
+                save(new SaveContext(praiseInfo));
+                return new Result(handlerResultDTO);
+            }
+            System.out.println(res);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Result<>(ResultCodeEnum.HANDLE_FAILED);
+    }
+
+
+    private String getCheJiaHaoCommentIdByCommentContent(HttpClient httpClient, String paperId, String commentContent) {
+        try {
+            int j = 1;
+            while (true) {
+                String url = "https://reply.autohome.com.cn/api/comments/show.json?id=" + paperId + "&page=" + j + "&appid=21&count=20";
+                HttpGet httpGet = new HttpGet(url);
+                HttpResponse httpResponse = httpClient.execute(httpGet);
+                String res = EntityUtils.toString(httpResponse.getEntity());
+                JSONObject jsonObject = JSON.parseObject(res);
+                JSONArray jsonArray = jsonObject.getJSONArray("commentlist");
+                if (jsonArray.size() <= 0) {
+                    return null;
+                } else {
+                    for (int i = 0; i < jsonArray.size(); ++i) {
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        String RContent = jsonObject1.getString("RContent");
+                        if (RContent.contains(commentContent)) {
+                            return jsonObject1.getString("ReplyId");
+                        }
+                    }
+                    ++j;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private HttpPost createCommentNewsPraiseHttpPost(RequestContext requestContext) {
