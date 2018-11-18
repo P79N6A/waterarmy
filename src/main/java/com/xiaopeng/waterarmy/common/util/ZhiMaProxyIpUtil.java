@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.common.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xiaopeng.waterarmy.common.enums.CharsetEnum;
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
@@ -23,6 +24,7 @@ import java.util.List;
 /**
  * Created by chengwenlong on 18/11/18.
  */
+
 public class ZhiMaProxyIpUtil {
 
     private static Logger logger = LoggerFactory.getLogger(ZhiMaProxyIpUtil.class);
@@ -31,9 +33,10 @@ public class ZhiMaProxyIpUtil {
             = "http://webapi.http.zhimacangku.com/getip?num=50&type=2&pro=" +
             "&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=1&lb=1&sb=0&pb=4&mr=1&regions=";
 
-    private List<ProxyHttpConfig> zhimaProxyIps = new ArrayList<>();
+    private static List<ProxyHttpConfig> zhimaProxyIps = new ArrayList<>();
 
-    private void initZhimaProxyIps() {
+    public static ProxyHttpConfig getZhimaProxyIp() {
+        clearProxyIps();
         if (ObjectUtils.isEmpty(zhimaProxyIps) || !getRequest(zhimaProxyIps.get(0).getReqConfig())) {
             zhimaProxyIps.clear();
             try {
@@ -62,9 +65,16 @@ public class ZhiMaProxyIpUtil {
                 logger.error("初始化芝麻ip列表失败,", e);
             }
         }
+        ProxyHttpConfig config = null;
+        for (int i = 0; i < zhimaProxyIps.size(); i++) {
+            if (!config.isUsed()) {
+                config = zhimaProxyIps.get(i);
+            }
+        }
+        return config;
     }
 
-    private boolean getRequest(RequestConfig reqConfig) {
+    private static boolean getRequest(RequestConfig reqConfig) {
         // 目标地址
         String targetUrl = "http://httpbin.org/get";
         try {
@@ -85,7 +95,7 @@ public class ZhiMaProxyIpUtil {
      * @param httpReq
      * @return
      */
-    private boolean doRequest(HttpRequestBase httpReq, RequestConfig reqConfig) {
+    private static boolean doRequest(HttpRequestBase httpReq, RequestConfig reqConfig) {
         httpReq.setConfig(reqConfig);
         CloseableHttpResponse httpResp = null;
         CloseableHttpClient httpClient = null;
@@ -123,52 +133,15 @@ public class ZhiMaProxyIpUtil {
         return false;
     }
 
-    class ProxyHttpConfig {
-        private RequestConfig reqConfig;
-        // 代理服务器
-        private String proxyHost;
-        private Integer proxyPort;
-        private boolean isUsed;
-
-        public RequestConfig getReqConfig() {
-            return reqConfig;
+    private static void clearProxyIps() {
+        for (int i = 0; i < zhimaProxyIps.size(); i++) {
+            ProxyHttpConfig config = zhimaProxyIps.get(i);
+            if (!config.isUsed()) {
+                break;
+            }
+            if (i == zhimaProxyIps.size() - 1) {
+                zhimaProxyIps.clear();
+            }
         }
-
-        public void setReqConfig(RequestConfig reqConfig) {
-            this.reqConfig = reqConfig;
-        }
-
-        public String getProxyHost() {
-            return proxyHost;
-        }
-
-        public void setProxyHost(String proxyHost) {
-            this.proxyHost = proxyHost;
-        }
-
-        public Integer getProxyPort() {
-            return proxyPort;
-        }
-
-        public void setProxyPort(Integer proxyPort) {
-            this.proxyPort = proxyPort;
-        }
-
-        public boolean isUsed() {
-            return isUsed;
-        }
-
-        public void setUsed(boolean used) {
-            isUsed = used;
-        }
-    }
-
-    public List<ProxyHttpConfig> getZhimaProxyIps() {
-        return zhimaProxyIps;
-    }
-
-    public void setZhimaProxyIps(List<ProxyHttpConfig> zhimaProxyIps) {
-        initZhimaProxyIps();
-        this.zhimaProxyIps = zhimaProxyIps;
     }
 }

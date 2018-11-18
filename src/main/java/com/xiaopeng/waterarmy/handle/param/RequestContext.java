@@ -3,6 +3,7 @@ package com.xiaopeng.waterarmy.handle.param;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskEntryTypeEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
 
 import java.io.InputStream;
 import java.util.List;
@@ -64,6 +65,11 @@ public class RequestContext {
      * 图片流list
      */
     private List<InputStream> imageInputStreams;
+
+    /**
+     * 花生动态ip配置
+     */
+    private ProxyHttpConfig proxyHttpConfig;
 
     public Long getUserId() {
         return userId;
@@ -151,6 +157,14 @@ public class RequestContext {
 
     public void setImageInputStreams(List<InputStream> imageInputStreams) {
         this.imageInputStreams = imageInputStreams;
+    }
+
+    public ProxyHttpConfig getProxyHttpConfig() {
+        return proxyHttpConfig;
+    }
+
+    public void setProxyHttpConfig(ProxyHttpConfig proxyHttpConfig) {
+        this.proxyHttpConfig = proxyHttpConfig;
     }
 
     @Override
