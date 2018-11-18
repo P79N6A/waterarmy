@@ -115,6 +115,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public boolean saveTaskExecuteLog(Map<String, Object> params) {
         try {
+            if (ObjectUtils.isEmpty(params.get("executor"))) {
+                params.put("executor", "xiaoa");
+            }
             taskExecuteLogMapper.save(params);
         } catch (Exception e) {
             logger.error("saveTaskExecuteLog error, params, {}, ", e, JSON.toJSONString(params));

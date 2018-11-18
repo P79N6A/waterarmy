@@ -178,13 +178,14 @@ public class ScheduledPublishTask {
             List<Map<String, Object>> taskImageInfos = taskImageInfoMapper.getTaskImageInfos(imageInfos);
             if (!ObjectUtils.isEmpty(taskImageInfos)) {
                 Map<String, Object> taskImageInfo = taskImageInfos.get(0);
-                String filePath = String.valueOf(taskImageInfo.get("filePath"));
-                File imageFile = new File(filePath);
-                InputStream in = new FileInputStream(imageFile);
-                List<InputStream> imageInputStreams = new ArrayList<>();
-                imageInputStreams.add(in);
-                requestContext.setImageInputStreams(imageInputStreams);
-
+                if (!ObjectUtils.isEmpty(taskImageInfo.get("filePath"))) {
+                    String filePath = String.valueOf(taskImageInfo.get("filePath"));
+                    File imageFile = new File(filePath);
+                    InputStream in = new FileInputStream(imageFile);
+                    List<InputStream> imageInputStreams = new ArrayList<>();
+                    imageInputStreams.add(in);
+                    requestContext.setImageInputStreams(imageInputStreams);
+                }
             }
         } catch (Exception e) {
             logger.error("获取发帖上下文失败, ", e);
