@@ -43,7 +43,7 @@ public class ScheduledPlayTask {
     @Autowired
     private HandlerDispatcher handlerDispatcher;
 
-    @Scheduled(fixedRate = 50)//5000
+    @Scheduled(fixedRate = 500)//5000
     public void execute() {
         //logger.info("定时播放啦，现在时间：" + dateFormat.format(new Date()));
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.PLAY.getName());
