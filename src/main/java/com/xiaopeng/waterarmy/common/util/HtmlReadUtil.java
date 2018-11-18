@@ -29,7 +29,8 @@ public class HtmlReadUtil {
 
     public static void read(String url) {
         try {
-            chromeDriverThreadLocal.get().get(url);
+            chromeDriverThreadLocal.get().navigate().to(url);
+            chromeDriverThreadLocal.get().navigate().refresh();
             String title = chromeDriverThreadLocal.get().getTitle();
             logger.info("Read url " + title + "  " + url + " successful!!!!!!!!! ");
         } catch (Exception e) {
