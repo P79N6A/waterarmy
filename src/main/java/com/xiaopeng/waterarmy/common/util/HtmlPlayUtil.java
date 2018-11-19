@@ -1,26 +1,50 @@
 package com.xiaopeng.waterarmy.common.util;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 播放
  */
 public class HtmlPlayUtil {
-
     private static final Logger logger = LoggerFactory.getLogger(HtmlPlayUtil.class);
 
-    private static ThreadLocal<ChromeDriver> chromeDriverThreadLocal
-            = ThreadLocal.withInitial(() -> {
+    private static ThreadLocal<ChromeDriver> chromeDriverThreadLocal = ThreadLocal.withInitial(HtmlPlayUtil::getChromDriver);
+    private static ThreadLocal<AtomicInteger> counter = ThreadLocal.withInitial(AtomicInteger::new);
+
+
+    public static boolean play(String url) {
+        try {
+            if (500 <= counter.get().get()) {
+                if (chromeDriverThreadLocal.get() != null) {
+                    chromeDriverThreadLocal.get().close();
+                }
+                chromeDriverThreadLocal.set(getChromDriver());
+                counter.get().set(0);
+                logger.info(" read 1000 次，关掉chrom重新来");
+            }
+            chromeDriverThreadLocal.get().navigate().to(url);
+            chromeDriverThreadLocal.get().navigate().refresh();
+            String title = chromeDriverThreadLocal.get().getTitle();
+            logger.info(String.format("Read count: %s url %s  %s successful!!!!!!!!! ", new Object[]{counter.get(), title, url}));
+            counter.get().incrementAndGet();
+            return true;
+        } catch (Exception e) {
+            logger.error("read error!!!!!!!!!!!", e);
+            if (chromeDriverThreadLocal.get() != null) {
+                chromeDriverThreadLocal.get().close();
+            }
+            chromeDriverThreadLocal.set(getChromDriver());
+            return false;
+        }
+    }
+
+
+    private static ChromeDriver getChromDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--no-sandbox");
@@ -32,19 +56,5 @@ public class HtmlPlayUtil {
             logger.error("init ChromeDriver error!!!!!!!!!!!", e);
         }
         return null;
-    });
-
-
-    public static boolean play(String url) {
-        try {
-            chromeDriverThreadLocal.get().navigate().to(url);
-            chromeDriverThreadLocal.get().navigate().refresh();
-            String title = chromeDriverThreadLocal.get().getTitle();
-            logger.info("Play url " + title + "  " + url + " successful!!!!!!!!! ");
-            return true;
-        } catch (Exception e) {
-            logger.error("play error!!!!!!!!!!!", e);
-        }
-        return false;
     }
 }
