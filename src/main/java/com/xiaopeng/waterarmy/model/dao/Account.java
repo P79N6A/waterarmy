@@ -1,5 +1,7 @@
 package com.xiaopeng.waterarmy.model.dao;
 
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -99,6 +101,11 @@ public class Account implements Serializable {
      */
     @Column(name = "updater")
     private String updater;
+
+    /**
+     * 花生动态ip配置
+     */
+    private ProxyHttpConfig proxyHttpConfig;
 
     public Account() {
     }
@@ -223,5 +230,12 @@ public class Account implements Serializable {
         this.updater = updater;
     }
 
+    public ProxyHttpConfig getProxyHttpConfig() {
+        return proxyHttpConfig;
+    }
+
+    public void setProxyHttpConfig(ProxyHttpConfig proxyHttpConfig) {
+        this.proxyHttpConfig = proxyHttpConfig;
+    }
 }
 

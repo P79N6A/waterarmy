@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
         }
         Account account = accountMapper.getAccountById(Long.valueOf(userid));
+        account.setProxyHttpConfig(requestContext.getProxyHttpConfig());
         return this.login(account);
     }
 
@@ -97,6 +99,9 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             //https://account.autohome.com.cn/
             String getCookie = "https://account.autohome.com.cn/";
             HttpGet cookieHttpGet = new HttpGet(getCookie);
+            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                cookieHttpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
+            }
             httpClient.execute(cookieHttpGet);
 
 
