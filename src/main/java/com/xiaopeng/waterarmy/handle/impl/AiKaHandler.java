@@ -97,7 +97,7 @@ public class AiKaHandler extends PlatformHandler {
          * formhash: edacfc30
          */
 
-        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -254,7 +254,7 @@ public class AiKaHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -583,7 +583,7 @@ public class AiKaHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> praise(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -691,7 +691,7 @@ public class AiKaHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> createCommentNews(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = aiKaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

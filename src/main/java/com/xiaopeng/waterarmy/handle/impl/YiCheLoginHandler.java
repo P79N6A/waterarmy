@@ -78,7 +78,8 @@ public class YiCheLoginHandler implements LoginHandler {
     }
 
     @Override
-    public Result<LoginResultDTO> login(Long userid) {
+    public Result<LoginResultDTO> login(RequestContext requestContext) {
+        Long userid = requestContext.getUserId();
         if (userid == null || userid < 1L) {
             logger.error("[TaiPingYangLoginHandler]login error; userid is null");
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());

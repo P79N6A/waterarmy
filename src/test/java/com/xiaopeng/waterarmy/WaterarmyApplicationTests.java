@@ -459,8 +459,9 @@ public class WaterarmyApplicationTests {
             requestContext.setRequestParam(map);*/
 
 
-
-            touTiaoLoginHandler.login(21L);
+            RequestContext requestContext = new RequestContext();
+            requestContext.setUserId(2L);
+            touTiaoLoginHandler.login(requestContext);
         } catch (Exception e) {
             e.printStackTrace();
         }

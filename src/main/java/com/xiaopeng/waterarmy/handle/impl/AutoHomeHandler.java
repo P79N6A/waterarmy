@@ -89,7 +89,7 @@ public class AutoHomeHandler extends PlatformHandler {
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
 
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[QiCheZhiJiaLoginHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -153,7 +153,7 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -240,7 +240,7 @@ public class AutoHomeHandler extends PlatformHandler {
      */
     private Result<HandlerResultDTO> commentKouBei(RequestContext requestContext) {
         requestContext.setPrefixUrl(requestContext.getPrefixUrl().replace("|", "%7c"));
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -311,7 +311,7 @@ public class AutoHomeHandler extends PlatformHandler {
             return new Result<>(ResultCodeEnum.HANDLE_FAILED.getIndex(), "没有在url中找到车家号文章的id");
         }
 
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -684,7 +684,7 @@ public class AutoHomeHandler extends PlatformHandler {
     public Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
 
 
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -725,7 +725,7 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentNewsPraise(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheZhiJiaLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[AutoHomeHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

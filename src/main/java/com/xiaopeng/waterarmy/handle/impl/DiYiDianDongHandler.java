@@ -68,7 +68,7 @@ public class DiYiDianDongHandler extends PlatformHandler {
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
 
-        Result<LoginResultDTO> resultDTOResult = diYiDianDongLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = diYiDianDongLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[DiYiDianDongHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

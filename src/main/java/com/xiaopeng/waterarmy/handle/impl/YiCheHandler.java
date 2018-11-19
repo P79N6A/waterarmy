@@ -83,7 +83,7 @@ public class YiCheHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[YiCheHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -281,7 +281,7 @@ public class YiCheHandler extends PlatformHandler {
      */
     private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
         //论坛评论
-        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[YiCheHandler.commentForum] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -316,7 +316,7 @@ public class YiCheHandler extends PlatformHandler {
      * @return
      */
     private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[YiCheHandler.commentNews] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -355,7 +355,7 @@ public class YiCheHandler extends PlatformHandler {
      * @return
      */
     private Result<HandlerResultDTO> commentKoubei(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[YiCheYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -626,7 +626,7 @@ public class YiCheHandler extends PlatformHandler {
          * _: 1539437118080
          */
 
-        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = yiCheLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[YiCheHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

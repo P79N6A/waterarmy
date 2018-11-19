@@ -87,7 +87,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     @Override
     public Result<HandlerResultDTO> publish(RequestContext requestContext) {
 
-        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.publish] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -204,7 +204,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentForum(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -468,7 +468,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     private Result<HandlerResultDTO> commentNews(RequestContext requestContext) {
 
 
-        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -509,7 +509,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentChezhu(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());
@@ -609,7 +609,7 @@ public class TaiPingYangHandler extends PlatformHandler {
     }
 
     private Result<HandlerResultDTO> commentNewsPraise(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = taiPingYangLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[TaiPingYangHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

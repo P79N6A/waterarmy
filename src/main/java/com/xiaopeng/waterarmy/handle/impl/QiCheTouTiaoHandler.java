@@ -50,7 +50,7 @@ public class QiCheTouTiaoHandler extends PlatformHandler {
 
     @Override
     public Result<HandlerResultDTO> comment(RequestContext requestContext) {
-        Result<LoginResultDTO> resultDTOResult = qiCheTouTiaoLoginHandler.login(requestContext.getUserId());
+        Result<LoginResultDTO> resultDTOResult = qiCheTouTiaoLoginHandler.login(requestContext);
         if (!resultDTOResult.getSuccess()) {
             logger.error("[QiCheTouTiaoHandler.comment] requestContext" + requestContext);
             return new Result<>(ResultCodeEnum.LOGIN_FAILED.getIndex(), ResultCodeEnum.LOGIN_FAILED.getDesc());

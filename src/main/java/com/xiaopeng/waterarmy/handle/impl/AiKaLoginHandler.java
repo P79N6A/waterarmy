@@ -10,8 +10,10 @@ import com.xiaopeng.waterarmy.handle.Util.FetchParamUtil;
 import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
 import com.xiaopeng.waterarmy.handle.Util.TranslateCodeUtil;
 import com.xiaopeng.waterarmy.handle.Util.Util;
+import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,8 +66,8 @@ public class AiKaLoginHandler implements LoginHandler {
     }
 
     @Override
-    public Result<LoginResultDTO> login(Long userid) {
-
+    public Result<LoginResultDTO> login(RequestContext requestContext) {
+        Long userid = requestContext.getUserId();
         if (userid == null || userid < 1L) {
             logger.error("[TaiPingYangLoginHandler]login error; userid is null");
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());

@@ -6,6 +6,7 @@ import com.xiaopeng.waterarmy.common.enums.ResultCodeEnum;
 import com.xiaopeng.waterarmy.handle.LoginHandler;
 import com.xiaopeng.waterarmy.handle.LoginResultPool;
 import com.xiaopeng.waterarmy.handle.Util.HttpFactory;
+import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.LoginResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.mapper.AccountMapper;
@@ -58,8 +59,8 @@ public class TaiPingYangLoginHandler implements LoginHandler {
     }
 
     @Override
-    public Result<LoginResultDTO> login(Long userid) {
-
+    public Result<LoginResultDTO> login(RequestContext requestContext) {
+        Long userid = requestContext.getUserId();
         if (userid == null || userid < 1L) {
             logger.error("[TaiPingYangLoginHandler]login error; userid is null");
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
