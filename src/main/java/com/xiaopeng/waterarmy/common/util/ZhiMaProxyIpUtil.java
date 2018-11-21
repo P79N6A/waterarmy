@@ -67,8 +67,9 @@ public class ZhiMaProxyIpUtil {
         }
         ProxyHttpConfig config = null;
         for (int i = 0; i < zhimaProxyIps.size(); i++) {
+            config = zhimaProxyIps.get(i);
             if (!config.isUsed()) {
-                config = zhimaProxyIps.get(i);
+                break;
             }
         }
         return config;

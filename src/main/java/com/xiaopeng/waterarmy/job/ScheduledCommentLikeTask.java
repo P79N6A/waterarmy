@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.enums.*;
 import com.xiaopeng.waterarmy.common.util.IPUtil;
+import com.xiaopeng.waterarmy.common.util.ZhiMaProxyIpUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
@@ -11,6 +12,7 @@ import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import com.xiaopeng.waterarmy.model.dao.CommentLikeLog;
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
 import com.xiaopeng.waterarmy.model.mapper.CommentLikeLogMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.TaskService;
@@ -157,6 +159,8 @@ public class ScheduledCommentLikeTask {
                     requestContext.setHandleEntryType(TaskEntryTypeEnum.AIKANEWSCOMMENTPRAISE);
                 }
             }
+            ProxyHttpConfig zhimaProxyIp = ZhiMaProxyIpUtil.getZhimaProxyIp();
+            requestContext.setProxyHttpConfig(zhimaProxyIp);
             return requestContext;
         } catch (Exception e) {
             logger.error("获取评论点赞上下文失败, ", e);

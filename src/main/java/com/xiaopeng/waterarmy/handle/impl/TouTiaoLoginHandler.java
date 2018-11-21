@@ -62,6 +62,7 @@ public class TouTiaoLoginHandler implements LoginHandler {
             return new Result<>(ResultCodeEnum.INVALID_PARAM.getIndex(), ResultCodeEnum.INVALID_PARAM.getDesc());
         }
         Account account = accountMapper.getAccountById(Long.valueOf(userid));
+        account.setProxyHttpConfig(requestContext.getProxyHttpConfig());
         return this.login(account);
     }
 

@@ -8,6 +8,7 @@ import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
 import com.xiaopeng.waterarmy.common.enums.TaskTypeEnum;
 import com.xiaopeng.waterarmy.common.util.IPUtil;
 import com.xiaopeng.waterarmy.common.util.NumUtil;
+import com.xiaopeng.waterarmy.common.util.ZhiMaProxyIpUtil;
 import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
@@ -16,6 +17,7 @@ import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
 import com.xiaopeng.waterarmy.model.dao.ContentInfo;
 import com.xiaopeng.waterarmy.model.dao.TaskImageInfo;
+import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
 import com.xiaopeng.waterarmy.model.mapper.TaskImageInfoMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.ContentService;
@@ -187,6 +189,8 @@ public class ScheduledPublishTask {
                     requestContext.setImageInputStreams(imageInputStreams);
                 }
             }
+            ProxyHttpConfig zhimaProxyIp = ZhiMaProxyIpUtil.getZhimaProxyIp();
+            requestContext.setProxyHttpConfig(zhimaProxyIp);
         } catch (Exception e) {
             logger.error("获取发帖上下文失败, ", e);
         }

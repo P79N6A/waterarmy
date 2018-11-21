@@ -112,6 +112,9 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
             HttpGet httpGet = new HttpGet(url);
             setHeader(httpGet);
+            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
+            }
             CloseableHttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
             String content = EntityUtils.toString(entity, "utf-8");
@@ -124,6 +127,9 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             //https://account.autohome.com.cn/ValidateCode/AddValidateCode
             String validateUrl = "https://account.autohome.com.cn/ValidateCode/AddValidateCode";
             HttpPost httpPost1 = new HttpPost(validateUrl);
+            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
+            }
             CloseableHttpResponse response1 = httpClient.execute(httpPost1);
             HttpEntity entity1 = response1.getEntity();
             String content1 = EntityUtils.toString(entity1, "utf-8");
@@ -140,7 +146,9 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
         //http://jiyan.c2567.com/index.php/user2/index.html
 
-        String jiyan_url = "http://jiyanapi.c2567.com/shibie?gt=" + gt + "&challenge=" + challenge + "&referer=https://account.autohome.com.cn/&user=watermy&pass=qwertyui123&return=json&model=3&format=utf8";
+        String jiyan_url = "http://jiyanapi.c2567.com/shibie?gt=" + gt + "&challenge=" + challenge
+                + "&referer=https://account.autohome.com.cn/&user=xpapollo&pass=xp@2018&return=json&model=3&format=utf8";
+        //watermy qwertyui123
         //极验验证识别
         try {
             CloseableHttpResponse response = httpClient.execute(new HttpGet(jiyan_url));
@@ -152,7 +160,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             String jiyan_validate = (String) jsonObject.get("validate");
             String jiyan_challenge = (String) jsonObject.get("challenge");
             String seccode = jiyan_validate + "|jordan";
-            boolean login = setParam(httpClient, jiyan_challenge, seccode, jiyan_validate, account.getUserName(), account.getPassword());
+            boolean login = setParam(httpClient, jiyan_challenge, seccode, jiyan_validate, account);
             if (login) {
                 //登陆成功
                 LoginResultDTO loginResultDTO = new LoginResultDTO();
@@ -166,11 +174,17 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
         return new Result<>(ResultCodeEnum.LOGIN_FAILED);
     }
 
-    public boolean setParam(CloseableHttpClient httpClient, String challenge, String seccode, String validate, String username, String password) {
+    public boolean setParam(CloseableHttpClient httpClient, String challenge
+            , String seccode, String validate, Account account) {
+        String username = account.getUserName();
+        String password = account.getPassword();
         try {
 //评论:
             HttpPost httpPost1 = new HttpPost("https://account.autohome.com.cn/Login/ValidIndex");
             setHeader(httpPost1);
+            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
+            }
             List<NameValuePair> nameValuePairs1 = new ArrayList<NameValuePair>();
             // nameValuePairs1.add(new BasicNameValuePair("name", "13438369217"));
             nameValuePairs1.add(new BasicNameValuePair("name", username));
@@ -202,10 +216,21 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
                 String loginUrlJiaJiaBX = (String) jsonObject.get("loginUrlJiaJiaBX");
 
                 HttpGet httpGet = new HttpGet("https:"+loginUrl);
+                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                    httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
+                }
                 HttpGet httpGet3 = new HttpGet("https:"+loginUrlJiaJiaBX);
+                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                    httpGet3.setConfig(account.getProxyHttpConfig().getReqConfig());
+                }
                 HttpGet httpGet1 = new HttpGet(ssoAutohomeUrl);
+                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                    httpGet1.setConfig(account.getProxyHttpConfig().getReqConfig());
+                }
                 HttpGet httpGet2 = new HttpGet(ssoChe168Url);
-
+                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
+                    httpGet2.setConfig(account.getProxyHttpConfig().getReqConfig());
+                }
                 setSyncSSOHeader(httpGet1);
                 setChe168Header(httpGet);
                 setJiaJiaBaoxianHeader(httpGet3);
