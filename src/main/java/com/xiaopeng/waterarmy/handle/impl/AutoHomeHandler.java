@@ -100,6 +100,7 @@ public class AutoHomeHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createPublishHttpPost(httpClient, requestContext, loginResultDTO.getCookieStore());
+            httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -170,7 +171,7 @@ public class AutoHomeHandler extends PlatformHandler {
             } else {
                 httpPost = createCommentPost(requestContext, loginResultDTO);
             }
-
+            httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String content = null;
@@ -224,7 +225,7 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
     /**
-     * 汽车之家口碑评论给
+     * 汽车之家口碑评论
      * <p>
      * 输入连接：https://k.autohome.com.cn/detail/view_01cvgvbk7h68s3ce1h6mtg0000.html?st=1&piap=0|4817|0|0|1|0|0|0|0|0|1###
      * 评论给链接：https://k.autohome.com.cn/Controls/SubmitComment
@@ -251,6 +252,7 @@ public class AutoHomeHandler extends PlatformHandler {
         Pattern pattern = Pattern.compile("\"objectId\":\"[0-9]+\"");
         HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
+        httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
         try {
             HttpResponse httpResponse = httpClient.execute(httpGet);
             String res = EntityUtils.toString(httpResponse.getEntity());
@@ -259,6 +261,7 @@ public class AutoHomeHandler extends PlatformHandler {
             if (matcher.find()) {
                 String objectId = matcher.group().replace("\"objectId\":\"", "").replace("\"", "");
                 HttpPost httpPost = new HttpPost("https://k.autohome.com.cn/Controls/SubmitComment");
+                httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
                 setCreateKouBeiCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
                 List<NameValuePair> nameValuePairs = new ArrayList<>();
                 nameValuePairs.add(new BasicNameValuePair("id", objectId));
@@ -300,7 +303,6 @@ public class AutoHomeHandler extends PlatformHandler {
      *
      * @return
      */
-
     private Result<HandlerResultDTO> cheJiaHaoComment(RequestContext requestContext) {
         Pattern pattern = Pattern.compile("/[0-9]+");
         Matcher matcher = pattern.matcher(requestContext.getPrefixUrl());
@@ -320,6 +322,7 @@ public class AutoHomeHandler extends PlatformHandler {
         CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
         try {
             HttpPost httpPost = new HttpPost("https://chejiahao.autohome.com.cn/ashx/ajaxSubmit.ashx");
+            httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             setCreateKouBeiCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
             List<NameValuePair> nameValuePairs = new ArrayList<>();
             nameValuePairs.add(new BasicNameValuePair("appid", "21"));
@@ -372,6 +375,7 @@ public class AutoHomeHandler extends PlatformHandler {
         //获取uniquepageid
         try {
             HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+            httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             setFetchTopicsHeader(httpGet);
             CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
             HttpEntity entity = response.getEntity();
@@ -404,7 +408,7 @@ public class AutoHomeHandler extends PlatformHandler {
                  *获取被评论的内容，如果有就是要盖楼中楼
                  */
                 if (requestContext.getRequestParam() != null && requestContext.getRequestParam().get("commentContent") != null) {
-                    String commentId = getCommentIdByContent(requestContext.getPrefixUrl(), requestContext.getContent().getText());
+                    String commentId = getCommentIdByContent(requestContext);
                     nameValuePairs.add(new BasicNameValuePair("targetReplyid", commentId));
                 }
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
@@ -430,6 +434,7 @@ public class AutoHomeHandler extends PlatformHandler {
     private HttpPost createReplyCommentPost(RequestContext requestContext, LoginResultDTO loginResultDTO, String commentContent) {
         try {
             HttpGet httpGet = new HttpGet(requestContext.getPrefixUrl());
+            httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             setFetchTopicsHeader(httpGet);
             CloseableHttpResponse response = loginResultDTO.getHttpClient().execute(httpGet);
             HttpEntity entity = response.getEntity();
@@ -458,7 +463,7 @@ public class AutoHomeHandler extends PlatformHandler {
                 nameValuePairs.add(new BasicNameValuePair("topicId", topicId));
                 nameValuePairs.add(new BasicNameValuePair("uniquepageid", uniquePageId));
                 nameValuePairs.add(new BasicNameValuePair("content", requestContext.getContent().getText()));
-                String commentId = getCommentIdByContent(requestContext.getPrefixUrl(), commentContent);
+                String commentId = getCommentIdByContent(requestContext);
                 nameValuePairs.add(new BasicNameValuePair("targetReplyid", commentId));
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
                 setCreateCommentHeader(requestContext, httpPost, loginResultDTO.getCookieStore());
@@ -593,7 +598,7 @@ public class AutoHomeHandler extends PlatformHandler {
         try {
             String str;
             if (requestContext.getImageInputStreams() != null) {
-                String imageContent = qichezhijiaImageUpload(httpClient, requestContext.getImageInputStreams());
+                String imageContent = qichezhijiaImageUpload(httpClient, requestContext);
                 str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + requestContext.getContent().getTitle() + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + type + "\",\"bbsid\":\"" + forumId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[  " + imageContent + ",   {\"ctype\":2,\"url\":\"\",\"des\":\"" + requestContext.getContent().getText() + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
             } else {
                 str = "{\"topicmain\":{\"topicid\":0,\"title\":\"" + requestContext.getContent().getTitle() + "\",\"source\":\"PC.CARD\",\"memberid\":\"" + memberId + "\",\"bbs\":\"" + type + "\",\"bbsid\":\"" + forumId + "\",\"clientip\":\"{$realip$}\",\"autohomeua\":\"\",\"reply_notify_me\":1,\"informfriends\":1},\"topicext\":{\"lon\":0,\"lat\":0,\"postaddress\":\"\",\"landmark\":\"\"},\"topiccards\":[{\"ctype\":2,\"url\":\"\",\"des\":\"" + requestContext.getContent().getText() + "\",\"otherattributes\":{\"linkurl\":\"\"}}]}";
@@ -693,6 +698,7 @@ public class AutoHomeHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createCommentNewsHttpPost(requestContext);
+            httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             setCommentNewsHeader(httpPost, loginResultDTO);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
@@ -734,6 +740,7 @@ public class AutoHomeHandler extends PlatformHandler {
             LoginResultDTO loginResultDTO = resultDTOResult.getData();
             CloseableHttpClient httpClient = loginResultDTO.getHttpClient();
             HttpPost httpPost = createCommentNewsPraiseHttpPost(requestContext);
+            httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
             setCommentNewsPraiseHeader(httpPost, loginResultDTO);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
@@ -771,9 +778,10 @@ public class AutoHomeHandler extends PlatformHandler {
         String commentContent = requestContext.getContent().getText();
         String id = url.split("#")[0].split("/")[url.split("#")[0].split("/").length - 1];
         HttpClient httpClient = HttpClients.createDefault();
-        String commentId = getCheJiaHaoCommentIdByCommentContent(httpClient, id, commentContent);
+        String commentId = getCheJiaHaoCommentIdByCommentContent(httpClient, id, commentContent, requestContext);
         System.out.println(commentId);
         HttpGet httpGet = new HttpGet("https://reply.autohome.com.cn/ReceiveRequest/upcomment.ashx?appid=21&replyid=" + commentId + "&datatype=jsonp&callback=jsonpCallback");
+        httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
         String res;
         try {
             HttpResponse httpResponse = httpClient.execute(httpGet);
@@ -794,12 +802,14 @@ public class AutoHomeHandler extends PlatformHandler {
     }
 
 
-    private String getCheJiaHaoCommentIdByCommentContent(HttpClient httpClient, String paperId, String commentContent) {
+    private String getCheJiaHaoCommentIdByCommentContent(HttpClient httpClient, String paperId
+            , String commentContent, RequestContext requestContext) {
         try {
             int j = 1;
             while (true) {
                 String url = "https://reply.autohome.com.cn/api/comments/show.json?id=" + paperId + "&page=" + j + "&appid=21&count=20";
                 HttpGet httpGet = new HttpGet(url);
+                httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
                 HttpResponse httpResponse = httpClient.execute(httpGet);
                 String res = EntityUtils.toString(httpResponse.getEntity());
                 JSONObject jsonObject = JSON.parseObject(res);
@@ -979,10 +989,11 @@ public class AutoHomeHandler extends PlatformHandler {
         httpPost.setHeader("Cookie", "clubUserShow=" + s);
     }
 
-    private String qichezhijiaImageUpload(HttpClient httpClient, List<InputStream> inputStreams) throws IOException {
+    private String qichezhijiaImageUpload(HttpClient httpClient, RequestContext requestContext) throws IOException {
+        List<InputStream> inputStreams = requestContext.getImageInputStreams();
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < inputStreams.size(); ++i) {
-            QiCheZhiJiaImage qiCheZhiJiaImage = qichezhijiaImageUpload(httpClient, inputStreams.get(i));
+            QiCheZhiJiaImage qiCheZhiJiaImage = qichezhijiaImageUpload(httpClient, inputStreams.get(i), requestContext);
             Topiccard topiccard = new Topiccard();
             topiccard.cardid = (i + 1) + "";
             topiccard.url = "http://club2.autoimg.cn/album/" + qiCheZhiJiaImage.file;
@@ -1004,10 +1015,11 @@ public class AutoHomeHandler extends PlatformHandler {
      * @param inputStream
      * @return
      */
-    public QiCheZhiJiaImage qichezhijiaImageUpload(HttpClient httpClient, InputStream inputStream) throws IOException {
+    public QiCheZhiJiaImage qichezhijiaImageUpload(HttpClient httpClient
+            , InputStream inputStream, RequestContext requestContext) throws IOException {
         String uploadUrl = "https://clubajax.autohome.com.cn/Upload/UpImageOfBase64New?dir=image&cros=autohome.com.cn";
         HttpPost httpPost = new HttpPost(uploadUrl);
-
+        httpPost.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
         HttpEntity entity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", inputStream, ContentType.create("application/octet-stream"), "file.png")
                 .addTextBody("degree", "0")
@@ -1064,12 +1076,14 @@ public class AutoHomeHandler extends PlatformHandler {
     /**
      * 通过评论获取评论的Id
      *
-     * @param url
-     * @param content
+     * @param requestContext
      * @return
      */
-    private String getCommentIdByContent(String url, String content) {
+    private String getCommentIdByContent(RequestContext requestContext) {
+        String url = requestContext.getPrefixUrl();
+        String content = requestContext.getContent().getText();
         HttpGet httpGet = new HttpGet(url);
+        httpGet.setConfig(requestContext.getProxyHttpConfig().getReqConfig());
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36");
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpResponse httpResponse = httpClient.execute(httpGet);
