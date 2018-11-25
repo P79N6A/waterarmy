@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaopeng.waterarmy.model.mapper.AccountTaskLogMapper">
+
+    <insert id="save">
+       INSERT INTO `account_task_log` (`user_name`, `platform`, `task_type`, `link`, `content`, `ip`, `create_time`)
+       VALUES
+       (#{accountTaskLog.userName}, #{accountTaskLog.platform}, #{accountTaskLog.taskType}
+       , #{accountTaskLog.link}, #{accountTaskLog.content}, #{accountTaskLog.ip}, now())
+    </insert>
+
+    <select id="getAccountTaskLogs" resultType="java.util.HashMap">
+        SELECT id, user_name AS userName, platform, task_type AS taskType
+        , link, content, ip, create_time AS createTime
+        FROM account_task_log
+        WHERE DATE_SUB(CURDATE(), INTERVAL 3 DAY) &lt;= DATE(create_time)
+        AND user_name = #{params.userName}
+        AND platform = #{params.platform}
+    </select>
+
+</mapper>

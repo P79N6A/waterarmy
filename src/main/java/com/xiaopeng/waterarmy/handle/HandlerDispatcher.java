@@ -1,5 +1,6 @@
 package com.xiaopeng.waterarmy.handle;
 
+import com.alibaba.fastjson.JSON;
 import com.xiaopeng.waterarmy.common.Result.Result;
 import com.xiaopeng.waterarmy.common.constants.RequestConsts;
 import com.xiaopeng.waterarmy.common.enums.PlatformEnum;
@@ -10,6 +11,8 @@ import com.xiaopeng.waterarmy.handle.impl.*;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +24,8 @@ import java.util.HashMap;
  */
 @Component
 public class HandlerDispatcher {
+
+    private static Logger logger = LoggerFactory.getLogger(HandlerDispatcher.class);
 
     @Autowired
     private TaiPingYangHandler taiPingYangHandler;
@@ -44,6 +49,7 @@ public class HandlerDispatcher {
     public Result<HandlerResultDTO> dispatch(RequestContext requestContext) {
 
         //requestContext = this.createAutoHomeContext();
+        logger.info("dispatch requestContext: {}", JSON.toJSONString(requestContext));
 
         switch (requestContext.getPlatform()){
             case PCAUTO:

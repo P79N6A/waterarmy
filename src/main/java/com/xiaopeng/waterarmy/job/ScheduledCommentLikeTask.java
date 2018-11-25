@@ -11,11 +11,14 @@ import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
 import com.xiaopeng.waterarmy.model.dao.Account;
 import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
+import com.xiaopeng.waterarmy.model.dao.AccountTaskLog;
 import com.xiaopeng.waterarmy.model.dao.CommentLikeLog;
 import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
+import com.xiaopeng.waterarmy.model.mapper.AccountTaskLogMapper;
 import com.xiaopeng.waterarmy.model.mapper.CommentLikeLogMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.TaskService;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +54,9 @@ public class ScheduledCommentLikeTask {
     @Autowired
     private CommentLikeLogMapper commentLikeLogMapper;
 
+    @Autowired
+    private AccountTaskLogMapper accountTaskLogMapper;
+
     @Scheduled(fixedRate = 6000)//5000
     public void execute() {
         List<Map<String, Object>> tasks = taskService.getExecutableTaskInfos(TaskTypeEnum.LIKE.getName());
@@ -59,15 +65,25 @@ public class ScheduledCommentLikeTask {
             String platform = MapUtils.getString(task, "platform");
             List<Account> accounts = accountService.getAccountsByPlatform(platform);
             if (!ObjectUtils.isEmpty(accounts)) {
-                String publicIP = IPUtil.getPublicIP();
-                Account commentLikeAccount = getAccountByIP(accounts, platform, publicIP, task);
-                //获取评论点赞上下文
-                RequestContext context = createCommentLikeContext(task, commentLikeAccount);
-                //执行评论点赞任务
-                if (!ObjectUtils.isEmpty(context)) {
-                    commentLikeTask(context, task, commentLikeAccount, publicIP, platform);
+                //String publicIP = IPUtil.getPublicIP();
+                Account commentLikeAccount = getExecutor(accounts);
+                if (!ObjectUtils.isEmpty(commentLikeAccount)) {
+                    //accounts.get(0);//getAccountByIP(accounts, platform, publicIP, task);
+                    //获取评论点赞上下文
+                    RequestContext context = createCommentLikeContext(task, commentLikeAccount);
+                    //执行评论点赞任务
+                    if (!ObjectUtils.isEmpty(context)) {
+                        commentLikeTask(context, task, commentLikeAccount, platform);//, publicIP
+                        if (!ObjectUtils.isEmpty(context.getProxyHttpConfig())) {
+                            ProxyHttpConfig zhimaProxyIp = context.getProxyHttpConfig();
+                            zhimaProxyIp.setUsed(true);
+                        }
+                    } else {
+                        logger.error("获取评论点赞上下文为空! task：{}", JSON.toJSONString(task));
+                    }
                 } else {
-                    logger.error("获取评论点赞上下文为空! task：{}", JSON.toJSONString(task));
+                    logger.error("评论点赞失败，该平台用户量: {}, 没有合适的用户! task：{} "
+                            , accounts.size(), JSON.toJSONString(task));
                 }
             }
         }
@@ -80,7 +96,7 @@ public class ScheduledCommentLikeTask {
      * @param task
      */
     private void commentLikeTask(RequestContext context, Map<String, Object> task
-            , Account commentLikeAccount, String publicIP, String platform) {
+            , Account commentLikeAccount, String platform) {//, String publicIP
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
         BigInteger id = (BigInteger) task.get("id");
@@ -92,14 +108,17 @@ public class ScheduledCommentLikeTask {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
             accountService.updateTaskCount(commentLikeAccount.getUserName());
-            Map<String, Object> info
-                    = accountService.getAccountIPInfo(publicIP, platform, commentLikeAccount.getUserName());
-            if (ObjectUtils.isEmpty(info)) {
-                AccountIPInfo accountIPInfo = new AccountIPInfo();
-                accountIPInfo.setUserName(commentLikeAccount.getUserName());
-                accountIPInfo.setPlatform(platform);
-                accountIPInfo.setIp(publicIP);
-                accountService.saveAccountIPInfo(accountIPInfo);
+            if (!ObjectUtils.isEmpty(context.getProxyHttpConfig())) {
+                String publicIP = context.getProxyHttpConfig().getProxyHost();
+                Map<String, Object> info
+                        = accountService.getAccountIPInfo(publicIP, platform, commentLikeAccount.getUserName());
+                if (ObjectUtils.isEmpty(info)) {
+                    AccountIPInfo accountIPInfo = new AccountIPInfo();
+                    accountIPInfo.setPlatform(platform);
+                    accountIPInfo.setUserName(commentLikeAccount.getUserName());
+                    accountIPInfo.setIp(publicIP);
+                    accountService.saveAccountIPInfo(accountIPInfo);
+                }
             }
             CommentLikeLog likeLog = new CommentLikeLog();
             likeLog.setUserName(commentLikeAccount.getUserName());
@@ -107,6 +126,10 @@ public class ScheduledCommentLikeTask {
             likeLog.setLikeContent(context.getContent().getText());
             likeLog.setCommentLikeLink(context.getPrefixUrl());
             commentLikeLogMapper.save(likeLog);
+            String publicIP = commentLikeAccount.getProxyHttpConfig().getProxyHost();
+            saveAccountTaskLog(commentLikeAccount.getUserName(), platform
+                    , "", publicIP, context.getPrefixUrl()
+                    , TaskTypeEnum.LIKE.getName());
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
             logger.error("评论点赞失败，handlerResult: {}", JSON.toJSONString(handlerResult));
@@ -168,33 +191,72 @@ public class ScheduledCommentLikeTask {
         return requestContext;
     }
 
-    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP, Map<String, Object> task) {
-        for (Account acc: accounts) {
-            Map<String, Object> likeInfo = new HashMap<>();
-            likeInfo.put("userName", acc.getUserName());
-            likeInfo.put("platform", platform);
-            likeInfo.put("commentLikeLink", task.get("link"));
-            likeInfo.put("likeContent", task.get("likeContent"));
-            CommentLikeLog commentLikeLog = commentLikeLogMapper.getContentLikeLog(likeInfo);
-            if (!ObjectUtils.isEmpty(commentLikeLog)) {
-                continue;
-            }
-            if (!ObjectUtils.isEmpty(pulicIP)) {
-                Map<String, Object> accountIPInfo
-                        = accountService.getAccountIPInfo(pulicIP, platform, null);
-                if (!ObjectUtils.isEmpty(accountIPInfo)) {
-                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
-                    if (acc.getUserName().equals(publicIPUserName)) {
-                        return acc;
-                    } else {
-                        return accountService.getAccountByUserName(publicIPUserName);
-                    }
-                } else {
-                    return acc;
+    /**
+     * 获取可执行任务用户
+     *
+     * @param accounts
+     * @return
+     */
+    private Account getExecutor(List<Account> accounts) {
+        Account executor = null;
+        for (Account account : accounts) {
+            if (PlatformEnum.AUTOHOME.getName()
+                    .equals(account.getPlatform())) {
+                Map<String, Object> params = new HashedMap();
+                params.put("userName", account.getUserName());
+                params.put("platform", account.getPlatform());
+                List<Map<String, Object>> logs = accountTaskLogMapper.getAccountTaskLogs(params);
+                if (ObjectUtils.isEmpty(logs)) {
+                    executor = account;
+                    break;
                 }
+            } else {
+                executor = account;
+                break;
             }
         }
-        return accounts.get(0);
+        return executor;
     }
+
+    private void saveAccountTaskLog(String userName, String platform
+            , String content, String publicIP, String link, String taskType) {
+        AccountTaskLog accountTaskLog = new AccountTaskLog();
+        accountTaskLog.setUserName(userName);
+        accountTaskLog.setPlatform(platform);
+        accountTaskLog.setTaskType(taskType);
+        accountTaskLog.setLink(link);
+        accountTaskLog.setContent(content);
+        accountTaskLog.setIp(publicIP);
+        accountTaskLogMapper.save(accountTaskLog);
+    }
+
+//    private Account getAccountByIP(List<Account> accounts, String platform, String pulicIP, Map<String, Object> task) {
+//        for (Account acc: accounts) {
+//            Map<String, Object> likeInfo = new HashMap<>();
+//            likeInfo.put("userName", acc.getUserName());
+//            likeInfo.put("platform", platform);
+//            likeInfo.put("commentLikeLink", task.get("link"));
+//            likeInfo.put("likeContent", task.get("likeContent"));
+//            CommentLikeLog commentLikeLog = commentLikeLogMapper.getContentLikeLog(likeInfo);
+//            if (!ObjectUtils.isEmpty(commentLikeLog)) {
+//                continue;
+//            }
+//            if (!ObjectUtils.isEmpty(pulicIP)) {
+//                Map<String, Object> accountIPInfo
+//                        = accountService.getAccountIPInfo(pulicIP, platform, null);
+//                if (!ObjectUtils.isEmpty(accountIPInfo)) {
+//                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
+//                    if (acc.getUserName().equals(publicIPUserName)) {
+//                        return acc;
+//                    } else {
+//                        return accountService.getAccountByUserName(publicIPUserName);
+//                    }
+//                } else {
+//                    return acc;
+//                }
+//            }
+//        }
+//        return accounts.get(0);
+//    }
 
 }

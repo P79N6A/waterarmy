@@ -13,11 +13,9 @@ import com.xiaopeng.waterarmy.handle.HandlerDispatcher;
 import com.xiaopeng.waterarmy.handle.param.Content;
 import com.xiaopeng.waterarmy.handle.param.RequestContext;
 import com.xiaopeng.waterarmy.handle.result.HandlerResultDTO;
-import com.xiaopeng.waterarmy.model.dao.Account;
-import com.xiaopeng.waterarmy.model.dao.AccountIPInfo;
-import com.xiaopeng.waterarmy.model.dao.ContentInfo;
-import com.xiaopeng.waterarmy.model.dao.TaskImageInfo;
+import com.xiaopeng.waterarmy.model.dao.*;
 import com.xiaopeng.waterarmy.model.dto.ProxyHttpConfig;
+import com.xiaopeng.waterarmy.model.mapper.AccountTaskLogMapper;
 import com.xiaopeng.waterarmy.model.mapper.TaskImageInfoMapper;
 import com.xiaopeng.waterarmy.service.AccountService;
 import com.xiaopeng.waterarmy.service.ContentService;
@@ -65,6 +63,9 @@ public class ScheduledPublishTask {
     @Autowired
     private TaskImageInfoMapper taskImageInfoMapper;
 
+    @Autowired
+    private AccountTaskLogMapper accountTaskLogMapper;
+
     @Scheduled(fixedRate = 60000)//5000
     public void execute() {
         //logger.info("定时发帖啦，现在时间：" + dateFormat.format(new Date()));
@@ -81,21 +82,31 @@ public class ScheduledPublishTask {
                 //Integer publishAccountNum = NumUtil.getRandomNum(accounts.size());
                 //优先用执行任务最少的账号执行任务
                 //Account publishAccount = accounts.get(0);//publishAccountNum
-                String publicIP = IPUtil.getPublicIP();
-                Account publishAccount = getAccountByIP(accounts, platform, publicIP);
-                //随机获取内容库发帖内容id
-                Integer publishContentNum = NumUtil.getRandomNum(contentInfos.size());
-                ContentInfo publishContent = contentInfos.get(publishContentNum);
-                //获取发帖上下文
-                RequestContext context = createPublishTaskContext(task, publishAccount, publishContent);
-                //执行发帖任务
-                if (!ObjectUtils.isEmpty(context)) {
-                    boolean isSucceed = publishTask(context, task, publishAccount, publishContent, publicIP, platform);
-                    if (!isSucceed) {
-                        publishTask(context, task, publishAccount, publishContent, publicIP, platform);
+                //String publicIP = IPUtil.getPublicIP();
+                Account publishAccount = getExecutor(accounts);
+                if (!ObjectUtils.isEmpty(publishAccount)) {
+                    //accounts.get(0);//getAccountByIP(accounts, platform, publicIP);
+                    //随机获取内容库发帖内容id
+                    Integer publishContentNum = NumUtil.getRandomNum(contentInfos.size());
+                    ContentInfo publishContent = contentInfos.get(publishContentNum);
+                    //获取发帖上下文
+                    RequestContext context = createPublishTaskContext(task, publishAccount, publishContent);
+                    //执行发帖任务
+                    if (!ObjectUtils.isEmpty(context)) {
+                        boolean isSucceed = publishTask(context, task, publishAccount, publishContent, platform);//, publicIP
+                        if (!isSucceed) {
+                            publishTask(context, task, publishAccount, publishContent, platform);//, publicIP
+                        }
+                        if (!ObjectUtils.isEmpty(context.getProxyHttpConfig())) {
+                            ProxyHttpConfig zhimaProxyIp = context.getProxyHttpConfig();
+                            zhimaProxyIp.setUsed(true);
+                        }
+                    } else {
+                        logger.error("获取发帖上下文为空! task：{}", JSON.toJSONString(task));
                     }
                 } else {
-                    logger.error("获取发帖上下文为空! task：{}", JSON.toJSONString(task));
+                    logger.error("评论点赞失败，该平台用户量: {}, 没有合适的用户! task：{} "
+                            , accounts.size(), JSON.toJSONString(task));
                 }
             } else {
                 logger.error("发帖失败，平台 {} 用户列表为空，发帖内容库为空! task：{} "
@@ -112,7 +123,7 @@ public class ScheduledPublishTask {
      * @param publishAccount
      */
     private boolean publishTask(RequestContext context, Map<String, Object> task
-            , Account publishAccount, ContentInfo publishContent, String publicIP, String platform) {
+            , Account publishAccount, ContentInfo publishContent, String platform) {//, String publicIP
         boolean isSucceed = false;
         Result<HandlerResultDTO> handlerResult = handlerDispatcher.dispatch(context);
         Map<String, Object> taskExecuteLog = new HashMap<>();
@@ -125,15 +136,21 @@ public class ScheduledPublishTask {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.SUCCEED.getIndex());
             taskService.updateFinishCount(taskInfoId);
             accountService.updateTaskCount(publishAccount.getUserName());
-            AccountIPInfo accountIPInfo = new AccountIPInfo();
-            Map<String, Object> info
-                    = accountService.getAccountIPInfo(publicIP, platform, publishAccount.getUserName());
-            if (ObjectUtils.isEmpty(info)) {
-                accountIPInfo.setUserName(publishAccount.getUserName());
-                accountIPInfo.setIp(publicIP);
-                accountIPInfo.setPlatform(platform);
-                accountService.saveAccountIPInfo(accountIPInfo);
+            String publicIP = context.getProxyHttpConfig().getProxyHost();
+            if (!ObjectUtils.isEmpty(context.getProxyHttpConfig())) {
+                Map<String, Object> info
+                        = accountService.getAccountIPInfo(publicIP, platform, publishAccount.getUserName());
+                if (ObjectUtils.isEmpty(info)) {
+                    AccountIPInfo accountIPInfo = new AccountIPInfo();
+                    accountIPInfo.setUserName(publishAccount.getUserName());
+                    accountIPInfo.setIp(publicIP);
+                    accountIPInfo.setPlatform(platform);
+                    accountService.saveAccountIPInfo(accountIPInfo);
+                }
             }
+            saveAccountTaskLog(publishAccount.getUserName(), platform
+                    , publishContent.getContent(), publicIP, context.getPrefixUrl()
+                    , TaskTypeEnum.POSIED.getName());
             isSucceed = true;
         } else {
             taskExecuteLog.put("executeStatus", ExecuteStatusEnum.FAIL.getIndex());
@@ -197,25 +214,63 @@ public class ScheduledPublishTask {
         return requestContext;
     }
 
-
-    private Account getAccountByIP(List<Account> accounts, String platform, String publicIP) {
-        for (Account acc: accounts) {
-            if (!ObjectUtils.isEmpty(publicIP)) {
-                Map<String, Object> accountIPInfo
-                        = accountService.getAccountIPInfo(publicIP, platform, null);
-                if (!ObjectUtils.isEmpty(accountIPInfo)) {
-                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
-                    if (acc.getUserName().equals(publicIPUserName)) {
-                        return acc;
-                    } else {
-                        return accountService.getAccountByUserName(publicIPUserName);
-                    }
-                } else {
-                    return acc;
+    /**
+     * 获取可执行任务用户
+     *
+     * @param accounts
+     * @return
+     */
+    private Account getExecutor(List<Account> accounts) {
+        Account executor = null;
+        for (Account account : accounts) {
+            if (PlatformEnum.AUTOHOME.getName()
+                    .equals(account.getPlatform())) {
+                Map<String, Object> params = new HashedMap();
+                params.put("userName", account.getUserName());
+                params.put("platform", account.getPlatform());
+                List<Map<String, Object>> logs = accountTaskLogMapper.getAccountTaskLogs(params);
+                if (ObjectUtils.isEmpty(logs)) {
+                    executor = account;
+                    break;
                 }
+            } else {
+                executor = account;
+                break;
             }
         }
-        return accounts.get(0);
+        return executor;
     }
+
+    private void saveAccountTaskLog(String userName, String platform
+            , String content, String publicIP, String link, String taskType) {
+        AccountTaskLog accountTaskLog = new AccountTaskLog();
+        accountTaskLog.setUserName(userName);
+        accountTaskLog.setPlatform(platform);
+        accountTaskLog.setTaskType(taskType);
+        accountTaskLog.setLink(link);
+        accountTaskLog.setContent(content);
+        accountTaskLog.setIp(publicIP);
+        accountTaskLogMapper.save(accountTaskLog);
+    }
+
+//    private Account getAccountByIP(List<Account> accounts, String platform, String publicIP) {
+//        for (Account acc: accounts) {
+//            if (!ObjectUtils.isEmpty(publicIP)) {
+//                Map<String, Object> accountIPInfo
+//                        = accountService.getAccountIPInfo(publicIP, platform, null);
+//                if (!ObjectUtils.isEmpty(accountIPInfo)) {
+//                    String publicIPUserName = String.valueOf(accountIPInfo.get("userName"));
+//                    if (acc.getUserName().equals(publicIPUserName)) {
+//                        return acc;
+//                    } else {
+//                        return accountService.getAccountByUserName(publicIPUserName);
+//                    }
+//                } else {
+//                    return acc;
+//                }
+//            }
+//        }
+//        return accounts.get(0);
+//    }
 
 }
