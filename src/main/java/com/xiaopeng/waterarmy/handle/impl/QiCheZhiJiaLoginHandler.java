@@ -99,12 +99,8 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             //https://account.autohome.com.cn/
             String getCookie = "https://account.autohome.com.cn/";
             HttpGet cookieHttpGet = new HttpGet(getCookie);
-            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                cookieHttpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
-            }
+            cookieHttpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
             httpClient.execute(cookieHttpGet);
-
-
             Long ll = System.currentTimeMillis();
             String url = "https://account.autohome.com.cn/AccountApi/GetCaptcha?site=web&t=" + ll;
 
@@ -112,9 +108,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 
             HttpGet httpGet = new HttpGet(url);
             setHeader(httpGet);
-            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
-            }
+            httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
             CloseableHttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
             String content = EntityUtils.toString(entity, "utf-8");
@@ -122,14 +116,11 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
             gt = (String) jsonObject.get("gt");
             challenge = (String) jsonObject.get("challenge");
 
-
             //add validate
             //https://account.autohome.com.cn/ValidateCode/AddValidateCode
             String validateUrl = "https://account.autohome.com.cn/ValidateCode/AddValidateCode";
             HttpPost httpPost1 = new HttpPost(validateUrl);
-            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
-            }
+            httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
             CloseableHttpResponse response1 = httpClient.execute(httpPost1);
             HttpEntity entity1 = response1.getEntity();
             String content1 = EntityUtils.toString(entity1, "utf-8");
@@ -182,9 +173,7 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
 //评论:
             HttpPost httpPost1 = new HttpPost("https://account.autohome.com.cn/Login/ValidIndex");
             setHeader(httpPost1);
-            if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
-            }
+            httpPost1.setConfig(account.getProxyHttpConfig().getReqConfig());
             List<NameValuePair> nameValuePairs1 = new ArrayList<NameValuePair>();
             // nameValuePairs1.add(new BasicNameValuePair("name", "13438369217"));
             nameValuePairs1.add(new BasicNameValuePair("name", username));
@@ -216,21 +205,13 @@ public class QiCheZhiJiaLoginHandler implements LoginHandler {
                 String loginUrlJiaJiaBX = (String) jsonObject.get("loginUrlJiaJiaBX");
 
                 HttpGet httpGet = new HttpGet("https:"+loginUrl);
-                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                    httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
-                }
+                httpGet.setConfig(account.getProxyHttpConfig().getReqConfig());
                 HttpGet httpGet3 = new HttpGet("https:"+loginUrlJiaJiaBX);
-                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                    httpGet3.setConfig(account.getProxyHttpConfig().getReqConfig());
-                }
+                httpGet3.setConfig(account.getProxyHttpConfig().getReqConfig());
                 HttpGet httpGet1 = new HttpGet(ssoAutohomeUrl);
-                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                    httpGet1.setConfig(account.getProxyHttpConfig().getReqConfig());
-                }
+                httpGet1.setConfig(account.getProxyHttpConfig().getReqConfig());
                 HttpGet httpGet2 = new HttpGet(ssoChe168Url);
-                if (!ObjectUtils.isEmpty(account.getProxyHttpConfig())) {
-                    httpGet2.setConfig(account.getProxyHttpConfig().getReqConfig());
-                }
+                httpGet2.setConfig(account.getProxyHttpConfig().getReqConfig());
                 setSyncSSOHeader(httpGet1);
                 setChe168Header(httpGet);
                 setJiaJiaBaoxianHeader(httpGet3);
